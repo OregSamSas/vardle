@@ -5,4 +5,4 @@ Vár (*meaning castle, fortress, palace*) is included in the name we use in Hung
 
 There are 71 counties, but there's the lake Balaton, which can be still guessed (to get a clue about the location of the county to be guessed), though it cannot be the solution.
 
-See [credits.txt](/credits.txt) for all the resources used.
+See [credits](/credits.md) for all the resources used.
