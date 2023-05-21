@@ -213,7 +213,7 @@
                 allInputs[thisInput].addEventListener('focusin', function insertAutoList(e) {
                     let completeList = document.getElementById(this.getAttribute('aria-controls'));
                     let ul = document.createElement('ul');
-                    ul.role = "listbox";
+                    ul.setAttribute('role', "listbox");
                     for(let county=0;county<CountyListOrdered.length;county++) {
                         if(CountyListOrdered[county].includes(this.value)) {
                             let li = document.createElement('li');
@@ -221,7 +221,7 @@
                             if(ul.childElementCount === 0) {
                                 li.className  = 'font-bold';
                             }
-                            li.role = 'option';
+                            li.setAttribute('role', 'option');
                             li.id = this.getAttribute('aria-controls') + '--item-' + (ul.childElementCount).toString();
                             li.setAttribute('data-suggestion-idx', ul.childElementCount);
                             let divText = document.createElement('div');
