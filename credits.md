@@ -10,11 +10,11 @@ The site is published using GitHub.
 
 ## Main idea by
 
-*OregSamSas
+* [Sam Oreg](https://github.com/OregSamSas)
 
 ## Name idee by
 
-*Gergo Suranyi
+* Gergo Suranyi
 
 ## Help from
 
