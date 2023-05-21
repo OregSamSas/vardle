@@ -192,7 +192,7 @@ function trackPath(path) {
 // Get all of the county names
 getCountyImage('mapTemplate');
 AllCountyNames = document.querySelectorAll('#mapTemplate > svg > g > path');
-for (thisCounty in AllCountyNames) {
+for (let thisCounty in AllCountyNames) {
     try {if((AllCountyNames[thisCounty].id != undefined)) {CountyList.push(AllCountyNames[thisCounty].id)}} catch {}
 }
 let CountyListOrdered = CountyList.sort();
@@ -207,36 +207,32 @@ getCountyImage('imageToGuess', randomCounty);
 
 // Bundle event listener to the input field
 function inputEventListeners() {
-    allInputs = document.querySelectorAll('input[aria-autocomplete="list"]');
-    for(thisInput in allInputs) {
+    let allInputs = document.querySelectorAll('input[aria-autocomplete="list"]');
+    for (let inputKey in allInputs) {
+        let input = allInputs[inputKey];
         try{
-            if(allInputs[thisInput].getAttribute('aria-autocomplete')) {
-                allInputs[thisInput].addEventListener('focusin', function insertAutoList(e) {
+            if (input.getAttribute('aria-autocomplete')) {
+                input.addEventListener('focusin', function insertAutoList(e) {
                     let completeList = document.getElementById(this.getAttribute('aria-controls'));
-                    let ul = document.createElement('ul');
+                    let countiesElement = createCountiesElement();
+                    completeList.appendChild(countiesElement);
                     let inputId = this.id;
-                    var inputValue = this.value;
-                    ul.setAttribute('role', "listbox");
-                    for(let county=0;county<CountyListOrdered.length;county++) {
-                        if(CountyListOrdered[county].includes(inputValue)) {
-                            let li = document.createElement('li');
-                            li.setAttribute('aria-selected', ul.childElementCount === 0);
-                            if(ul.childElementCount === 0) {
-                                li.className  = 'font-bold';
-                            }
-                            li.setAttribute('role', 'option');
-                            li.addEventListener('mouseover', function listItemHovered(e, id=completeList.id) {
-                                allLi = document.querySelectorAll('#' + id + ' > ul > li');
-                                for(hoverToDelete in allLi) {
+                    let inputValue = this.value;
+                    for (let county=0; county<CountyListOrdered.length; county++) {
+                        if (CountyListOrdered[county].includes(inputValue)) {
+                            let countyElement = createCountyElement(countiesElement.childElementCount);
+                            countyElement.addEventListener('mouseover', function listItemHovered(e, id=completeList.id) {
+                                let allLi = document.querySelectorAll('#' + id + ' > ul > li');
+                                for (let hoverToDelete in allLi) {
                                     try {
                                         allLi[hoverToDelete].setAttribute('aria-selected', false);
                                         allLi[hoverToDelete].className = '';
                                     } catch {}
                                 }
-                                li.setAttribute('aria-selected', true);
+                                countyElement.setAttribute('aria-selected', true);
                                 this.className = 'font-bold';
-                            })
-                            li.addEventListener('mousedown', function listItemClicked(e, inputid=inputId) {
+                            });
+                            countyElement.addEventListener('mousedown', function listItemClicked(e, inputid=inputId) {
                                 let oldInput = document.getElementById(inputid)
                                 let newInput = document.createElement('input');
                                 newInput.id = inputId;
@@ -250,25 +246,40 @@ function inputEventListeners() {
                                 oldInput.after(newInput);
                                 oldInput.remove();
                                 inputEventListeners();
-                            })
-                            li.id = this.getAttribute('aria-controls') + '--item-' + (ul.childElementCount).toString();
-                            li.setAttribute('data-suggestion-idx', ul.childElementCount);
+                            });
                             let divText = document.createElement('div');
                             divText.className = 'm-0.5 bg-white p-1 cursor-pointer uppercase';
                             divText.innerHTML = CountyListOrdered[county];
-                            li.appendChild(divText);
-                            ul.appendChild(li);
+                            countyElement.appendChild(divText);
+                            countiesElement.appendChild(countyElement);
                         }
                     }
-                    completeList.appendChild(ul);
                 });
-                allInputs[thisInput].addEventListener('focusout', function deleteAutoList(e) {
+                input.addEventListener('focusout', function deleteAutoList(e) {
                     let completeList = document.getElementById(this.getAttribute('aria-controls'));
                     completeList.innerHTML = "";
+                });
+                input.addEventListener('input', (event) => {
+                    console.log(input.value);
                 });
             }
         } catch {}
     }
 }
 
-inputEventListeners()
+function createCountiesElement() {
+    return document.getElementById('tmpl-counties').content.firstElementChild.cloneNode(true);
+}
+
+function createCountyElement(elementIndex) {
+    let element = document.getElementById('tmpl-county').content.firstElementChild.cloneNode(true);
+    element.setAttribute('aria-selected', elementIndex === 0);
+    if (elementIndex === 0) {
+        element.className  = 'font-bold';
+    }
+    element.id = `county--${elementIndex}`;
+    element.setAttribute('data-suggestion-idx', elementIndex);
+    return element;
+}
+
+inputEventListeners();
