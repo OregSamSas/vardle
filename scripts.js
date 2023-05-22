@@ -241,7 +241,7 @@ guessImage.className = 'flex items-center';
 guessImage.style.height = '210px';
 document.getElementById('mainImage').appendChild(guessImage);
 console.log(CountyList)
-getCountyImage('imageToGuess', 35);
+getCountyImage('imageToGuess', getRandomCounty());
 
 function getRandomCounty() {
     let randomCounty = CountyList.indexOf('Balaton'); // Balaton cannot be the solution, but can be guessed
