@@ -1,10 +1,32 @@
+// import data from './data.json';
+let data = {"directions": "0", "wikilinks": "1"};
+dataXHR = new XMLHttpRequest();
+dataXHR.open("GET","data.json",false);
+// Following line is just to be on the safe side
+dataXHR.overrideMimeType("application/json");
+dataXHR.onload = (e) => {
+    data = JSON.parse(dataXHR.response);
+    console.log(data)
+};
+dataXHR.send("");
+
+// Global variable declaration
 const CountyList = [];
-var metaData = [];
+const Guesses = [];
+const Directions = data.directions;
+const wikiLinks = data.wikilinks; // From https://en.wikipedia.org/wiki/Lands_of_the_Crown_of_Saint_Stephen#:~:text=Counties%20of%20the%20Lands%20of%20the%20Crown%20of%20Saint%20Stephen
+const numberOfTries = 6;
+
+let metaData = {};
+let otherMetaData = {};
+let SuggestionList = [];
+let Solution;
+
 
 // function for insert a county to guess
 function getCountyImage(id, num) {
     let ratio;
-    allCounties = new XMLHttpRequest();
+    let allCounties = new XMLHttpRequest();
     allCounties.open("GET","Kingdom_of_Hungary_counties (Plain).svg",false);
     // Following line is just to be on the safe side
     allCounties.overrideMimeType("image/svg+xml");
@@ -14,36 +36,51 @@ function getCountyImage(id, num) {
     allCounties.send("");
     if(num != undefined) {
         allPaths = document.querySelectorAll('#' + id + ' > svg > g > path');
-        for (thisPath in allPaths) {
-            if(allPaths[thisPath].id != CountyList[num]) {
-                try {allPaths[thisPath].remove();} catch {};
+        for (thisPath of allPaths) {
+            if(thisPath.id != CountyList[num]) {
+                try {thisPath.remove();} catch {};
             } else {
-                console.log(allPaths[thisPath].id);
-                allPaths[thisPath].setAttribute("d", absToRel(allPaths[thisPath].getAttribute("d")));
-                metaData = trackPath(allPaths[thisPath].getAttribute("d"));
-                if(metaData[3] === 0) {
-                    metaData[3] = 120;
-                    metaData[2] = 120;
+                Solution = thisPath.id;
+                thisPath.setAttribute("d", absToRel(thisPath.getAttribute("d")));
+                metaData = trackPath(thisPath.getAttribute("d"));
+                if(metaData.height === 0) {
+                    metaData.height = 120;
+                    metaData.width = 120;
                 }
-                allPaths[thisPath].setAttribute("d", movePath(allPaths[thisPath].getAttribute("d"), 0-metaData[0], 0-metaData[1]));
-                ratio = (180/ metaData[3]).toString();
-                if(parseFloat(ratio)*metaData[2] > 450) {
-                    ratio = (450 / metaData[2]).toString();
+                let biggerSize = metaData.width;
+                if (metaData.height > metaData.width) {
+                    biggerSize = metaData.height;
                 }
-                ratio = (Math.floor(parseFloat(ratio)*100000)/100000).toString()
-                allPaths[thisPath].style.transform = "scale(" + ratio + ")";
+                thisPath.setAttribute("d", movePath(thisPath.getAttribute("d"), 0-metaData.x, 0-metaData.y));
+                ratio = (Math.floor((180 / biggerSize) * 100000) / 100000).toString()
+                thisPath.style.transform = "scale(" + ratio + ")";
             }
         }
-        console.log(metaData)
         svgImage = document.querySelector('#' + id + ' > svg');
-        svgImage.setAttribute("width", metaData[2]*parseFloat(ratio));
-        svgImage.setAttribute("height", 210);
+        svgImage.setAttribute("width", metaData.width * parseFloat(ratio));
+        svgImage.setAttribute("height", metaData.height * parseFloat(ratio));
     }
 }
 
 // Check if a character is a digit
 function isCharNumber(c) {
     return typeof c === 'string' && c.length == 1 && c >= '0' && c <= '9';
+}
+
+// Function for making a string to TitleCase (all initial letters are capitalised)
+// Modified version of https://www.freecodecamp.org/news/three-ways-to-title-case-a-sentence-in-javascript-676a9175eb27/
+function titleCase(str) {
+    str = str.toLowerCase();
+    str = str.split(' ');
+    for (let i = 0; i < str.length; i++) {
+        str[i] = str[i].split('-');
+        for(let j = 0; j < str[i].length; j++) {
+            str[i][j] = str[i][j].charAt(0).toUpperCase() + str[i][j].slice(1);
+        }
+        str[i] = str[i].join('-');
+    }
+    str = str.join(' ');
+    return str;
 }
 
 // Move path (with relatively set curve commands)
@@ -186,7 +223,7 @@ function trackPath(path) {
         }
         i++;
     }
-    return [minx, miny, maxx - minx, maxy - miny]; // length, height, x position, y position
+    return {"x": minx*1, "y": miny*1, "width": (maxx - minx), "height": (maxy - miny)}; // length, height, x position, y position
 }
 
 // Get all of the county names
@@ -200,86 +237,309 @@ let CountyListOrdered = CountyList.sort();
 // Insert image of county to guess
 guessImage = document.createElement('div');
 guessImage.id = 'imageToGuess';
+guessImage.className = 'flex items-center';
+guessImage.style.height = '210px';
 document.getElementById('mainImage').appendChild(guessImage);
 console.log(CountyList)
-let randomCounty = Math.floor(Math.random()*(CountyList.length-2 /*-2 because Balaton (the last item) is not a county to guess, but included in the data arrays*/));
-getCountyImage('imageToGuess', randomCounty);
+getCountyImage('imageToGuess', 35);
 
-// Bundle event listener to the input field
+function getRandomCounty() {
+    let randomCounty = CountyList.indexOf('Balaton'); // Balaton cannot be the solution, but can be guessed
+    while (CountyList[randomCounty] === "Balaton") {
+        randomCounty = Math.floor(Math.random()*(CountyList.length-1));
+    }
+    return randomCounty
+}
+
+// Bundle event listeners to the input field
 function inputEventListeners() {
     let allInputs = document.querySelectorAll('input[aria-autocomplete="list"]');
-    for (let inputKey in allInputs) {
-        let input = allInputs[inputKey];
+    for (let input of allInputs) {
         try{
             if (input.getAttribute('aria-autocomplete')) {
-                input.addEventListener('focusin', function insertAutoList(e) {
-                    let completeList = document.getElementById(this.getAttribute('aria-controls'));
-                    let countiesElement = createCountiesElement();
-                    completeList.appendChild(countiesElement);
-                    let inputId = this.id;
-                    let inputValue = this.value;
-                    for (let county=0; county<CountyListOrdered.length; county++) {
-                        if (CountyListOrdered[county].includes(inputValue)) {
-                            let countyElement = createCountyElement(countiesElement.childElementCount);
-                            countyElement.addEventListener('mouseover', function listItemHovered(e, id=completeList.id) {
-                                let allLi = document.querySelectorAll('#' + id + ' > ul > li');
-                                for (let hoverToDelete in allLi) {
-                                    try {
-                                        allLi[hoverToDelete].setAttribute('aria-selected', false);
-                                        allLi[hoverToDelete].className = '';
-                                    } catch {}
-                                }
-                                countyElement.setAttribute('aria-selected', true);
-                                this.className = 'font-bold';
-                            });
-                            countyElement.addEventListener('mousedown', function listItemClicked(e, inputid=inputId) {
-                                let oldInput = document.getElementById(inputid)
-                                let newInput = document.createElement('input');
-                                newInput.id = inputId;
-                                newInput.type = oldInput.type;
-                                newInput.className = oldInput.className;
-                                newInput.setAttribute('autocomplete', oldInput.getAttribute('autocomplete'));
-                                newInput.setAttribute('aria-autocomplete', oldInput.getAttribute('aria-autocomplete'));
-                                newInput.setAttribute('aria-controls', oldInput.getAttribute('aria-controls'));
-                                newInput.setAttribute('placeholder', oldInput.getAttribute('placeholder'));
-                                newInput.setAttribute('value', this.children[0].innerHTML.toUpperCase());
-                                oldInput.after(newInput);
-                                oldInput.remove();
-                                inputEventListeners();
-                            });
-                            let divText = document.createElement('div');
-                            divText.className = 'm-0.5 bg-white p-1 cursor-pointer uppercase';
-                            divText.innerHTML = CountyListOrdered[county];
-                            countyElement.appendChild(divText);
-                            countiesElement.appendChild(countyElement);
+                input.addEventListener('focusin', (e) => {
+                    insertAutoList(input);
+                });
+                input.addEventListener('focusout', (e) => {
+                    removeAllCountyElement(input);
+                });
+                input.addEventListener('input', (e) => {
+                    refreshCountiesElement(input);
+                });
+                input.addEventListener('keydown', (e) => {
+                    if (e.isComposing || e.keyCode === 229) {
+                        return;
+                    }
+                    if (e.keyCode === 27 && e.key === "Escape") {
+                        input.blur();
+                    }
+                    if (e.keyCode === 13 && e.key === "Enter") {
+                        let selected = null;
+                        try { selected = findSelectedCountyItem(input).firstChild.innerHTML; } catch{}
+                        if (selected != null) {
+                            listItemClicked(input.id, selected);
+                        } else {
+                            handleGuess();
                         }
                     }
-                });
-                input.addEventListener('focusout', function deleteAutoList(e) {
-                    let completeList = document.getElementById(this.getAttribute('aria-controls'));
-                    completeList.innerHTML = "";
-                });
-                input.addEventListener('input', (event) => {
-                    console.log(input.value);
+                    if (e.keyCode === 38 || e.keyCode === 40) { // Up-down arrow navigation in list
+                        e.preventDefault();
+                        let oldSelected = findSelectedCountyItem(input).firstChild.innerHTML;
+                        let change;
+                        if (e.keyCode === 38) {
+                            change = -1;
+                        } else {
+                            change = 1;
+                        }
+                        let oldpos = SuggestionList.indexOf(oldSelected)
+                        let newSelected;
+                        if (oldpos === 0 && change === -1) {
+                            newSelected = SuggestionList[SuggestionList.length-1];
+                        } else if (oldpos === SuggestionList.length-1 && change === 1) {
+                            newSelected = SuggestionList[0];
+                        } else {
+                            newSelected = SuggestionList[oldpos+change];
+                        }
+                        let neededElement = selectCountyItem(input, newSelected);
+                        neededElement.scrollIntoView();
+                        listItemHovered(neededElement, input.getAttribute('aria-controls'));
+                    }
                 });
             }
         } catch {}
     }
 }
 
-function createCountiesElement() {
-    return document.getElementById('tmpl-counties').content.firstElementChild.cloneNode(true);
+// Creates he Suggestion List
+function insertAutoList(inputPlace) {
+    SuggestionList = [];
+    let completeList = document.getElementById(inputPlace.getAttribute('aria-controls'));
+    let countiesElement = createCountiesElement();
+    completeList.appendChild(countiesElement);
+    let inputValue = inputPlace.value;
+    for (let county=0; county<CountyListOrdered.length; county++) {
+        if (CountyListOrdered[county].toUpperCase().includes(inputValue.toUpperCase())) { // Fullfills search keyword (important to have the same letter case)
+            SuggestionList.push(CountyListOrdered[county]);
+            let countyElement = createCountyElement(countiesElement.childElementCount, inputPlace.id, CountyListOrdered[county], completeList.id);
+            countiesElement.appendChild(countyElement);
+        }
+    }
 }
 
-function createCountyElement(elementIndex) {
-    let element = document.getElementById('tmpl-county').content.firstElementChild.cloneNode(true);
+// Creates the Suggestions list element for Counties
+function createCountiesElement() {
+    return document.getElementById('tmpl-county-suggestions').content.firstElementChild.cloneNode(true);
+}
+
+// Creates an item of the Counties Suggestion list
+function createCountyElement(elementIndex, MyInputId, CountyName, countySuggContId) {
+    let element = document.getElementById('tmpl-county-suggestion-piece').content.firstElementChild.cloneNode(true);
     element.setAttribute('aria-selected', elementIndex === 0);
     if (elementIndex === 0) {
         element.className  = 'font-bold';
     }
     element.id = `county--${elementIndex}`;
     element.setAttribute('data-suggestion-idx', elementIndex);
+
+    element.addEventListener('mouseover', (e) => {
+        listItemHovered(element, countySuggContId);
+    });
+    element.addEventListener('mousedown', (e) => {
+        listItemClicked(MyInputId, CountyName);
+    });
+
+    let divText = document.createElement('div');
+    divText.className = 'm-0.5 bg-white p-1 cursor-pointer uppercase';
+    divText.innerHTML = CountyName;
+    element.appendChild(divText);
     return element;
 }
 
+function listItemHovered(countyItem, countyItemsId) {
+    let allCountyItems = document.querySelectorAll('#' + countyItemsId + ' > ul > li');
+    // Replace others that shouldn't be hovered anymore
+    for (let hoverToDelete of allCountyItems) {
+        try {
+            hoverToDelete.setAttribute('aria-selected', false);
+            hoverToDelete.className = '';
+        } catch {}
+    }
+    countyItem.setAttribute('aria-selected', true);
+    countyItem.className = 'font-bold';
+}
+
+// Triggers when a list item from the Counties Suggestion List becomes selected
+function listItemClicked(inputid, newValue) {
+    let oldInput = document.getElementById(inputid)
+    let newInput = document.createElement('input');
+    newInput.id = inputid;
+    newInput.type = oldInput.type;
+    newInput.className = oldInput.className;
+    newInput.setAttribute('autocomplete', oldInput.getAttribute('autocomplete'));
+    newInput.setAttribute('aria-autocomplete', oldInput.getAttribute('aria-autocomplete'));
+    newInput.setAttribute('aria-controls', oldInput.getAttribute('aria-controls'));
+    newInput.setAttribute('placeholder', oldInput.getAttribute('placeholder'));
+    newInput.setAttribute('value', newValue.toUpperCase());
+    oldInput.after(newInput);
+    oldInput.remove();
+    newInput.focus();
+    newInput.setSelectionRange(newInput.value.length,newInput.value.length);
+    inputEventListeners();
+}
+
+// Returns with the DOM element of the selected list item
+function findSelectedCountyItem(inp) {
+    let listId = document.getElementById(inp.getAttribute('aria-controls')).id;
+    return document.querySelector(`#${listId} > ul > li[aria-selected="true"]`);
+}
+
+// Returns with the DOM element with the desired county name
+function selectCountyItem(inp, value) {
+    let listId = document.getElementById(inp.getAttribute('aria-controls')).id;
+    let allItems = document.querySelectorAll(`#${listId} > ul > li`);
+    let searchedItem;
+    for (thisItem of allItems) {
+        try {
+            if (thisItem.firstChild.innerHTML.toUpperCase() === value.toUpperCase()) {
+                searchedItem = thisItem;
+            }
+        } catch {}
+    }
+    return searchedItem;
+}
+
+// Removes the Suggestion list for a specified input
+function removeAllCountyElement(inp) {
+    let completeList = document.getElementById(inp.getAttribute('aria-controls'));
+    completeList.innerHTML = "";
+}
+
+// Refresh the suggestions while typing
+function refreshCountiesElement(inp) {
+    removeAllCountyElement(inp);
+    insertAutoList(inp);
+}
+
+// Function to butify high distance values
+function insertSpacesToNum(int) {
+    int = int.toString();
+    if(int.length > 3) {
+        for(let i = int.length-3; i > 0; i-=3) {
+            int = `${int.slice(0, i)}&nbsp;${int.slice(i, int.length)}`;
+        }
+    }
+    return int;
+}
+
+function distanceOf(x1, y1, x2, y2) {
+    return Math.sqrt((x1-x2)**2 + (y1-y2)**2)
+}
+
+// Calculates the angle in degrees (in integer) of a given (with start- and endpoint) vector and the y axis
+function getDirOfVector(x1, y1, x2, y2) { // In degrees
+    let dir;
+    if (y2 < y1) {
+        dir = ((Math.floor(Math.atan((x2-x1) / (y2-y1)) * 180 / Math.PI) + 180) + 360) % 360;
+    } else {
+        dir = (Math.floor(Math.atan((x2-x1) / (y2-y1)) * 180 / Math.PI) + 360) % 360;
+    }
+    return dir;
+}
+
+// Replaces a gray guess row with an analitics row about the latest guess
+function placeAnalisys(count, name, dist, distUnit, dir, percent) {
+    let guessLine = document.getElementById('guesses').children[3*(Guesses.length-1)+count];
+    let newLine = document.getElementById('tmpl-guess-analisys').content.cloneNode(true);
+    newLine.id = `guess-line${Guesses.length}`;
+    newLine.children[0].childNodes[1].innerHTML = name;
+    newLine.children[1].innerHTML = insertSpacesToNum(dist) + " " + distUnit;
+    newLine.children[2].childNodes[1].firstChild.setAttribute('alt', Directions[dir].alt);
+    newLine.children[2].childNodes[1].firstChild.setAttribute('src', 'https://em-content.zobj.net/thumbs/240/twitter/' + Directions[dir].img)
+    newLine.children[3].innerHTML = (Math.round(percent)).toString() + '%';
+    guessLine.after(newLine);
+    guessLine.remove();
+
+    // Write out win text
+    if (dir === 'yo') {
+        let myPlace = removeGuessArea(true);
+        let winPlace = document.getElementById('tmpl-win').content.firstElementChild.cloneNode(true);
+        myPlace.appendChild(winPlace);
+        if(Guesses.length === 1) {
+            winPlace.childNodes[1].innerHTML = `You guessed correctly at first out of ${numberOfTries} tries.`;
+        } else {
+            winPlace.childNodes[1].innerHTML = `You guessed correctly in ${Guesses.length} guesses out of ${numberOfTries} tries.`;
+        }
+        winPlace.childNodes[3].childNodes[1].innerHTML += 'win!!!';
+        winPlace.childNodes[5].childNodes[3].setAttribute('href', `https://en.wikipedia.org/wiki/${wikiLinks[name]}`);
+    }
+
+    // Write out lose text
+    if (Guesses.length === numberOfTries) {
+        let myPlace = removeGuessArea(true);
+        let losePlace = document.getElementById('tmpl-lose').content.firstElementChild.cloneNode(true);
+        myPlace.appendChild(losePlace);
+        losePlace.childNodes[1].innerHTML = `You didn't get it this time. It was ${Solution}.`;
+    }
+}
+
+function removeGuessArea(isReturn) {
+    let guessArea = document.querySelector('.my-2');
+    guessArea.innerHTML = "";
+    if (isReturn) {
+        return guessArea;
+    }
+}
+
+function guessAnalisys(myGuess) {
+    if (Guesses.length < numberOfTries + 1) {
+        if (myGuess === Solution) {
+            placeAnalisys(Guesses.length-1, Solution, 0, 'm', 'yo', 100);
+        } else {
+            let guessPath = document.querySelector("#mapTemplate > svg > g > #" + myGuess);
+            otherMetaData[myGuess] = trackPath(absToRel(guessPath.getAttribute('d')));
+            let midx0 = metaData.x + metaData.width/2;
+            let midy0 = metaData.y + metaData.height/2;
+            let midx1 = otherMetaData[myGuess].x + otherMetaData[myGuess].width/2;
+            let midy1 = otherMetaData[myGuess].y + otherMetaData[myGuess].height/2;
+            let distance = distanceOf(midx0, midy0, midx1, midy1);
+            let unit = "m";
+            distance = Math.floor(distance * 1227.3); // m
+            let accuracy = (1 - distance / 858000)*100;
+            if (distance > 99999) {
+                unit = "km";
+                distance = Math.floor(distance / 1000); // km
+            }
+            let dir = getDirOfVector(midx0, midy0, midx1, midy1);
+            dir = Math.round(dir / 45);
+            let dirs = ['nn', 'nw', 'ww', 'sw', 'ss', 'se', 'ee', 'ne'];
+            placeAnalisys(Guesses.length-1, Guesses[Guesses.length-1], distance, unit, dirs[dir], accuracy);
+        }
+    }
+}
+
+// When the form is submitted
+function handleGuess() {
+    let guessInput = document.querySelector('input[aria-autocomplete="list"]');
+    let guess = titleCase(guessInput.value);
+    if(guess != '') {
+        if (Guesses.includes(guess)) {
+            window.alert('Already guessed.')
+        } else if (CountyList.includes(guess)) {
+            Guesses.push(guess);
+            guessInput.value = "";
+            guessAnalisys(guess);
+        } else {
+            window.alert('Unknown Territory.');
+        }
+    }
+}
+
+// For accuracy calculations
+function getFurthest() {
+    return 0; 
+}
+
+// Setup event listeners
 inputEventListeners();
+
+getFurthest()

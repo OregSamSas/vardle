@@ -113,11 +113,18 @@ img {
 .justify-center {
     justify-content: center;
 }
+#mainContent {
+    flex-direction: column;
+    min-height: 100vh;
+}
 
-#mainHeader > h1 > span > span > img{
+.generalImg {
     width: 1em; 
     height: 1em; 
     margin: 0px 0.05em 0px 0.1em;
+}
+.pr-1 {
+    padding-right: .25rem;;
 }
 .border-b-2 {
     border-bottom-width: 2px;
@@ -192,11 +199,11 @@ body {
 }
 
 .p-1 {
-    padding: .25rem
+    padding: .25rem;
 }
 
 .pl-1 {
-    padding-left: .25rem
+    padding-left: .25rem;
 }
 
 .snigel-sidev {
@@ -220,10 +227,21 @@ body {
     bottom: 100%
 }
 
+.col-span-1 {
+    grid-column: span 1/span 1;
+}
+.col-span-2 {
+    grid-column: span 2/span 2;
+}
+.col-span-3 {
+    grid-column: span 3/span 3;
+}
 .col-span-7 {
     grid-column: span 7/span 7
 }
-
+.grid-cols-7 {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+}
 .m-auto {
     margin: auto
 }
@@ -256,8 +274,8 @@ body {
     margin-left: .75rem
 }
 
-.mt-8 {
-    margin-top: 2rem
+.mt-4 {
+    margin-top: 1rem
 }
 
 .mb-4 {
@@ -328,10 +346,6 @@ body {
 .rounded {
     border-radius: 0.25rem;
 }
-.lines .col-span-7 {
-    margin-bottom: 0.25em;
-    margin-top: 0.25em;
-}
 input::placeholder, textarea::placeholder {
     color: #9ca3af;
     opacity: 1;
@@ -362,15 +376,37 @@ button, input, optgroup, select, textarea {
 }
 ul[role="listbox"] {
     list-style-type: none;
-    padding: 0.2em;
+    padding: 0.04em;
     margin: auto;
 }
 ul[role="listbox"] > li {
     margin: 0.1em;
 }
 ul[role="listbox"] > li[aria-selected="true"] {
-    margin: 0.2em;
+    margin: 0.15em;
 }
 .overflow-auto {
     overflow: auto;
+}
+.text-ellipsis {
+    text-overflow: ellipsis;
+}
+.overflow-hidden {
+    text-overflow: hidden;
+}
+#midContent {
+    flex-grow: 1;
+    flex-direction: column;
+}
+footer {
+    margin-bottom: 0.5em;
+}
+.gap-1 {
+    gap: .25em;
+}
+.gap-2 {
+    gap: 1em;
+}
+#wonImg {
+    font-size: 150%;
 }
