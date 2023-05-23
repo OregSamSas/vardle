@@ -6,7 +6,6 @@ dataXHR.open("GET","data.json",false);
 dataXHR.overrideMimeType("application/json");
 dataXHR.onload = (e) => {
     data = JSON.parse(dataXHR.response);
-    console.log(data)
 };
 dataXHR.send("");
 
@@ -22,6 +21,7 @@ let otherMetaData = {};
 let SuggestionList = [];
 let Solution;
 
+// FUNCTION DEFINITIONS
 
 // function for insert a county to guess
 function getCountyImage(id, num) {
@@ -35,7 +35,7 @@ function getCountyImage(id, num) {
     };
     allCounties.send("");
     if(num != undefined) {
-        allPaths = document.querySelectorAll('#' + id + ' > svg > g > path');
+        let allPaths = document.querySelectorAll('#' + id + ' > svg > g > path');
         for (thisPath of allPaths) {
             if(thisPath.id != CountyList[num]) {
                 try {thisPath.remove();} catch {};
@@ -56,9 +56,14 @@ function getCountyImage(id, num) {
                 thisPath.style.transform = "scale(" + ratio + ")";
             }
         }
+
+        // Resize SVG
         svgImage = document.querySelector('#' + id + ' > svg');
         svgImage.setAttribute("width", metaData.width * parseFloat(ratio));
         svgImage.setAttribute("height", metaData.height * parseFloat(ratio));
+
+        // Remove text
+        document.querySelector(`#${id} > svg > #textgroup`).remove();
     }
 }
 
@@ -75,7 +80,11 @@ function titleCase(str) {
     for (let i = 0; i < str.length; i++) {
         str[i] = str[i].split('-');
         for(let j = 0; j < str[i].length; j++) {
-            str[i][j] = str[i][j].charAt(0).toUpperCase() + str[i][j].slice(1);
+            if (str[i][j].toLowerCase() === "és") { // Do not capitalise the conjunctive word "és" (meaning and)
+                str[i][j] = str[i][j].toLowerCase();
+            } else {
+                str[i][j] = str[i][j].charAt(0).toUpperCase() + str[i][j].slice(1);
+            }
         }
         str[i] = str[i].join('-');
     }
@@ -156,9 +165,9 @@ function absToRel(path) {
     }
     let i = 0;
     while(i<pathCoordinates.length) {
-        newpath += 'c '
+        newpath += 'c ';
         for(let j=0;j<3;j++) {
-            newpath += pathCoordinates[i][j*2] + ',' + pathCoordinates[i][j*2+1] + ' '
+            newpath += pathCoordinates[i][j*2] + ',' + pathCoordinates[i][j*2+1] + ' ';
         }
         i++;
     }
@@ -226,29 +235,20 @@ function trackPath(path) {
     return {"x": minx*1, "y": miny*1, "width": (maxx - minx), "height": (maxy - miny)}; // length, height, x position, y position
 }
 
-// Get all of the county names
-getCountyImage('mapTemplate');
-AllCountyNames = document.querySelectorAll('#mapTemplate > svg > g > path');
-for (let thisCounty in AllCountyNames) {
-    try {if((AllCountyNames[thisCounty].id != undefined)) {CountyList.push(AllCountyNames[thisCounty].id)}} catch {}
-}
-let CountyListOrdered = CountyList.sort();
-
-// Insert image of county to guess
-guessImage = document.createElement('div');
-guessImage.id = 'imageToGuess';
-guessImage.className = 'flex items-center';
-guessImage.style.height = '210px';
-document.getElementById('mainImage').appendChild(guessImage);
-console.log(CountyList)
-getCountyImage('imageToGuess', getRandomCounty());
-
 function getRandomCounty() {
     let randomCounty = CountyList.indexOf('Balaton'); // Balaton cannot be the solution, but can be guessed
     while (CountyList[randomCounty] === "Balaton") {
         randomCounty = Math.floor(Math.random()*(CountyList.length-1));
     }
     return randomCounty
+}
+
+function placeGuessLines(num) {
+    let insertTo = document.getElementById('guesses');
+    for (let i = 0; i < num; i++) {
+        insertTo.appendChild(document.getElementById('tmpl-guessline').content.firstElementChild.cloneNode(true));
+    }
+
 }
 
 // Bundle event listeners to the input field
@@ -471,10 +471,9 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
         }
         winPlace.childNodes[3].childNodes[1].innerHTML += 'win!!!';
         winPlace.childNodes[5].childNodes[3].setAttribute('href', `https://en.wikipedia.org/wiki/${wikiLinks[name]}`);
+        buttonEventListeners();
     }
-
-    // Write out lose text
-    if (Guesses.length === numberOfTries) {
+    else if (Guesses.length === numberOfTries) { // Write out lose text
         let myPlace = removeGuessArea(true);
         let losePlace = document.getElementById('tmpl-lose').content.firstElementChild.cloneNode(true);
         myPlace.appendChild(losePlace);
@@ -534,10 +533,58 @@ function handleGuess() {
     }
 }
 
+function buttonEventListeners() {
+    let showMap = document.querySelector('button[role="button"]');
+    if (showMap != null) {
+        console.log(showMap);
+        showMap.addEventListener('mousedown', (e) => {
+            let map = document.getElementById('helpMap');
+                let insertTo = document.getElementById(showMap.getAttribute('maparea-id'));
+            if (map == null) { // Check if it's already toggled, and the mp is displayed => then it hides it
+                let mapTemplate = document.querySelector('#mapTemplate > svg').cloneNode(true);
+                mapTemplate.id = "helpMap";
+                let em = parseFloat(getComputedStyle(document.getElementById('midContent')).fontSize);
+                let scale = 31 * em / mapTemplate.width.baseVal.value;
+                console.log(mapTemplate.height.baseVal.value)
+                insertTo.style.height = `${(mapTemplate.height.baseVal.value + 20) * scale}px`;
+                mapTemplate.style.transform = `scale(${scale})`;
+                insertTo.appendChild(mapTemplate);
+                let solutionCounty = document.querySelector(`#helpMap > g > #${Solution}`);
+                solutionCounty.style.fill = 'var(--toastify-dark-red)';
+            } else {
+                map.remove();
+                insertTo.style.height = '0';
+            }
+        });
+    }
+}
+
 // For accuracy calculations
 function getFurthest() {
     return 0; 
 }
+
+// END OF DEFINITIONS
+
+// Get all of the county names
+getCountyImage('mapTemplate');
+AllCountyNames = document.querySelectorAll('#mapTemplate > svg > g > path');
+for (let thisCounty in AllCountyNames) {
+    try {if((AllCountyNames[thisCounty].id != undefined)) {CountyList.push(AllCountyNames[thisCounty].id)}} catch {}
+}
+let CountyListOrdered = CountyList.sort();
+
+// Insert image of county to guess
+guessImage = document.createElement('div');
+guessImage.id = 'imageToGuess';
+guessImage.className = 'flex items-center';
+guessImage.style.height = '210px';
+document.getElementById('mainImage').appendChild(guessImage);
+console.log(CountyList)
+getCountyImage('imageToGuess', getRandomCounty());
+
+// Insert grey lines for guess analysises;
+placeGuessLines(numberOfTries);
 
 // Setup event listeners
 inputEventListeners();

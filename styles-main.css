@@ -5,6 +5,7 @@
     --toastify-color-success: #07bc0c;
     --toastify-color-warning: #f1c40f;
     --toastify-color-error: #e74c3c;
+    --toastify-dark-red: #8b0e0e;
     --toastify-color-transparent: hsla(0, 0%, 100%, .7);
     --toastify-icon-color-info: var(--toastify-color-info);
     --toastify-icon-color-success: var(--toastify-color-success);
@@ -410,3 +411,17 @@ footer {
 #wonImg {
     font-size: 150%;
 }
+text.county { 
+    fill: #ccc; 
+    font-family: Helvetica 
+}
+#helpMap > g > path { 
+    stroke:#888; 
+    stroke-width:2
+}
+/*#helpMap > g > path.county    { fill: #FFFFFF; stroke:#00FF00; stroke-width:1; stroke: red; stroke-linecap:round; stroke-linejoin:round }
+#helpMap > g > path.county_y  { fill: #FFFFC0; stroke:#00FF00; stroke-width:1; stroke: red; stroke-linecap:round; stroke-linejoin:round }
+#helpMap > g > path.county_r  { fill: #FFC0C0; stroke:#00FF00; stroke-width:1; stroke: red; stroke-linecap:round; stroke-linejoin:round }
+#helpMap > g > path.county_b  { fill: #C0C0FF; stroke:#00FF00; stroke-width:1; stroke: red; stroke-linecap:round; stroke-linejoin:round }
+#helpMap > g > path.county_g  { fill: #C0FFC0; stroke:#00FF00; stroke-width:1; stroke: red; stroke-linecap:round; stroke-linejoin:round }
+#helpMap > g > path.water     { fill: #0080FF; stroke:#00FF00; stroke-width:1; stroke: red; stroke-linecap:round; stroke-linejoin:round }*/
