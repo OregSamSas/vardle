@@ -308,6 +308,7 @@ function handleKeysForEvent(e, input) {
         try { selected = findSelectedCountyItem(input).firstChild.innerHTML; } catch{}
         if (selected != null) {
             listItemClicked(input.id, selected);
+            removeAllCountyElement(input);
         } else {
             handleGuess();
         }
@@ -390,8 +391,10 @@ function listItemHovered(countyItem, countyItemsId) {
             hoverToDelete.className = '';
         } catch {}
     }
-    countyItem.setAttribute('aria-selected', true);
-    countyItem.className = 'font-bold';
+    if (countyItem !== "none") {
+        countyItem.setAttribute('aria-selected', true);
+        countyItem.className = 'font-bold';
+    }
 }
 
 // Triggers when a list item from the Counties Suggestion List becomes selected
