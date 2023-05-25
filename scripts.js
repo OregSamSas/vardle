@@ -15,6 +15,7 @@ const Guesses = [];
 const Directions = data.directions;
 const wikiLinks = data.wikilinks; // From https://en.wikipedia.org/wiki/Lands_of_the_Crown_of_Saint_Stephen#:~:text=Counties%20of%20the%20Lands%20of%20the%20Crown%20of%20Saint%20Stephen
 const numberOfTries = 6;
+const rotateShape = true;
 
 let metaData = {};
 let otherMetaData = {};
@@ -26,12 +27,13 @@ let Solution;
 // function for insert a county to guess
 function getCountyImage(id, num) {
     let ratio;
+    let placeToInsert = document.getElementById(id);
     let allCounties = new XMLHttpRequest();
     allCounties.open("GET","Kingdom_of_Hungary_counties (Plain).svg",false);
     // Following line is just to be on the safe side
     allCounties.overrideMimeType("image/svg+xml");
     allCounties.onload = (e) => {
-        document.getElementById(id).appendChild(allCounties.responseXML.documentElement);
+        placeToInsert.appendChild(allCounties.responseXML.documentElement);
     };
     allCounties.send("");
     if(num != undefined) {
@@ -47,13 +49,10 @@ function getCountyImage(id, num) {
                     metaData.height = 120;
                     metaData.width = 120;
                 }
-                let biggerSize = metaData.width;
-                if (metaData.height > metaData.width) {
-                    biggerSize = metaData.height;
-                }
+                let biggerSize = Math.sqrt(metaData.width ** 2 + metaData.height ** 2);
                 thisPath.setAttribute("d", movePath(thisPath.getAttribute("d"), 0-metaData.x, 0-metaData.y));
-                ratio = (Math.floor((180 / biggerSize) * 100000) / 100000).toString()
-                thisPath.style.transform = "scale(" + ratio + ")";
+                ratio = (Math.floor((180 / biggerSize) * 100000) / 100000).toString();
+                thisPath.style.transform = `scale(${ratio})`;
             }
         }
 
@@ -62,9 +61,32 @@ function getCountyImage(id, num) {
         svgImage.setAttribute("width", metaData.width * parseFloat(ratio));
         svgImage.setAttribute("height", metaData.height * parseFloat(ratio));
 
+        // Rotate image if desired
+        if (rotateShape) {
+            svgImage.style.transform = `rotate(${Math.random()}turn)`;
+            svgImage.style["transition-duration"] = ".7s";
+            svgImage.style['transition-property'] = "all";
+            svgImage.style['transition-timing-function'] = "cubic-bezier(.4,0,.2,1)";
+        }
+
         // Remove text
         document.querySelector(`#${id} > svg > #textgroup`).remove();
+
+        // Place "Cancel rotation" button if rotated
+        if (rotateShape) {
+            let cancelButton = document.getElementById('tmpl-cancel-rotation').content.firstElementChild.cloneNode(true);
+            placeToInsert.after(cancelButton);
+            cancelButton.addEventListener('click', (e) => {
+                removeRotation();
+            });
+        }
     }
+}
+
+// Cancel Rotation for county image
+function removeRotation() {
+    document.getElementById('cancel-rot').remove();
+    document.querySelector('#imageToGuess > svg').style.transform = "";
 }
 
 // Check if a character is a digit
@@ -240,7 +262,7 @@ function getRandomCounty() {
     while (CountyList[randomCounty] === "Balaton") {
         randomCounty = Math.floor(Math.random()*(CountyList.length-1));
     }
-    return randomCounty
+    return randomCounty;
 }
 
 function placeGuessLines(num) {
@@ -267,46 +289,50 @@ function inputEventListeners() {
                     refreshCountiesElement(input);
                 });
                 input.addEventListener('keydown', (e) => {
-                    if (e.isComposing || e.keyCode === 229) {
-                        return;
-                    }
-                    if (e.keyCode === 27 && e.key === "Escape") {
-                        input.blur();
-                    }
-                    if (e.keyCode === 13 && e.key === "Enter") {
-                        let selected = null;
-                        try { selected = findSelectedCountyItem(input).firstChild.innerHTML; } catch{}
-                        if (selected != null) {
-                            listItemClicked(input.id, selected);
-                        } else {
-                            handleGuess();
-                        }
-                    }
-                    if (e.keyCode === 38 || e.keyCode === 40) { // Up-down arrow navigation in list
-                        e.preventDefault();
-                        let oldSelected = findSelectedCountyItem(input).firstChild.innerHTML;
-                        let change;
-                        if (e.keyCode === 38) {
-                            change = -1;
-                        } else {
-                            change = 1;
-                        }
-                        let oldpos = SuggestionList.indexOf(oldSelected)
-                        let newSelected;
-                        if (oldpos === 0 && change === -1) {
-                            newSelected = SuggestionList[SuggestionList.length-1];
-                        } else if (oldpos === SuggestionList.length-1 && change === 1) {
-                            newSelected = SuggestionList[0];
-                        } else {
-                            newSelected = SuggestionList[oldpos+change];
-                        }
-                        let neededElement = selectCountyItem(input, newSelected);
-                        neededElement.scrollIntoView();
-                        listItemHovered(neededElement, input.getAttribute('aria-controls'));
-                    }
+                    handleKeysForEvent(e, input);
                 });
             }
         } catch {}
+    }
+}
+
+function handleKeysForEvent(e, input) {
+    if (e.isComposing || e.keyCode === 229) {
+        return;
+    }
+    if (e.keyCode === 27 && e.key === "Escape") {
+        input.blur();
+    }
+    if (e.keyCode === 13 && e.key === "Enter") {
+        let selected = null;
+        try { selected = findSelectedCountyItem(input).firstChild.innerHTML; } catch{}
+        if (selected != null) {
+            listItemClicked(input.id, selected);
+        } else {
+            handleGuess();
+        }
+    }
+    if (e.keyCode === 38 || e.keyCode === 40) { // Up-down arrow navigation in list
+        e.preventDefault();
+        let oldSelected = findSelectedCountyItem(input).firstChild.innerHTML;
+        let change;
+        if (e.keyCode === 38) {
+            change = -1;
+        } else {
+            change = 1;
+        }
+        let oldpos = SuggestionList.indexOf(oldSelected)
+        let newSelected;
+        if (oldpos === 0 && change === -1) {
+            newSelected = SuggestionList[SuggestionList.length-1];
+        } else if (oldpos === SuggestionList.length-1 && change === 1) {
+            newSelected = SuggestionList[0];
+        } else {
+            newSelected = SuggestionList[oldpos+change];
+        }
+        let neededElement = selectCountyItem(input, newSelected);
+        neededElement.scrollIntoView();
+        listItemHovered(neededElement, input.getAttribute('aria-controls'));
     }
 }
 
@@ -448,37 +474,69 @@ function getDirOfVector(x1, y1, x2, y2) { // In degrees
 
 // Replaces a gray guess row with an analitics row about the latest guess
 function placeAnalisys(count, name, dist, distUnit, dir, percent) {
-    let guessLine = document.getElementById('guesses').children[4*count];
+    let guessLine = document.getElementById('guesses').children[4 * count];
     let newLine = document.getElementById('tmpl-guess-analisys').content.cloneNode(true);
     newLine.id = `guess-line${Guesses.length}`;
-    newLine.children[0].childNodes[1].innerHTML = name;
-    newLine.children[1].innerHTML = insertSpacesToNum(dist) + " " + distUnit;
-    newLine.children[2].childNodes[1].firstChild.setAttribute('alt', Directions[dir].alt);
-    newLine.children[2].childNodes[1].firstChild.setAttribute('src', 'https://em-content.zobj.net/thumbs/240/twitter/' + Directions[dir].img)
-    newLine.children[3].innerHTML = (Math.round(percent)).toString() + '%';
+    let partyEmoji = newLine.children[2].childNodes[1].firstChild;
+    try {
+        newLine.children[0].childNodes[1].innerHTML = name;
+        newLine.children[1].innerHTML = insertSpacesToNum(dist) + " " + distUnit;
+        partyEmoji.setAttribute('alt', Directions[dir].alt);
+        partyEmoji.setAttribute('src', 'https://em-content.zobj.net/thumbs/240/twitter/' + Directions[dir].img)
+        newLine.children[3].innerHTML = (Math.round(percent)).toString() + '%';
+    } catch (error) {
+        console.error(error);
+    }
     guessLine.after(newLine);
     guessLine.remove();
 
+    // Both needed on wining and on losing as well
+    let finishArea = document.getElementById('tmpl-finish').content.firstElementChild.cloneNode(true);
+    console.log(name);
+    finishArea.childNodes[5].childNodes[3].setAttribute('href', `https://en.wikipedia.org/wiki/${wikiLinks[Solution]}`);
+    
     // Write out win text
     if (dir === 'yo') {
         let myPlace = removeGuessArea(true);
-        let winPlace = document.getElementById('tmpl-win').content.firstElementChild.cloneNode(true);
-        myPlace.appendChild(winPlace);
+        myPlace.appendChild(finishArea);
         if(Guesses.length === 1) {
-            winPlace.childNodes[1].innerHTML = `You guessed correctly at first out of ${numberOfTries} tries.`;
+            finishArea.childNodes[1].innerHTML = `You guessed correctly at first out of ${numberOfTries} tries.`;
         } else {
-            winPlace.childNodes[1].innerHTML = `You guessed correctly in ${Guesses.length} guesses out of ${numberOfTries} tries.`;
+            finishArea.childNodes[1].innerHTML = `You guessed correctly in ${Guesses.length} guesses out of ${numberOfTries} tries.`;
         }
-        winPlace.childNodes[3].childNodes[1].innerHTML += 'win!!!';
-        winPlace.childNodes[5].childNodes[3].setAttribute('href', `https://en.wikipedia.org/wiki/${wikiLinks[name]}`);
-        buttonEventListeners();
+        finishArea.childNodes[3].childNodes[1].innerHTML += 'win!!!';
+        let partyEmojiPos = partyEmoji.getBoundingClientRect();
+        try {
+            confetti({
+                particeCount: 150,
+                startVelocity: 30,
+                spread: 80,
+                origin: {
+                    x: partyEmojiPos.x / window.innerWidth,
+                    y: partyEmojiPos.y / window.innerHeight
+                }
+            });
+        } catch {}
+
+        // Cancel rotation when it's already guessed
+        removeRotation();
     }
-    else if (Guesses.length === numberOfTries) { // Write out lose text
+    // Write out lose text
+    else if (Guesses.length === numberOfTries) {
         let myPlace = removeGuessArea(true);
-        let losePlace = document.getElementById('tmpl-lose').content.firstElementChild.cloneNode(true);
-        myPlace.appendChild(losePlace);
-        losePlace.childNodes[1].innerHTML = `You didn't get it this time. It was ${Solution}.`;
+        myPlace.appendChild(finishArea);
+        finishArea.childNodes[1].innerHTML = `You didn't get it this time. It was ${Solution}.`;
+        let finishImage = finishArea.childNodes[3].childNodes[1].firstElementChild;
+        finishImage.setAttribute('src', 'loseMeme.jpg');
+        finishImage.setAttribute('alt', '😒');
+        finishArea.childNodes[3].childNodes[1].innerHTML += 'Oh, no!';
+
+        // Cancel rotation when no tries left too
+        removeRotation();
     }
+
+    // Button for showing the map
+    buttonEventListeners("show-map");
 }
 
 function removeGuessArea(isReturn) {
@@ -533,29 +591,75 @@ function handleGuess() {
     }
 }
 
-function buttonEventListeners() {
-    let showMap = document.querySelector('button[role="button"]');
-    if (showMap != null) {
-        console.log(showMap);
-        showMap.addEventListener('mousedown', (e) => {
-            let map = document.getElementById('helpMap');
-                let insertTo = document.getElementById(showMap.getAttribute('maparea-id'));
-            if (map == null) { // Check if it's already toggled, and the mp is displayed => then it hides it
-                let mapTemplate = document.querySelector('#mapTemplate > svg').cloneNode(true);
-                mapTemplate.id = "helpMap";
-                let em = parseFloat(getComputedStyle(document.getElementById('midContent')).fontSize);
-                let scale = 31 * em / mapTemplate.width.baseVal.value;
-                console.log(mapTemplate.height.baseVal.value)
-                insertTo.style.height = `${(mapTemplate.height.baseVal.value + 20) * scale}px`;
-                mapTemplate.style.transform = `scale(${scale})`;
-                insertTo.appendChild(mapTemplate);
-                let solutionCounty = document.querySelector(`#helpMap > g > #${Solution}`);
-                solutionCounty.style.fill = 'var(--toastify-dark-red)';
-            } else {
-                map.remove();
-                insertTo.style.height = '0';
-            }
-        });
+function buttonEventListeners(button) {
+    // Show Map button after finishing guessing
+    if (button === "show-map") {
+        let showMap = document.querySelector('button[role="button"]');
+        if (showMap != null) {
+            showMap.addEventListener('click', (e) => {
+                placeMapOnpage(showMap);
+            });
+        }
+    }
+
+    // Palette icon in the right corner of the map
+    if (button === "change-colour") {
+        let paletteIcon = document.querySelector('button#toggleColoureButton');
+        if (paletteIcon != null) {
+            paletteIcon.addEventListener('click', (e) => {
+                swapMapColour(paletteIcon.firstElementChild);
+            });
+        }
+    }
+}
+
+function placeMapOnpage(showMap) {
+    let map = document.getElementById('helpMap');
+    let insertTo = document.getElementById(showMap.getAttribute('maparea-id'));
+    if (map == null) { // Check if it's already toggled, and the mp is displayed => then it hides it
+        let mapTemplate = document.querySelector('#mapTemplate > svg').cloneNode(true);
+        mapTemplate.id = "helpMap";
+        let em = parseFloat(getComputedStyle(document.getElementById('midContent')).fontSize);
+        let scale = 31 * em / mapTemplate.width.baseVal.value;
+        insertTo.style.height = `${(mapTemplate.height.baseVal.value + 20) * scale}px`;
+        mapTemplate.style.transform = `scale(${scale})`;
+        insertTo.appendChild(mapTemplate);
+        let solutionCounty = document.querySelector(`#helpMap > g > #${Solution}`);
+        solutionCounty.style.fill = 'var(--toastify-dark-red)';
+        let toggleColor = document.getElementById('tmpl-togglecolor').content.firstElementChild.cloneNode(true);
+        insertTo.appendChild(toggleColor);
+        buttonEventListeners("change-colour");
+        swapMapColour(toggleColor.firstElementChild.firstElementChild);
+    } else {
+        map.remove();
+        let toggleColor = document.getElementById('toggleColoured');
+        toggleColor.remove();
+        insertTo.style.height = '0';
+    }
+}
+
+function swapMapColour(paletteIcon, forcetrue=false) {
+    let modifiedStyles = document.getElementById('style-modification')
+    if (modifiedStyles == null) {
+        modifiedStyles = document.createElement('style');
+        modifiedStyles.id = 'style-modification';
+        modifiedStyles.innerHTML = `
+            #helpMap > g > path.county    { fill: #FFFFFF; stroke-linecap:round; stroke-linejoin:round }
+            #helpMap > g > path.county_y  { fill: #FFFFC0; stroke-linecap:round; stroke-linejoin:round }
+            #helpMap > g > path.county_r  { fill: #FFC0C0; stroke-linecap:round; stroke-linejoin:round }
+            #helpMap > g > path.county_b  { fill: #C0C0FF; stroke-linecap:round; stroke-linejoin:round }
+            #helpMap > g > path.county_g  { fill: #C0FFC0; stroke-linecap:round; stroke-linejoin:round }
+            #helpMap > g > path.water     { fill: #0080FF; stroke-linecap:round; stroke-linejoin:round }
+            #helpMap > g > text.county    { fill: #000; font-weight: 300;}
+            #helpMap > g > path[style*="var(--toastify-dark-red)"] { fill: var(--toastify-light-red) !important;}
+            `;
+        document.head.appendChild(modifiedStyles);
+        paletteIcon.style.filter = 'grayscale(1)';
+    } else {
+        if (!forcetrue) {
+            modifiedStyles.remove();
+            paletteIcon.style.filter = '';
+        }
     }
 }
 
@@ -564,24 +668,29 @@ function getFurthest() {
     return 0; 
 }
 
+// Get all of the county names and place the SVG image
+function initialWork() {
+    getCountyImage('mapTemplate');
+    AllCountyNames = document.querySelectorAll('#mapTemplate > svg > g > path');
+    for (let thisCounty of AllCountyNames) {
+        try {if((thisCounty.id != undefined)) {CountyList.push(thisCounty.id)}} catch {}
+    }
+
+    // Insert image of county to guess
+    guessImage = document.createElement('div');
+    guessImage.id = 'imageToGuess';
+    guessImage.className = 'flex items-center justify-center w-full';
+    guessImage.style.height = '210px';
+    document.getElementById('mainImage').appendChild(guessImage);
+    console.log(CountyList)
+    getCountyImage('imageToGuess', getRandomCounty());
+}
+
 // END OF DEFINITIONS
 
-// Get all of the county names
-getCountyImage('mapTemplate');
-AllCountyNames = document.querySelectorAll('#mapTemplate > svg > g > path');
-for (let thisCounty in AllCountyNames) {
-    try {if((AllCountyNames[thisCounty].id != undefined)) {CountyList.push(AllCountyNames[thisCounty].id)}} catch {}
-}
-let CountyListOrdered = CountyList.sort();
-
-// Insert image of county to guess
-guessImage = document.createElement('div');
-guessImage.id = 'imageToGuess';
-guessImage.className = 'flex items-center';
-guessImage.style.height = '210px';
-document.getElementById('mainImage').appendChild(guessImage);
-console.log(CountyList)
-getCountyImage('imageToGuess', getRandomCounty());
+initialWork ()
+let CountyListOrdered = CountyList.slice(0, CountyList.length);
+CountyListOrdered = CountyListOrdered.sort();
 
 // Insert grey lines for guess analysises;
 placeGuessLines(numberOfTries);

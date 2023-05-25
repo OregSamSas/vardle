@@ -12,7 +12,7 @@ The site is published using GitHub.
 
 * [Sam Oreg](https://github.com/OregSamSas)
 
-## Name idee by
+## Name idea by
 
 * Gergo Suranyi
 
@@ -23,6 +23,11 @@ The site is published using GitHub.
 * <https://teamtreehouse.com/community/remove-the-list-item-markers-in-the-ul>
 * mdn webdocs (e.g. <https://developer.mozilla.org/en-US/docs/Web/CSS/transform>)
 * Stackoverflow (e.g. <https://stackoverflow.com/questions/8935632>)
+* Dev.to (e.g. <https://dev.to/karataev/set-css-styles-with-javascript-3nl5>)
+
+## Scripts from
+
+* Yarn pug-in "Canvas Confetti" <https://yarnpkg.com/package/canvas-confetti>
 
 ## Emojis from
 

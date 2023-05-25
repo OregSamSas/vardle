@@ -1,4 +1,5 @@
 :root {
+    transition: opacity 500ms ease-in-out;
     --toastify-color-light: #fff;
     --toastify-color-dark: #121212;
     --toastify-color-info: #3498db;
@@ -6,6 +7,7 @@
     --toastify-color-warning: #f1c40f;
     --toastify-color-error: #e74c3c;
     --toastify-dark-red: #8b0e0e;
+    --toastify-light-red: #fd513e ;
     --toastify-color-transparent: hsla(0, 0%, 100%, .7);
     --toastify-icon-color-info: var(--toastify-color-info);
     --toastify-icon-color-success: var(--toastify-color-success);
@@ -419,9 +421,20 @@ text.county {
     stroke:#888; 
     stroke-width:2
 }
-/*#helpMap > g > path.county    { fill: #FFFFFF; stroke:#00FF00; stroke-width:1; stroke: red; stroke-linecap:round; stroke-linejoin:round }
-#helpMap > g > path.county_y  { fill: #FFFFC0; stroke:#00FF00; stroke-width:1; stroke: red; stroke-linecap:round; stroke-linejoin:round }
-#helpMap > g > path.county_r  { fill: #FFC0C0; stroke:#00FF00; stroke-width:1; stroke: red; stroke-linecap:round; stroke-linejoin:round }
-#helpMap > g > path.county_b  { fill: #C0C0FF; stroke:#00FF00; stroke-width:1; stroke: red; stroke-linecap:round; stroke-linejoin:round }
-#helpMap > g > path.county_g  { fill: #C0FFC0; stroke:#00FF00; stroke-width:1; stroke: red; stroke-linecap:round; stroke-linejoin:round }
-#helpMap > g > path.water     { fill: #0080FF; stroke:#00FF00; stroke-width:1; stroke: red; stroke-linecap:round; stroke-linejoin:round }*/
+#toggleColoured {
+    position: absolute;
+    transform: translate(14em, -9em);
+    padding: 2px;
+}
+.valign {
+    vertical-align: -0.1rem;
+}
+.transition-all {
+    transition-duration: .15s;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(.4,0,.2,1);
+}
+.animate-reveal {
+    -webkit-animation: fadeIn .2s forwards;
+    animation: fadeIn .2s forwards;
+}
