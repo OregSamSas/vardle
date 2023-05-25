@@ -448,7 +448,7 @@ function getDirOfVector(x1, y1, x2, y2) { // In degrees
 
 // Replaces a gray guess row with an analitics row about the latest guess
 function placeAnalisys(count, name, dist, distUnit, dir, percent) {
-    let guessLine = document.getElementById('guesses').children[3*(Guesses.length-1)+count];
+    let guessLine = document.getElementById('guesses').children[4*count];
     let newLine = document.getElementById('tmpl-guess-analisys').content.cloneNode(true);
     newLine.id = `guess-line${Guesses.length}`;
     newLine.children[0].childNodes[1].innerHTML = name;
