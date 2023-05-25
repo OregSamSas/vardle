@@ -27,7 +27,7 @@ The site is published using GitHub.
 
 ## Scripts from
 
-* Yarn pug-in "Canvas Confetti" <https://yarnpkg.com/package/canvas-confetti>
+* Yarn plug-in "Canvas Confetti" <https://yarnpkg.com/package/canvas-confetti>
 
 ## Emojis from
 
