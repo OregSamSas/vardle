@@ -14,15 +14,78 @@ const CountyList = [];
 const Guesses = [];
 const Directions = data.directions;
 const wikiLinks = data.wikilinks; // From https://en.wikipedia.org/wiki/Lands_of_the_Crown_of_Saint_Stephen#:~:text=Counties%20of%20the%20Lands%20of%20the%20Crown%20of%20Saint%20Stephen
-const numberOfTries = 6;
-const rotateShape = true;
+const translations = data.l10n;
 
-let metaData = {};
-let otherMetaData = {};
+let Rotation = 1 - Math.random()*2;
+let sizePercent = false;
+let numberOfTries = 6;
+let hideShape = false;
+let rotateShape = false;
+let mainTheme;
+let mapTheme = "mono";
+let distanceUnit = "mixed";
+let Language = "hu";
+let Furthest = {};
+let metaData = {"x": 0, "y": 0, "width": 0, "height": 0, "midx": 0, "midy": 0};
+let otherMetaData = metaData;
 let SuggestionList = [];
+let Won = false;
 let Solution;
 
+// Theme Metadata
+const lightThemeArray = data.themes[0];
+const darkThemeArray = data.themes[1];
+
 // FUNCTION DEFINITIONS
+
+function loadFromLocal() {
+    if (load("lang") != null) {
+        if (load("lang")) Language = load("lang");
+        if (load("theme")) mainTheme = load("theme");
+        if (load("tries")) numberOfTries = parseInt(load("tries"));
+        if (load("unit")) distanceUnit = (load("unit") === 'true');
+        if (load("map")) mapTheme = load("map");
+        if (load("hide")) hideShape = (load("hide") === 'true');
+        if (load("rotate")) rotateShape = (load("rotate") === 'true');
+        if (load("size")) sizePercent = (load("size") === 'true');
+    }
+}
+
+function load(item) {
+    return localStorage.getItem(item);
+}
+
+// Sets the theme in accordance with browser's preferences
+function initialThemeSetup() {
+    let themeEqualDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (themeEqualDark) {
+        mainTheme = "dark";
+    } else {
+        mainTheme = "light";
+    }
+}
+
+// Sets the language in accordance with browser's preferences
+function languageSetup() {
+    if ((navigator.language || navigator.userLanguage) === "hu") {
+        Language = "hu";
+    } else {
+        Language = "en";
+    }
+}
+
+function setThemeTo(theme) {
+    if (theme === "dark") {
+        for(let varname in darkThemeArray) { // Cycle through the metadata array (object)
+            document.documentElement.style.setProperty(`--${varname}`, darkThemeArray[varname]); // replaces the :root variables (--${their names} -> property: ${their vales} -> value) 
+        }
+    }
+    if (theme === "light") {
+        for(let varname in lightThemeArray) { // Cycle through the metadata array (object)
+            document.documentElement.style.setProperty(`--${varname}`, lightThemeArray[varname]); // replaces the :root variables (--${their names} -> property: ${their vales} -> value) 
+        }
+    }
+}
 
 // function for insert a county to guess
 function getCountyImage(id, num) {
@@ -63,30 +126,38 @@ function getCountyImage(id, num) {
 
         // Rotate image if desired
         if (rotateShape) {
-            svgImage.style.transform = `rotate(${Math.random()}turn)`;
-            svgImage.style["transition-duration"] = ".7s";
-            svgImage.style['transition-property'] = "all";
-            svgImage.style['transition-timing-function'] = "cubic-bezier(.4,0,.2,1)";
+            rotateSVG(svgImage, Rotation, placeToInsert);
         }
 
         // Remove text
         document.querySelector(`#${id} > svg > #textgroup`).remove();
-
-        // Place "Cancel rotation" button if rotated
-        if (rotateShape) {
-            let cancelButton = document.getElementById('tmpl-cancel-rotation').content.firstElementChild.cloneNode(true);
-            placeToInsert.after(cancelButton);
-            cancelButton.addEventListener('click', (e) => {
-                removeRotation();
-            });
-        }
     }
 }
 
+function rotateSVG(svg, rotation, imagePlace) {
+    svg.style.transform = `rotate(${rotation}turn)`;
+    svg.style["transition-duration"] = ".7s";
+    svg.style['transition-property'] = "all";
+    svg.style['transition-timing-function'] = "cubic-bezier(.4,0,.2,1)";
+
+    // Place button for cancelling it
+    let cancelButton = document.getElementById('tmpl-cancel-rotation').content.firstElementChild.cloneNode(true);
+    imagePlace.after(cancelButton);
+    cancelButton.addEventListener('click', (e) => {
+        removeRotation();
+    });
+
+}
+
 // Cancel Rotation for county image
-function removeRotation() {
-    document.getElementById('cancel-rot').remove();
-    document.querySelector('#imageToGuess > svg').style.transform = "";
+function removeRotation(notForEver) {
+    let rotationButton = document.getElementById('cancel-rot');
+    if (notForEver) {
+        if (rotationButton != null && rotationButton != undefined) rotationButton.style.display = "none";
+    } else {
+        if (rotationButton != null && rotationButton != undefined) rotationButton.remove();
+        document.querySelector('#imageToGuess > svg').style.transform = "";
+    }
 }
 
 // Check if a character is a digit
@@ -254,7 +325,7 @@ function trackPath(path) {
         }
         i++;
     }
-    return {"x": minx*1, "y": miny*1, "width": (maxx - minx), "height": (maxy - miny)}; // length, height, x position, y position
+    return {"x": minx*1, "y": miny*1, "width": (maxx - minx), "height": (maxy - miny), "midx": (minx + maxx) / 2, "midy": (miny + maxy) / 2}; // x position,  y position,length, height, middle point coordinates
 }
 
 function getRandomCounty() {
@@ -271,6 +342,18 @@ function placeGuessLines(num) {
         insertTo.appendChild(document.getElementById('tmpl-guessline').content.firstElementChild.cloneNode(true));
     }
 
+}
+
+function updateGuessLines(num) {
+    let insertTo = document.getElementById('guesses');
+    insertTo.innerHTML = "";
+    placeGuessLines(num);
+    for (let guessNum in Guesses) {
+        if (guessNum < num) {
+            guessAnalisys(Guesses[guessNum], guessNum);
+        }
+    }
+    window.dispatchEvent(new Event('resize'));
 }
 
 // Bundle event listeners to the input field
@@ -300,18 +383,20 @@ function handleKeysForEvent(e, input) {
     if (e.isComposing || e.keyCode === 229) {
         return;
     }
-    if (e.keyCode === 27 && e.key === "Escape") {
-        input.blur();
-    }
-    if (e.keyCode === 13 && e.key === "Enter") {
-        let selected = null;
-        try { selected = findSelectedCountyItem(input).firstChild.innerHTML; } catch{}
-        if (selected != null) {
-            listItemClicked(input.id, selected);
-            removeAllCountyElement(input);
-        } else {
-            handleGuess();
-        }
+    switch(e.key) {
+        case "Escape":
+            input.blur();
+            break;
+        case "Enter":
+            let selected = null;
+            try { selected = findSelectedCountyItem(input).firstChild.innerHTML; } catch{}
+            if (selected != null) {
+                listItemClicked(input.id, selected);
+                removeAllCountyElement(input);
+            } else {
+                handleGuess();
+            }
+            break;
     }
     if (e.keyCode === 38 || e.keyCode === 40) { // Up-down arrow navigation in list
         e.preventDefault();
@@ -477,6 +562,7 @@ function getDirOfVector(x1, y1, x2, y2) { // In degrees
 
 // Replaces a gray guess row with an analitics row about the latest guess
 function placeAnalisys(count, name, dist, distUnit, dir, percent) {
+    count = parseInt(count);
     let guessLine = document.getElementById('guesses').children[4 * count];
     let newLine = document.getElementById('tmpl-guess-analisys').content.cloneNode(true);
     newLine.id = `guess-line${Guesses.length}`;
@@ -490,27 +576,23 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
     } catch (error) {
         console.error(error);
     }
-    guessLine.after(newLine);
-    guessLine.remove();
+    if (guessLine != undefined) {
+        guessLine.after(newLine);
+        guessLine.remove();
+    }
 
     // Both needed on wining and on losing as well
     let finishArea = document.getElementById('tmpl-finish').content.firstElementChild.cloneNode(true);
-    console.log(name);
-    finishArea.childNodes[5].childNodes[3].setAttribute('href', `https://en.wikipedia.org/wiki/${wikiLinks[Solution]}`);
+    if (guessLine != undefined) finishArea.childNodes[5].childNodes[5].setAttribute('href', getWikipediaLink(Solution, Language));
     
     // Write out win text
     if (dir === 'yo') {
         let myPlace = removeGuessArea(true);
         myPlace.appendChild(finishArea);
-        if(Guesses.length === 1) {
-            finishArea.childNodes[1].innerHTML = `You guessed correctly at first out of ${numberOfTries} tries.`;
-        } else {
-            finishArea.childNodes[1].innerHTML = `You guessed correctly in ${Guesses.length} guesses out of ${numberOfTries} tries.`;
-        }
-        finishArea.childNodes[3].childNodes[1].innerHTML += 'win!!!';
         let partyEmojiPos = partyEmoji.getBoundingClientRect();
         try {
-            confetti({
+            // Confetti Animation
+            if(!Won) confetti({
                 particeCount: 150,
                 startVelocity: 30,
                 spread: 80,
@@ -520,26 +602,37 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
                 }
             });
         } catch {}
+        Won = true;
 
         // Cancel rotation when it's already guessed
         removeRotation();
     }
     // Write out lose text
-    else if (Guesses.length === numberOfTries) {
+    else if (count + 1 === numberOfTries) {
         let myPlace = removeGuessArea(true);
         myPlace.appendChild(finishArea);
-        finishArea.childNodes[1].innerHTML = `You didn't get it this time. It was ${Solution}.`;
         let finishImage = finishArea.childNodes[3].childNodes[1].firstElementChild;
         finishImage.setAttribute('src', 'loseMeme.jpg');
         finishImage.setAttribute('alt', '😒');
-        finishArea.childNodes[3].childNodes[1].innerHTML += 'Oh, no!';
 
         // Cancel rotation when no tries left too
         removeRotation();
     }
 
+    // Translate newly placed elements
+    localalisation();
+
     // Button for showing the map
     buttonEventListeners("show-map");
+}
+
+function getWikipediaLink(forCounty, lang) {
+    let articleName = wikiLinks[forCounty][lang];
+    if (articleName == undefined) {
+        let endings = {en: "County", hu: "vármegye"};
+        articleName = `${forCounty}_${endings[lang]}`;
+    }
+    return `https://${lang}.wikipedia.org/wiki/${articleName}`;
 }
 
 function removeGuessArea(isReturn) {
@@ -550,31 +643,61 @@ function removeGuessArea(isReturn) {
     }
 }
 
-function guessAnalisys(myGuess) {
+function guessAnalisys(myGuess, specialplace) {
+    if (CountyList.includes(myGuess)) console.log(getWikipediaLink(myGuess, Language));
     if (Guesses.length < numberOfTries + 1) {
         if (myGuess === Solution) {
             placeAnalisys(Guesses.length-1, Solution, 0, 'm', 'yo', 100);
         } else {
             let guessPath = document.querySelector("#mapTemplate > svg > g > #" + myGuess);
-            otherMetaData[myGuess] = trackPath(absToRel(guessPath.getAttribute('d')));
-            let midx0 = metaData.x + metaData.width/2;
-            let midy0 = metaData.y + metaData.height/2;
-            let midx1 = otherMetaData[myGuess].x + otherMetaData[myGuess].width/2;
-            let midy1 = otherMetaData[myGuess].y + otherMetaData[myGuess].height/2;
+            if (guessPath != undefined) {
+                otherMetaData[myGuess] = trackPath(absToRel(guessPath.getAttribute('d')));
+            } else {
+                otherMetaData[myGuess] = {midx: 0, midy: 0};
+            }
+            let dir = 0;
+            let dirs = ['nn', 'nw', 'ww', 'sw', 'ss', 'se', 'ee', 'ne'];
+            let midx0 = metaData.midx;
+            let midy0 = metaData.midy;
+            let midx1 = otherMetaData[myGuess].midx;
+            let midy1 = otherMetaData[myGuess].midy;
             let distance = distanceOf(midx0, midy0, midx1, midy1);
             let unit = "m";
-            distance = Math.floor(distance * 1227.3); // m
-            let accuracy = (1 - distance / 858000)*100;
-            if (distance > 99999) {
-                unit = "km";
-                distance = Math.floor(distance / 1000); // km
+            let accuracy = 0;
+            if (guessPath != "") {
+                distance = Math.floor(distance * 1227.3); // m
+                if (sizePercent) {
+                    let size0 = metaData.width * metaData.height;
+                    let size1 = otherMetaData[myGuess].width * otherMetaData[myGuess].height;
+                    accuracy = (normalModulus((size1 - size0), size0) / size0) * 100;
+                } else {
+                    accuracy = (1 - distance / 1227.3 / Furthest.dist)*100;
+                }
+                if ((distance > 99999 && distanceUnit === "mixed") || distanceUnit === "km") {
+                    unit = "km";
+                    distance = Math.floor(distance / 1000); // km
+                }
+                if (distanceUnit === "miles") {
+                    unit = translationPiece('miles');
+                    distance = Math.floor(distance * 0.00062137); // miles
+                }
+                dir = getDirOfVector(midx0, midy0, midx1, midy1);
+                dir = Math.round(dir / 45) % 8; // It can be (e.g. 7.6) rounded up to 8 which does not included in the following list => %8 is needed
             }
-            let dir = getDirOfVector(midx0, midy0, midx1, midy1);
-            dir = Math.round(dir / 45);
-            let dirs = ['nn', 'nw', 'ww', 'sw', 'ss', 'se', 'ee', 'ne'];
-            placeAnalisys(Guesses.length-1, Guesses[Guesses.length-1], distance, unit, dirs[dir], accuracy);
+            let place = ((specialplace == undefined) ? Guesses.length - 1 : specialplace);
+            placeAnalisys(place, Guesses[place], distance, unit, dirs[dir], accuracy);
         }
     }
+}
+
+function normalModulus(a, b) {
+    let returnWith;
+    if (a < 0) {
+        returnWith = b - (Math.abs(a) % b);
+    } else {
+        returnWith = a % b;
+    }
+    return returnWith;
 }
 
 // When the form is submitted
@@ -597,7 +720,7 @@ function handleGuess() {
 function buttonEventListeners(button) {
     // Show Map button after finishing guessing
     if (button === "show-map") {
-        let showMap = document.querySelector('button[role="button"]');
+        let showMap = document.querySelector('a[role="button"]');
         if (showMap != null) {
             showMap.addEventListener('click', (e) => {
                 placeMapOnpage(showMap);
@@ -614,6 +737,74 @@ function buttonEventListeners(button) {
             });
         }
     }
+
+    // Settings (cog) icon
+    if (button === "settings-button") {
+        let cogIcon = document.getElementById(button);
+        if (cogIcon != null) {
+            cogIcon.addEventListener('click', (e) => {
+                displaySettings();
+            });
+        }
+    }
+
+    // Cancel button
+    if (button === "cancel") {
+        let xmark = document.getElementById('cancel');
+        if (xmark != null) {
+            xmark.addEventListener('click', (e) => {
+                closeUppermostWindow(true);
+            });
+        }
+    }
+}
+
+function closeUppermostWindow(deleteCanvas) {
+    let lastContent = document.querySelector("#page > div:last-child");
+    if (lastContent.id !== "mainContent") {
+        lastContent.remove();
+        if (deleteCanvas) try {document.querySelector("#page > canvas").remove()} catch {};
+        updateGuessLines(numberOfTries);
+        updateMainCountyImage(!hideShape, rotateShape, Won || Guesses.length >= numberOfTries);
+    }
+    saveSettings();
+}
+
+function saveSettings() {
+    localStorage.setItem("lang", Language);
+    localStorage.setItem("theme", mainTheme);
+    localStorage.setItem("tries", numberOfTries);
+    localStorage.setItem("unit", distanceUnit);
+    localStorage.setItem("map", mapTheme);
+    localStorage.setItem("hide", hideShape);
+    localStorage.setItem("rotate", rotateShape);
+    localStorage.setItem("size", sizePercent);
+}
+
+function updateMainCountyImage(show, rotate, finished = false) {
+    if (rotate && !finished) {
+        let rotationButton = document.getElementById('cancel-rot')
+        if (rotationButton == undefined) {
+            rotateSVG(
+                document.querySelector('#imageToGuess > svg'),
+                Rotation,
+                document.getElementById('imageToGuess')
+            );
+            localalisation();
+        } else {
+            rotationButton.style.display = "";
+        }
+    } else {
+        if (!finished) {
+            removeRotation()
+        }
+    }
+    if (show) {
+        document.getElementById('imageToGuess').style.display = "";
+    } else {
+        removeRotation(true);
+        document.getElementById('imageToGuess').style.display = "none";
+    }
 }
 
 function placeMapOnpage(showMap) {
@@ -628,11 +819,14 @@ function placeMapOnpage(showMap) {
         mapTemplate.style.transform = `scale(${scale})`;
         insertTo.appendChild(mapTemplate);
         let solutionCounty = document.querySelector(`#helpMap > g > #${Solution}`);
-        solutionCounty.style.fill = 'var(--toastify-dark-red)';
+        solutionCounty.style.fill = 'var(--red)';
         let toggleColor = document.getElementById('tmpl-togglecolor').content.firstElementChild.cloneNode(true);
         insertTo.appendChild(toggleColor);
         buttonEventListeners("change-colour");
-        swapMapColour(toggleColor.firstElementChild.firstElementChild);
+        console.log(mapTheme)
+        if (mapTheme === "colorful") {
+            swapMapColour(toggleColor.firstElementChild.firstElementChild, true);
+        }
     } else {
         map.remove();
         let toggleColor = document.getElementById('toggleColoured');
@@ -643,6 +837,9 @@ function placeMapOnpage(showMap) {
 
 function swapMapColour(paletteIcon, forcetrue=false) {
     let modifiedStyles = document.getElementById('style-modification')
+    if (forcetrue || modifiedStyles == null) {
+        paletteIcon.style.filter = 'grayscale(1)';
+    }
     if (modifiedStyles == null) {
         modifiedStyles = document.createElement('style');
         modifiedStyles.id = 'style-modification';
@@ -654,10 +851,9 @@ function swapMapColour(paletteIcon, forcetrue=false) {
             #helpMap > g > path.county_g  { fill: #C0FFC0; stroke-linecap:round; stroke-linejoin:round }
             #helpMap > g > path.water     { fill: #0080FF; stroke-linecap:round; stroke-linejoin:round }
             #helpMap > g > text.county    { fill: #000; font-weight: 300;}
-            #helpMap > g > path[style*="var(--toastify-dark-red)"] { fill: var(--toastify-light-red) !important;}
+            #helpMap > g > path[style*="var(--red)"] { fill: var(--toastify-color-error) !important;}
             `;
         document.head.appendChild(modifiedStyles);
-        paletteIcon.style.filter = 'grayscale(1)';
     } else {
         if (!forcetrue) {
             modifiedStyles.remove();
@@ -668,13 +864,26 @@ function swapMapColour(paletteIcon, forcetrue=false) {
 
 // For accuracy calculations
 function getFurthest() {
-    return 0; 
+    let furthestCounty = "";
+    let furthestDist = 0;
+    let AllCountyNames = document.querySelectorAll('#mapTemplate > svg > g > path');
+    let tempDist;
+    let tempData;
+    for (let examinedCounty of AllCountyNames) {
+        tempData = trackPath(absToRel(examinedCounty.getAttribute('d')));
+        tempDist = distanceOf(metaData.midx, metaData.midy, tempData.midx, tempData.midy);
+        if (tempDist > furthestDist) {
+            furthestDist = tempDist;
+            furthestCounty = examinedCounty.id;
+        }
+    }
+    return {"name": furthestCounty, "dist": furthestDist};
 }
 
 // Get all of the county names and place the SVG image
 function initialWork() {
     getCountyImage('mapTemplate');
-    AllCountyNames = document.querySelectorAll('#mapTemplate > svg > g > path');
+    let AllCountyNames = document.querySelectorAll('#mapTemplate > svg > g > path');
     for (let thisCounty of AllCountyNames) {
         try {if((thisCounty.id != undefined)) {CountyList.push(thisCounty.id)}} catch {}
     }
@@ -683,17 +892,260 @@ function initialWork() {
     guessImage = document.createElement('div');
     guessImage.id = 'imageToGuess';
     guessImage.className = 'flex items-center justify-center w-full';
-    guessImage.style.height = '210px';
     document.getElementById('mainImage').appendChild(guessImage);
-    console.log(CountyList)
+    console.log(CountyList);
     getCountyImage('imageToGuess', getRandomCounty());
+
+    // Theme Setup
+    initialThemeSetup();
+    languageSetup();
+    loadFromLocal();
+    setThemeTo(mainTheme);
+    updateMainCountyImage(!hideShape, rotateShape, Won || Guesses.length >= numberOfTries);
+}
+
+// Replacing translations
+function localalisation() {
+    // localise inner contents
+    let allToTranslate = document.querySelectorAll('[ln]');
+    let keyName;
+    let translation;
+    for (let toTranslate of allToTranslate) {
+        keyName = toTranslate.getAttribute('ln');
+        translation = translationPiece(keyName);
+        if (!toTranslate.innerHTML.includes(translation)) { // If not yet translated
+            toTranslate.innerHTML = replaceInnerTextContent(toTranslate.innerHTML, translation);
+        }
+    }
+
+    // Localise placeholders (= "ph")
+    allToTranslate = document.querySelectorAll('[lnph]');
+    for (let toTranslate of allToTranslate) {
+        keyName = toTranslate.getAttribute('lnph');
+        toTranslate.setAttribute('placeholder', translationPiece(keyName));
+    }
+
+    // Localise title attributes
+    allToTranslate = document.querySelectorAll('[lnt]');
+    for (let titleToTranslate of allToTranslate) {
+        keyName = titleToTranslate.getAttribute('lnt');
+        titleToTranslate.setAttribute('title', translationPiece(keyName));
+    }
+
+    // Loclise finish text
+    let finishArea = document.getElementById('finished');
+    if (finishArea != null) {
+        let finishAreatext = finishArea.childNodes[1].innerHTML
+        if (Won) {
+            if(Guesses.length === 1) {
+                finishAreatext = `${translationPiece('anal1.0')} ${numberOfTries} ${translationPiece('anal1.3')}.`;
+            } else {
+                finishAreatext = `${translationPiece('anal1.1')} ${Guesses.length} ${translationPiece('anal1.2')} ${numberOfTries} ${translationPiece('anal1.3')}.`;
+            }
+        } else {
+            finishAreatext = `${translationPiece('anal2.1')}&nbsp;<i>${Solution}</i>${translationPiece('anal2.2')}.`;
+        }
+        finishArea.childNodes[1].innerHTML = finishAreatext;
+        finishAreatext = finishArea.childNodes[3].childNodes[1].innerHTML;
+        if (Won) {
+            finishAreatext = replaceInnerTextContent(finishAreatext, translationPiece('win'));
+        } else {
+            finishAreatext = replaceInnerTextContent(finishAreatext, translationPiece('lose'));
+        }
+        finishArea.childNodes[3].childNodes[1].innerHTML = finishAreatext;
+    }
+}
+
+function translationPiece(key, lang) {
+    if (lang == undefined || lang == null) lang = Language;
+    let returnWith;
+    try {
+        returnWith = translations[key][lang];
+    } catch (error) {
+        console.log(`Couldn't find translation for "${key}" in language "${lang}".`)
+    }
+    return returnWith;
+}
+
+function replaceInnerTextContent(elementContent, text) {
+    if (elementContent == "") {
+        elementContent = text;
+    } else {
+        let innerContent = elementContent.split('>');
+        innerContent[innerContent.length - 1] = text;
+        elementContent = innerContent.join('>');
+    }
+    return elementContent;
+}
+
+// **Settings**
+function displaySettings() {
+    let canvas = document.createElement('canvas');
+    let settingsPage = document.getElementById('tmpl-settings').content.firstElementChild.cloneNode(true);
+    let insertTo = document.getElementById('page');
+    let minheight = document.getElementById('mainContent').getBoundingClientRect().height;
+    canvas.id = "backdrop";
+    canvas.style.width = "100vw";
+    canvas.style.minHeight = "100vh";
+    canvas.style.height = `${minheight}px`;
+    canvas.style.backgroundColor = "var(--back-bg)";
+    insertTo.appendChild(canvas);
+    insertTo.appendChild(settingsPage);
+    settingsPage.style.minHeight = `${minheight}px`;
+    addGeneralSettings(settingsPage.childNodes[3].firstElementChild);
+    addGameSpecificSettings(settingsPage.childNodes[5].childNodes[3]);
+    localalisation();
+    buttonEventListeners('cancel');
+}
+
+function addGameSpecificSettings(parent) {
+    let gameSpecific = data.settings.gameplay;
+    for (let setting of gameSpecific) {
+        addSetting(parent, setting.type, setting.name, ((setting.type == "number") ? setting.range : null))
+    }
+}
+
+function addGeneralSettings(toParent) {
+    let generalSettings = data.settings.general;
+    for (let setting of generalSettings) {
+        addSetting(toParent, ((setting.type === "opt") ? "select" : setting.type), setting.name, setting.options);
+    }
+}
+
+function addSetting(parent, type = "select", id, options) {
+    let setting = document.getElementById('tmpl-setting-' + type).content.firstElementChild.cloneNode(true);
+    parent.appendChild(setting);
+    let selectArea = setting.firstElementChild;
+    let label = setting.childNodes[3];
+    label.setAttribute('for', label.getAttribute('for') + id);
+    label.setAttribute('ln', label.getAttribute('for'));
+    selectArea.id += id;
+    if (type === "select") {
+        let optionElement;
+        for (let option of options) {
+            optionElement = selectArea.firstElementChild;
+            optionElement.setAttribute('ln', option);
+            optionElement.setAttribute('value', option);
+            if (options.indexOf(option) < options.length - 1) {
+                optionElement.after(optionElement.cloneNode());
+            }
+        }
+        for (let item of selectArea.options) {
+            if (id === "distanceUnit" && item.value === distanceUnit) {
+                item.selected = true;
+            }
+            if (id === "languageSelection" && item.value === Language) {
+                item.selected = true;
+            }
+            if (id === "themeSelection" && item.value === mainTheme) {
+                item.selected = true;
+            }
+            if (id === "mapColouring" && item.value === mapTheme) {
+                item.selected = true;
+            }
+        }
+    } else {
+        if (id === "numberOfTries") {
+            selectArea.value = numberOfTries;
+        }
+        if (id === "hideImage") {
+            selectArea.checked = hideShape;
+        }
+        if (id === "rotateImage") {
+            selectArea.checked = rotateShape;
+        }
+        if (id === "sizePercent") {
+            selectArea.checked = sizePercent;
+        }
+    }
+    handleSetting(selectArea, id, type, options);
+}
+
+function forceNumIntoRange(num, min, max) {
+    num = parseInt(num);
+    if (isNaN(num) || num < min) {
+        num = min;
+    }
+    if (num > max) {
+        num = max;
+    }
+    return num;
+}
+
+function handleSetting(settingElement, variable, type, additional) {
+    settingElement.addEventListener('change', (e) => {
+        let optionList;
+        let selectedVal;
+        if (type === "select") {
+            optionList = settingElement.options;
+            selectedVal = optionList[optionList.selectedIndex].value;
+        } else if (type === "checkbox") {
+            selectedVal = settingElement.checked;
+        } else {
+            if (type === "number") {
+                settingElement.value = forceNumIntoRange(settingElement.value, additional[0], additional[1]);
+            }
+            selectedVal = settingElement.value;
+        }
+        switch (variable) {
+            case "languageSelection":
+                Language = selectedVal;
+                localalisation();
+                break;
+            case "distanceUnit":
+                distanceUnit = selectedVal;
+                break;
+            case "themeSelection":
+                mainTheme = selectedVal;
+                setThemeTo(mainTheme);
+                break;
+            case "mapColouring":
+                mapTheme = selectedVal;
+                break;
+            case "numberOfTries":
+                numberOfTries = selectedVal;
+                break;
+            case "hideImage":
+                hideShape = selectedVal;
+                break;
+            case "rotateImage":
+                rotateShape = selectedVal;
+                break;
+            case "sizePercent":
+                sizePercent = selectedVal;
+                break;
+        }
+    });
+}
+
+function docEvents() {
+    window.addEventListener('keydown', (e) => {
+        if (e.defaultPrevented) {
+            return; // Do nothing if the event was already processed
+        }
+        switch (e.key) {
+            case "Escape":
+                closeUppermostWindow(true);
+        }
+    });
+    window.addEventListener('resize', (e) => {
+        let canvas = document.querySelector("#page > canvas");
+        let minheight = document.getElementById('mainContent').getBoundingClientRect().height;
+        let settingsPage = document.getElementById('settingsPage');
+        try {
+            let height = `${minheight}px`;
+            canvas.style.height = height;
+            settingsPage.style.minHeight = height;
+        } catch {}
+    });
 }
 
 // END OF DEFINITIONS
 
-initialWork ()
+initialWork();
 let CountyListOrdered = CountyList.slice(0, CountyList.length);
 CountyListOrdered = CountyListOrdered.sort();
+localalisation();
 
 // Insert grey lines for guess analysises;
 placeGuessLines(numberOfTries);
@@ -701,4 +1153,11 @@ placeGuessLines(numberOfTries);
 // Setup event listeners
 inputEventListeners();
 
-getFurthest()
+Furthest = getFurthest();
+
+// Header buttons
+buttonEventListeners('settings-button');
+
+
+// Global events
+docEvents();
