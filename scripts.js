@@ -16,6 +16,8 @@ const Directions = data.directions;
 const wikiLinks = data.wikilinks; // From https://en.wikipedia.org/wiki/Lands_of_the_Crown_of_Saint_Stephen#:~:text=Counties%20of%20the%20Lands%20of%20the%20Crown%20of%20Saint%20Stephen
 const translations = data.l10n;
 
+let rotationRemoved = false;
+let Scale = 1227.3;
 let Rotation = 1 - Math.random()*2;
 let sizePercent = false;
 let numberOfTries = 6;
@@ -31,10 +33,18 @@ let otherMetaData = metaData;
 let SuggestionList = [];
 let Won = false;
 let Solution;
+let imageOrigin = "Kingdom_of_Hungary_counties (Plain).svg";
 
 // Theme Metadata
 const lightThemeArray = data.themes[0];
 const darkThemeArray = data.themes[1];
+
+// Get URL params
+const urlParams = new URLSearchParams(window.location.search);
+if(urlParams.get('map') === 'bundesländer') {
+    imageOrigin = "Karte_Deutsche_Bundesländer_(Plain).svg";
+}
+
 
 // FUNCTION DEFINITIONS
 
@@ -43,7 +53,7 @@ function loadFromLocal() {
         if (load("lang")) Language = load("lang");
         if (load("theme")) mainTheme = load("theme");
         if (load("tries")) numberOfTries = parseInt(load("tries"));
-        if (load("unit")) distanceUnit = (load("unit") === 'true');
+        if (load("unit")) distanceUnit = load("unit");
         if (load("map")) mapTheme = load("map");
         if (load("hide")) hideShape = (load("hide") === 'true');
         if (load("rotate")) rotateShape = (load("rotate") === 'true');
@@ -92,7 +102,7 @@ function getCountyImage(id, num) {
     let ratio;
     let placeToInsert = document.getElementById(id);
     let allCounties = new XMLHttpRequest();
-    allCounties.open("GET","Kingdom_of_Hungary_counties (Plain).svg",false);
+    allCounties.open("GET", imageOrigin,false);
     // Following line is just to be on the safe side
     allCounties.overrideMimeType("image/svg+xml");
     allCounties.onload = (e) => {
@@ -145,6 +155,7 @@ function rotateSVG(svg, rotation, imagePlace) {
     imagePlace.after(cancelButton);
     cancelButton.addEventListener('click', (e) => {
         removeRotation();
+        rotationRemoved = true;
     });
 
 }
@@ -185,21 +196,21 @@ function titleCase(str) {
     return str;
 }
 
-// Move path (with relatively set curve commands)
+// Move path (having only relatively set curve commands)
 function movePath(path, dx, dy, newx, newy) {
     let char = 2;
     let origCoordinates = ['', ''];
-    for(let coo=0;coo<2;coo++) {
-        while(path[char] !== " " && path[char] !== ",") {
+    for (let coo=0; coo<2; coo++) {
+        while (path[char] !== " " && path[char] !== ",") {
             origCoordinates[coo] += path[char];
             char ++;
         }
         char ++;
     }
-    if(newx == undefined || newy == undefined) {
-        path = "M " + (parseFloat(origCoordinates[0]) + dx).toString() + ',' + (parseFloat(origCoordinates[1]) + dy).toString() + ' ' + path.slice(char, path.length);
+    if (newx == undefined || newy == undefined) {
+        path = "M " + (parseFloat(origCoordinates[0]) + dx).toString() + ',' + (parseFloat(origCoordinates[1]) + dy).toString() + ' ' + path.slice(char, path.length); // Relative moving (move it by a vector (dx, dy))
     } else {
-        path = "M " + (newx).toString() + ',' + (newy).toString() + ' ' + path.slice(char, path.length);
+        path = "M " + (newx).toString() + ',' + (newy).toString() + ' ' + path.slice(char, path.length); // Move to an absolute position
     }
     return path;
 }
@@ -208,104 +219,159 @@ function movePath(path, dx, dy, newx, newy) {
 function absToRel(path) {
     let char = 0;
     let command = "";
+    let pathCommands = [];
     let pathCoordinates = [];
-    let coordinates = ['0', '0', '0', '0', '0', '0', '0', '0']; //x0:last x, y0:last y, x1, y1, x2, y2, x3, y3
-    while(char<path.length) {
+    let coordinates = Array(8).fill(''); //x0:last x, y0:last y, x1, y1, x2, y2, x3, y3
+    while (char < path.length) {
         command = path[char];
-        char += 2;
-        if(command === 'C' || command === 'c') {
-            if(isCharNumber(command) || command === '-') {
-                char += -2;
-            }
+        if ("chtqlmvz".includes(command.toLocaleLowerCase())) {
+            char += 2;
+        } else {
+            command = 'l';
+        }
+        if (command === 'z' && path[char] === 'm' && Solution == "Bremen") {
+            command = 'l';
+            char += 2;
+        }
+        if (command.toLocaleLowerCase() === 'z') {
+            pathCoordinates.push(['']);
+        } else {
             coordinates[0] = coordinates[6];
             coordinates[1] = coordinates[7];
-            for(let coo=2;coo<8;coo++) {
+            let originalx;
+            let originaly;
+            let startPos = (('mhql'.includes(command.toLocaleLowerCase())) ? 6 : ((command.toLocaleLowerCase() === 'v') ? 7 : 2));
+            let coordinatesNum = ((command.toLocaleLowerCase() === 'h') ? 7 : 8);
+            for (let coo = startPos; coo < coordinatesNum; coo ++) {
                 coordinates[coo] = '';
-                while(path[char] !== " " && path[char] !== ",") {
-                        coordinates[coo] += path[char];
-                        char ++;
-                }
-                char ++;
-            }
-            let originalx = coordinates[6];
-            let originaly = coordinates[7];
-            if(command === 'C' || command === 'L') {
-                for(let i=2;i<8;i++) {
-                    coordinates[i] = (Math.round((parseFloat(coordinates[i]) - parseFloat(coordinates[0+i%2]))*1000)/1000).toString();
-                }
-            }
-            pathCoordinates.push(coordinates.slice(2,8));
-            coordinates[6] = originalx;
-            coordinates[7] = originaly;
-        }
-        if(command === 'M') {
-            coordinates = Array(8).fill('')
-            for (let coo=6;coo<8;coo++) { // Insert 'move to()' command's coordinates to the last places (x3, y3), later it will be shifted to the place of x0, y0
-                while(path[char] !== " " && path[char] !== ",") {
+                while (path[char] !== " " && path[char] !== "," && char < path.length) {
                     coordinates[coo] += path[char];
                     char ++;
                 }
                 char ++;
             }
+            if (command.toLocaleLowerCase() === 'h') {
+                if (command === 'H') {
+                    coordinates[7] = coordinates[1];
+                } else {
+                    coordinates[7] = '0';
+                }
+            }
+            if (command.toLocaleLowerCase() === 'v') {
+                if (command === 'V') {
+                    coordinates[6] = coordinates[0];
+                } else {
+                    coordinates[0] = '0';
+                }
+            }
+            originalx = coordinates[6];
+            originaly = coordinates[7];
+            if(command === 'C' || command === 'L' || command === 'H' || command === 'V') {
+                for(let i = startPos; i < coordinatesNum; i++) {
+                    coordinates[i] = (Math.round((parseFloat(coordinates[i]) - parseFloat(coordinates[i % 2])) * 1000) / 1000).toString();
+                }
+            }
+            pathCoordinates.push(coordinates.slice(startPos, coordinatesNum));
+            if (command === command.toLocaleLowerCase()) {
+                coordinates[6] = (parseFloat(coordinates[0]) + originalx).toString();
+                coordinates[7] = (parseFloat(coordinates[1]) + originaly).toString();
+            } else {
+                coordinates[6] = originalx;
+                coordinates[7] = originaly;
+            }
         }
+        pathCommands.push((command === 'M') ? 'M' : command.toLocaleLowerCase());
     }
-
-    char = 0;
     let newpath = '';
-    while(path[char] != 'c' && path[char] != 'C') {
-        try {newpath += path[char];} catch {console.log(char)}
-        char++;
-    }
     let i = 0;
-    while(i<pathCoordinates.length) {
-        newpath += 'c ';
-        for(let j=0;j<3;j++) {
-            newpath += pathCoordinates[i][j*2] + ',' + pathCoordinates[i][j*2+1] + ' ';
+    while (i < pathCoordinates.length) {
+        command = pathCommands[i];
+        if (command === 'z') {
+            newpath += 'z';
+        } else {
+            newpath += command + ' ';
+            for (let j = 0; j < pathCoordinates[i].length / 2; j++) {
+                if (command === 'z') {
+                    newpath += ' ';
+                } else if (command === 'h' || command === 'v') {
+                    newpath += pathCoordinates[i][j*2] + ' ';
+                } else {
+                    newpath += pathCoordinates[i][j*2] + ',' + pathCoordinates[i][j*2+1] + ' ';
+                }
+            }
         }
         i++;
     }
-    newpath += 'z';
     return newpath;
 }
 
-// Function to go through a path and collect its data
+// Function to follow through a path and collect its data
 function trackPath(path) {
-    let minx, miny, maxx, maxy, x, y, x1, y1, x2, y2, x3, y3, i=0, char=0, t = 0;
+    let minx, miny, maxx, maxy, x, y, x0, y0, x1, y1, x2, y2, x3, y3, i=0, char=0, t = 0;
     let command = "";
     let origCoordinates = Array(8).fill('');
-    while(char < path.length) {
+    while (char < path.length) {
         command = path[char];
         char += 2;
-        if(command === 'M') {
-            for(let coo=0;coo<2;coo++) {
-                while(path[char] !== " " && path[char] !== ",") {
+        if (command === 'M' || command === 'm') {
+            x0 = 0;
+            y0 = 0;
+            if (command === 'm') {
+                x0 = origCoordinates[0];
+                y0 = origCoordinates[1];
+            }
+            for (let coo = 0; coo < 2; coo++) {
+                while (path[char] !== " " && path[char] !== ",") {
                     origCoordinates[coo] += path[char];
                     char ++;
                 }
                 char ++;
             }
+            origCoordinates[0] = (x0 + parseFloat(origCoordinates[0])).toString();
+            origCoordinates[1] = (y0 + parseFloat(origCoordinates[1])).toString();
         }
-        if(command === 'c') {
-            for(let coo=2;coo<8;coo++) {
+        if ("cqlvh".includes(command)) {
+            origCoordinates[2] = '0';
+            origCoordinates[3] = '0';
+            let type = ((command === 'c') ? "cubic" : ((command === 'q') ? "quadratic" : "linear"));
+            let startPos = ((command === 'v') ? 3 : 2);
+            let endPos = ((command === 'c') ? 8 : ((command === 'q') ? 6 : ((command === 'h') ? 3 : 4)));
+            for (let coo = startPos; coo < endPos; coo++) {
                 origCoordinates[coo] = '';
-                while(path[char] !== " " && path[char] !== "," && char<path.length) {
+                while (path[char] !== " " && path[char] !== "," && char < path.length) {
                     origCoordinates[coo] += path[char];
                     char ++;
                 }
                 char ++;
             }
+            origCoordinates[6] = origCoordinates[endPos - ((endPos === 3) ? 1 : 2)];
+            origCoordinates[7] = origCoordinates[endPos - ((endPos === 3) ? 0 : 1)];
             // Tracking curve
-            x1 = parseFloat(origCoordinates[0]) + parseFloat(origCoordinates[2]);
-            y1 = parseFloat(origCoordinates[1]) + parseFloat(origCoordinates[3]);
-            x2 = parseFloat(origCoordinates[0]) + parseFloat(origCoordinates[4]);
-            y2 = parseFloat(origCoordinates[1]) + parseFloat(origCoordinates[5]);
-            x3 = parseFloat(origCoordinates[0]) + parseFloat(origCoordinates[6]);
-            y3 = parseFloat(origCoordinates[1]) + parseFloat(origCoordinates[7]);
+            x0 = parseFloat(origCoordinates[0]);
+            y0 = parseFloat(origCoordinates[1]);
+            x1 = x0 + parseFloat(origCoordinates[2]);
+            y1 = y0 + parseFloat(origCoordinates[3]);
+            if (type !== "linear") {
+                x2 = x0 + parseFloat(origCoordinates[4]);
+                y2 = y0 + parseFloat(origCoordinates[5]);
+                if (type !== "quadratic") {
+                    x3 = x0 + parseFloat(origCoordinates[6]);
+                    y3 = y0 + parseFloat(origCoordinates[7]);
+                }
+            }
             t = 0;
-            while(t<1) {
+            while (t < 1) {
                 // Formula from https://en.wikipedia.org/wiki/B%C3%A9zier_curve#Cubic_B%C3%A9zier_curves
-                x = ((1-t)**3)*parseFloat(origCoordinates[0]) + 3*((1-t)**2)*t*x1 + 3*(1-t)*(t**2)*x2 + (t**3)*x3;
-                y = ((1-t)**3)*parseFloat(origCoordinates[1]) + 3*((1-t)**2)*t*y1 + 3*(1-t)*(t**2)*y2 + (t**3)*y3;
+                if (type === "linear") {
+                    x = (1-t)*x0 + t*x1;
+                    y = (1-t)*y0 + t*y1;
+                } else if (type === "quadratic") {
+                    x = ((1-t)**2)*x0 + 2*(1-t)*t*x1 + (t**2)*x2;
+                    x = ((1-t)**2)*y0 + 2*(1-t)*t*y1 + (t**2)*y2;
+                } else {
+                    x = ((1-t)**3)*x0 + 3*((1-t)**2)*t*x1 + 3*(1-t)*(t**2)*x2 + (t**3)*x3;
+                    y = ((1-t)**3)*y0 + 3*((1-t)**2)*t*y1 + 3*(1-t)*(t**2)*y2 + (t**3)*y3;
+                }
                 if(x < minx || i === 1) {
                     minx = x;
                 }
@@ -318,10 +384,10 @@ function trackPath(path) {
                 if(y > maxy || i === 1) {
                     maxy = y;
                 }
-                t+=0.1;
+                t += 0.1;
             }
-            origCoordinates[0] = (parseFloat(origCoordinates[0]) + parseFloat(origCoordinates[6])).toString();
-            origCoordinates[1] = (parseFloat(origCoordinates[1]) + parseFloat(origCoordinates[7])).toString();
+            origCoordinates[0] = (x0 + parseFloat(origCoordinates[6])).toString();
+            origCoordinates[1] = (y0 + parseFloat(origCoordinates[7])).toString();
         }
         i++;
     }
@@ -329,11 +395,15 @@ function trackPath(path) {
 }
 
 function getRandomCounty() {
-    let randomCounty = CountyList.indexOf('Balaton'); // Balaton cannot be the solution, but can be guessed
+    let randomCounty = randomElement(); // Balaton cannot be the solution, but can be guessed
     while (CountyList[randomCounty] === "Balaton") {
-        randomCounty = Math.floor(Math.random()*(CountyList.length-1));
+        randomCounty = randomElement();
     }
     return randomCounty;
+}
+
+function randomElement() {
+    return Math.floor(Math.random()*(CountyList.length-1));
 }
 
 function placeGuessLines(num) {
@@ -627,10 +697,15 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
 }
 
 function getWikipediaLink(forCounty, lang) {
-    let articleName = wikiLinks[forCounty][lang];
+    let articleName = wikiLinks[forCounty];
     if (articleName == undefined) {
-        let endings = {en: "County", hu: "vármegye"};
-        articleName = `${forCounty}_${endings[lang]}`;
+        articleName = forCounty;
+    } else {
+        articleName = articleName[lang];
+        if (articleName == undefined) {
+            let endings = {en: "County", hu: "vármegye"};
+            articleName = `${forCounty}_${endings[lang]}`;
+        }
     }
     return `https://${lang}.wikipedia.org/wiki/${articleName}`;
 }
@@ -665,13 +740,13 @@ function guessAnalisys(myGuess, specialplace) {
             let unit = "m";
             let accuracy = 0;
             if (guessPath != "") {
-                distance = Math.floor(distance * 1227.3); // m
+                distance = Math.floor(distance * Scale); // m
                 if (sizePercent) {
                     let size0 = metaData.width * metaData.height;
                     let size1 = otherMetaData[myGuess].width * otherMetaData[myGuess].height;
                     accuracy = (normalModulus((size1 - size0), size0) / size0) * 100;
                 } else {
-                    accuracy = (1 - distance / 1227.3 / Furthest.dist)*100;
+                    accuracy = (1 - distance / Scale / Furthest.dist)*100;
                 }
                 if ((distance > 99999 && distanceUnit === "mixed") || distanceUnit === "km") {
                     unit = "km";
@@ -765,9 +840,12 @@ function closeUppermostWindow(deleteCanvas) {
         lastContent.remove();
         if (deleteCanvas) try {document.querySelector("#page > canvas").remove()} catch {};
         updateGuessLines(numberOfTries);
-        updateMainCountyImage(!hideShape, rotateShape, Won || Guesses.length >= numberOfTries);
+        updateMainCountyImage(!hideShape, rotateShape && !rotationRemoved, Won || Guesses.length >= numberOfTries);
     }
     saveSettings();
+    if (!rotateShape) {
+        rotationRemoved = false;
+    }
 }
 
 function saveSettings() {
@@ -816,6 +894,7 @@ function placeMapOnpage(showMap) {
         let em = parseFloat(getComputedStyle(document.getElementById('midContent')).fontSize);
         let scale = 31 * em / mapTemplate.width.baseVal.value;
         insertTo.style.height = `${(mapTemplate.height.baseVal.value + 20) * scale}px`;
+        insertTo.style.maxWidth = `98vw`;
         mapTemplate.style.transform = `scale(${scale})`;
         insertTo.appendChild(mapTemplate);
         let solutionCounty = document.querySelector(`#helpMap > g > #${Solution}`);
@@ -827,11 +906,13 @@ function placeMapOnpage(showMap) {
         if (mapTheme === "colorful") {
             swapMapColour(toggleColor.firstElementChild.firstElementChild, true);
         }
+        window.dispatchEvent(new Event('resize'));
     } else {
         map.remove();
         let toggleColor = document.getElementById('toggleColoured');
         toggleColor.remove();
         insertTo.style.height = '0';
+        document.getElementById('style-modification').remove();
     }
 }
 
@@ -844,13 +925,13 @@ function swapMapColour(paletteIcon, forcetrue=false) {
         modifiedStyles = document.createElement('style');
         modifiedStyles.id = 'style-modification';
         modifiedStyles.innerHTML = `
-            #helpMap > g > path.county    { fill: #FFFFFF; stroke-linecap:round; stroke-linejoin:round }
+            #helpMap > g > path           { fill: #FFFFFF; stroke-linecap:round; stroke-linejoin:round }
             #helpMap > g > path.county_y  { fill: #FFFFC0; stroke-linecap:round; stroke-linejoin:round }
             #helpMap > g > path.county_r  { fill: #FFC0C0; stroke-linecap:round; stroke-linejoin:round }
             #helpMap > g > path.county_b  { fill: #C0C0FF; stroke-linecap:round; stroke-linejoin:round }
             #helpMap > g > path.county_g  { fill: #C0FFC0; stroke-linecap:round; stroke-linejoin:round }
             #helpMap > g > path.water     { fill: #0080FF; stroke-linecap:round; stroke-linejoin:round }
-            #helpMap > g > text.county    { fill: #000; font-weight: 300;}
+            #helpMap > g > text           { fill: #000}
             #helpMap > g > path[style*="var(--red)"] { fill: var(--toastify-color-error) !important;}
             `;
         document.head.appendChild(modifiedStyles);
@@ -887,6 +968,7 @@ function initialWork() {
     for (let thisCounty of AllCountyNames) {
         try {if((thisCounty.id != undefined)) {CountyList.push(thisCounty.id)}} catch {}
     }
+    getImageMetadata();
 
     // Insert image of county to guess
     guessImage = document.createElement('div');
@@ -902,6 +984,24 @@ function initialWork() {
     loadFromLocal();
     setThemeTo(mainTheme);
     updateMainCountyImage(!hideShape, rotateShape, Won || Guesses.length >= numberOfTries);
+}
+
+function getImageMetadata() {
+    try {
+        let placeholders = document.querySelectorAll("[placeholder]");
+        let meta = document.querySelector("#mapMetadata");
+        let newPlaceholder = meta.getAttribute('placeholder');
+        if (newPlaceholder == null) {
+            newPlaceholder = 'ph2';
+        }
+        for (let placeholder of placeholders) {
+            placeholder.setAttribute('lnph', newPlaceholder);
+        }
+        Scale = parseFloat(meta.getAttribute('scale'));
+    } catch (error) {
+        console.log('Could not find metadata.');
+        console.error(error);
+    }
 }
 
 // Replacing translations
@@ -1137,6 +1237,17 @@ function docEvents() {
             canvas.style.height = height;
             settingsPage.style.minHeight = height;
         } catch {}
+        let insertTo = document.getElementById('mapArea');
+        if (insertTo != null) {
+            let map = insertTo.firstElementChild;
+            let em = parseFloat(getComputedStyle(document.getElementById('midContent')).fontSize);
+            let scale = 31 * em;
+            if (scale > window.innerWidth * 0.9) {
+                scale = window.innerWidth * 0.9;
+            }
+            map.style.transform = `scale(${scale / map.width.baseVal.value})`;
+            insertTo.style.height = `${map.getBoundingClientRect().height * 1.1}px`;
+        }
     });
 }
 

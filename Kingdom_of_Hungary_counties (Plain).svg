@@ -16,11 +16,11 @@
    xmlns:svg="http://www.w3.org/2000/svg">
 <metadata
    origin="https://commons.wikimedia.org/wiki/File:Kingdom_of_Hungary_counties-2.svg"
-   id="metadata001" />
+   scale="1227.3"
+   placeholder="ph1"
+   id="mapMetadata" />
 <g
-   inkscape:groupmode="layer"
-   id="Counties"
-   inkscape:label="Counties">
+   id="Counties">
 <path
    class="county_b"
    id="Szerém"
