@@ -138,6 +138,7 @@
         "wiki":      {"en": "on Wikipedia", "hu": "Wikipédián"},
         "or":        {"en": "or", "hu": "vagy"},
         "norot":     {"en": " Cancel Rotation", "hu": " Forgasd vissza"},
+        "showmap":   {"en": " Show Image", "hu": " Mutasd a képet"},
         "anal1.0":   {"en": "You guessed correctly at first out of", "hu": "Elsőre helyesen megtippelted"},
         "anal1.1":   {"en": "You guessed correctly in", "hu": "Sikeresen kitaláltad"},
         "anal1.2":   {"en": "guesses out of", "hu": "próbálkozás során"},
@@ -146,6 +147,8 @@
         "anal2.2":   {"en": "", "hu": "&nbsp;volt"},
         "win":       {"en": "win!!!", "hu": "nyertél!!!"},
         "lose":      {"en": "&nbsp;Oh, no!", "hu": "&nbsp;Ó, Jaj, hoppá!"},
+        "already":   {"en": "Already guessed.", "hu": "Már tippelted."},
+        "unknown":   {"en": "Unknown territory.", "hu": "Várd le az időt, hogy bekerüljön az adattárunkba ez a terület, mert egyelőre még ISMERETLEN."},
         "settings":  {"en": "Settings", "hu": "Beállítások"},
         "close":     {"en": "Close (Esc)", "hu": "Bezárás (Esc)"},
         "settings1": {"en": "Difficulty modifiers", "hu": "Nehézségi beállítások"},
@@ -165,8 +168,19 @@
         "mono":      {"en": "Monochromatic", "hu": "Egyszínű"},
         "colorful":  {"en": "Colourful", "hu": "Színes"},
         "setting-numberOfTries": {"en": "Number of allowed tries", "hu": "Megengedett próbálkozások száma"},
-        "setting-hideImage": {"en": "Hide county image for more of a challange", "hu": "Vármegye képének elrejtése a nehézség fokozása érdekében"},
+        "setting-hideImage": {"en": "Hide county image for more of a challenge", "hu": "Vármegye képének elrejtése a nehézség fokozása érdekében"},
         "setting-rotateImage": {"en": "Randomly rotate county image", "hu": "Vármegye képének véletlenszerű elforgatása"},
-        "setting-sizePercent": {"en": "Replace proximity percent with size percent", "hu": "A távolságbeli közelségi százalék lecserélése méretbelire"}
+        "setting-sizePercent": {"en": "Replace proximity percent with size percent", "hu": "A távolságbeli közelségi százalék lecserélése méretbelire"},
+        "about":     {"en": "How to play", "hu": "Hogyan játssz"},
+        "stats":     {"en": "Statistics", "hu": "Statisztikák"},
+        "nostats":   {"en": "No statistics yet.", "hu": "Még nincsenek statisztikák."},
+        "custom":    {"en": "This is a quiz with a custom map. In this game, you probably need to guess locations other than the counties of the hungarian Kingdom.", "hu": "Ez egy egyedi térképpel rendelkező kvíz. nem vármegyéket, hanem valami mást kell kitaláljál."},
+        "goback":    {"en": "Go back to main game", "hu": "Visszatérés az eredeti játékhoz"},
+        "guessthe":  {"en": "Guess the&nbsp;", "hu": "Találd ki a&nbsp;"},
+        "inguesses": {"en": "&nbsp;in 6 guesses.", "hu": "-t 6 próbálkozásból."},
+        "vardle":    {"en": "Várdle is today's mystery county (one of the 72 Counties of the old Hungarian Kingdom) with it's hungarian name.", "hu": "A Várdle a mai nap keresett vármegyéje, mégpedig a Magyar Királyság 72-je közül valamelyik."},
+        "yourguess": {"en": "Your guess may also be the lake Balaton (for getting a clue about orientations), although it cannot be the target.", "hu": "Tippelhetsz a Balatonra tájékozódási okokból, habár őmaga nem lehet a célpont."},
+        "eachguess": {"en": "After each guess, you will have the distance, the direction and the proximity from your guess to the target location. (The proximity percent is calculated from the furthest county by default.)", 
+                      "hu": "Minden tipp után megkapod a voksolt és a keresett terület közti távolságértéket, irányt és közelségi százalékot. (A közelségi százalék alapértelmezetten a legtávolabbi területhez mérten kerül kiszámításra.)"}
     }
 }

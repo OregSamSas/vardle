@@ -16,6 +16,7 @@ const Directions = data.directions;
 const wikiLinks = data.wikilinks; // From https://en.wikipedia.org/wiki/Lands_of_the_Crown_of_Saint_Stephen#:~:text=Counties%20of%20the%20Lands%20of%20the%20Crown%20of%20Saint%20Stephen
 const translations = data.l10n;
 
+let showImageButtonRemoved = false;
 let rotationRemoved = false;
 let Scale = 1227.3;
 let Rotation = 1 - Math.random()*2;
@@ -43,8 +44,13 @@ const darkThemeArray = data.themes[1];
 const urlParams = new URLSearchParams(window.location.search);
 if(urlParams.get('map') === 'bundesländer') {
     imageOrigin = "Karte_Deutsche_Bundesländer_(Plain).svg";
+} else if(urlParams.get('map') === 'modern') {
+    imageOrigin = "Hungary_counties (Plain).svg";
+} else if(urlParams.get('map') === 'romania') {
+    imageOrigin = "Romania_Counties (Plain).svg";
+} else if (urlParams.has('map')) {
+    imageOrigin = urlParams.get('map');
 }
-
 
 // FUNCTION DEFINITIONS
 
@@ -97,6 +103,32 @@ function setThemeTo(theme) {
     }
 }
 
+function titleToId(imageId) {
+    let paths = document.querySelectorAll(`#${imageId} > svg > g > path`);
+    let newId;
+    for (let path of paths) {
+        if (path.getAttribute('name') != undefined) {
+            newId = path.getAttribute('name');
+            path.setAttribute('name', '');
+        } else if (path.getAttribute('title') != undefined) {
+            newId = path.getAttribute('title');
+            path.setAttribute('title', '');
+        } else {
+            newId = path.id;
+        }
+        path.id = newId
+    }
+}
+
+function checkTexts(imageId) {
+    let textgroup = document.querySelector(`#${imageId} > svg > g#textgroup`);
+    if (textgroup === null) {
+        let newtextgroup = document.createElement('g');
+        newtextgroup.id = 'textgroup';
+        document.querySelector(`#${imageId} > svg`).appendChild(newtextgroup);
+    }
+}
+
 // function for insert a county to guess
 function getCountyImage(id, num) {
     let ratio;
@@ -109,6 +141,8 @@ function getCountyImage(id, num) {
         placeToInsert.appendChild(allCounties.responseXML.documentElement);
     };
     allCounties.send("");
+    titleToId(id);
+    checkTexts(id);
     if(num != undefined) {
         let allPaths = document.querySelectorAll('#' + id + ' > svg > g > path');
         for (thisPath of allPaths) {
@@ -229,10 +263,6 @@ function absToRel(path) {
         } else {
             command = 'l';
         }
-        if (command === 'z' && path[char] === 'm' && Solution == "Bremen") {
-            command = 'l';
-            char += 2;
-        }
         if (command.toLocaleLowerCase() === 'z') {
             pathCoordinates.push(['']);
         } else {
@@ -286,13 +316,13 @@ function absToRel(path) {
     let i = 0;
     while (i < pathCoordinates.length) {
         command = pathCommands[i];
-        if (command === 'z') {
+        if (command === 'z' && i === pathCoordinates.length - 1) {
             newpath += 'z';
         } else {
             newpath += command + ' ';
             for (let j = 0; j < pathCoordinates[i].length / 2; j++) {
                 if (command === 'z') {
-                    newpath += ' ';
+                    break;
                 } else if (command === 'h' || command === 'v') {
                     newpath += pathCoordinates[i][j*2] + ' ';
                 } else {
@@ -313,6 +343,10 @@ function trackPath(path) {
     while (char < path.length) {
         command = path[char];
         char += 2;
+        if (command === 'z' && path[char] === 'm') {
+            command = 'l';
+            char += 2;
+        }
         if (command === 'M' || command === 'm') {
             x0 = 0;
             y0 = 0;
@@ -781,13 +815,13 @@ function handleGuess() {
     let guess = titleCase(guessInput.value);
     if(guess != '') {
         if (Guesses.includes(guess)) {
-            window.alert('Already guessed.')
+            window.alert(translationPiece('already'));
         } else if (CountyList.includes(guess)) {
             Guesses.push(guess);
             guessInput.value = "";
             guessAnalisys(guess);
         } else {
-            window.alert('Unknown Territory.');
+            window.alert(translationPiece('unknown'));
         }
     }
 }
@@ -823,6 +857,26 @@ function buttonEventListeners(button) {
         }
     }
 
+    // About (question mark) icon
+    if (button === "about-button") {
+        let about = document.getElementById(button);
+        if (about != null) {
+            about.addEventListener('click', (e) => {
+                displayAbout();
+            });
+        }
+    }
+
+    // Statistics (chart) icon
+    if (button === "stats-button") {
+        let stats = document.getElementById(button);
+        if (stats != null) {
+            stats.addEventListener('click', (e) => {
+                displayStats();
+            });
+        }
+    }
+
     // Cancel button
     if (button === "cancel") {
         let xmark = document.getElementById('cancel');
@@ -845,6 +899,9 @@ function closeUppermostWindow(deleteCanvas) {
     saveSettings();
     if (!rotateShape) {
         rotationRemoved = false;
+    }
+    if (!hideShape) {
+        showImageButtonRemoved = false;
     }
 }
 
@@ -879,10 +936,33 @@ function updateMainCountyImage(show, rotate, finished = false) {
     }
     if (show) {
         document.getElementById('imageToGuess').style.display = "";
+        document.getElementById('imageToGuess').style.transform = "";
+        removeShowMapButton();
     } else {
-        removeRotation(true);
-        document.getElementById('imageToGuess').style.display = "none";
+        if (!showImageButtonRemoved) {
+            removeRotation(true);
+            document.getElementById('imageToGuess').style.display = "none";
+            addShowMapButton();
+        }
     }
+}
+
+function addShowMapButton() {
+    let button = document.getElementById('tmpl-showmap').content.firstElementChild.cloneNode(true);
+    let image = document.getElementById('mainImage')
+    image.appendChild(button);
+    image.firstElementChild.style.transform = "scale(0)";
+    localalisation();
+    button.addEventListener('click', (e) => {
+        document.getElementById('imageToGuess').style.display = "";
+        image.firstElementChild.style.transform = "";
+        removeShowMapButton();
+        showImageButtonRemoved = true;
+    });
+}
+
+function removeShowMapButton() {
+    try {document.getElementById('showmap-button').remove();} catch {};
 }
 
 function placeMapOnpage(showMap) {
@@ -902,7 +982,6 @@ function placeMapOnpage(showMap) {
         let toggleColor = document.getElementById('tmpl-togglecolor').content.firstElementChild.cloneNode(true);
         insertTo.appendChild(toggleColor);
         buttonEventListeners("change-colour");
-        console.log(mapTheme)
         if (mapTheme === "colorful") {
             swapMapColour(toggleColor.firstElementChild.firstElementChild, true);
         }
@@ -1080,20 +1159,57 @@ function replaceInnerTextContent(elementContent, text) {
 
 // **Settings**
 function displaySettings() {
+    addForeGroundPage('settings');
+}
+
+function displayStats() {
+    addForeGroundPage('stats');
+}
+
+function displayAbout() {
+    addForeGroundPage('about');
+    if (imageOrigin !==  "Kingdom_of_Hungary_counties (Plain).svg") {
+        mainAboutContent = document.querySelectorAll('#aboutPage > div');
+        for (let divToDelete of mainAboutContent) {
+            divToDelete.remove();
+        }
+        let newDiv = document.createElement('div');
+        newDiv.className = "ml-3 p-1";
+        newDiv.style.paddingTop = "4em";
+        newDiv.setAttribute('ln', "custom");
+        let page = document.getElementById('aboutPage');
+        page.appendChild(newDiv);
+        let newA = document.createElement('a');
+        newA.setAttribute('ln', 'goback');
+        newA.setAttribute('href', window.location.toString().split('?')[0])
+        page.appendChild(newA);
+        newA.className = 'ml-3 p-1 text-green-600';
+        localalisation();
+    }
+}
+
+function addForeGroundPage(pageName) {
+    removeShowMapButton();
     let canvas = document.createElement('canvas');
-    let settingsPage = document.getElementById('tmpl-settings').content.firstElementChild.cloneNode(true);
+    let newPage = document.getElementById(`tmpl-${pageName}`).content.firstElementChild.cloneNode(true);
+    let header = document.getElementById('tmpl-header').content.firstElementChild.cloneNode(true);
     let insertTo = document.getElementById('page');
     let minheight = document.getElementById('mainContent').getBoundingClientRect().height;
+    header.id = `${pageName}-header`;
+    header.firstElementChild.setAttribute('ln', pageName);
+    newPage.insertBefore(header, newPage.firstChild);
     canvas.id = "backdrop";
     canvas.style.width = "100vw";
     canvas.style.minHeight = "100vh";
     canvas.style.height = `${minheight}px`;
     canvas.style.backgroundColor = "var(--back-bg)";
     insertTo.appendChild(canvas);
-    insertTo.appendChild(settingsPage);
-    settingsPage.style.minHeight = `${minheight}px`;
-    addGeneralSettings(settingsPage.childNodes[3].firstElementChild);
-    addGameSpecificSettings(settingsPage.childNodes[5].childNodes[3]);
+    insertTo.appendChild(newPage);
+    newPage.style.minHeight = `${minheight}px`;
+    if(pageName === 'settings') {
+        addGeneralSettings(newPage.childNodes[2].firstElementChild);
+        addGameSpecificSettings(newPage.childNodes[4].childNodes[3]);
+    }
     localalisation();
     buttonEventListeners('cancel');
 }
@@ -1231,11 +1347,11 @@ function docEvents() {
     window.addEventListener('resize', (e) => {
         let canvas = document.querySelector("#page > canvas");
         let minheight = document.getElementById('mainContent').getBoundingClientRect().height;
-        let settingsPage = document.getElementById('settingsPage');
+        let newPage = document.getElementById('newPage');
         try {
             let height = `${minheight}px`;
             canvas.style.height = height;
-            settingsPage.style.minHeight = height;
+            newPage.style.minHeight = height;
         } catch {}
         let insertTo = document.getElementById('mapArea');
         if (insertTo != null) {
@@ -1267,6 +1383,8 @@ inputEventListeners();
 Furthest = getFurthest();
 
 // Header buttons
+buttonEventListeners('about-button');
+buttonEventListeners('stats-button');
 buttonEventListeners('settings-button');
 
 

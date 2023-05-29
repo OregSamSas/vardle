@@ -29,7 +29,7 @@ img {
 .justify-center {
     justify-content: center
 }
-#mainContent, #settingsPage {
+#mainContent, #settingsPage, #aboutPage, #statsPage {
     color: var(--text);
     border-color: var(--border);
     flex-direction: column;
@@ -355,7 +355,6 @@ svg > g > path {
     stroke-width:2
 }
 #toggleColoured {
-    position: absolute;
     transform: translate(50%, 50%);
     padding: 2px
 }
@@ -371,7 +370,7 @@ svg > g > path {
     -webkit-animation: fadeIn .2s forwards;
     animation: fadeIn .2s forwards
 }
-#settingsPage, #backdrop {
+#settingsPage, #aboutPage, #statsPage ,#backdrop {
     position: absolute;
     background-color: var(--main-bg)
 }

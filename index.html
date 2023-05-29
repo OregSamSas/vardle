@@ -13,7 +13,7 @@
       <div id="page" class="flex w-full h-full justify-center items-center bg-white">
         <div id="mainContent" class="flex w-full h-full max-w-lg relative">
           <header id="mainHeader" class="border-b-2 px-3 border-gray-200 justify-center items-center flex flex-shrink w-full">
-            <a class="mr-3 text-xl">
+            <a id="about-button" class="mr-3 text-xl">
               <span class="undefined">
                 <img alt="❓" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2753.png" class="generalImg">
               </span>
@@ -24,7 +24,7 @@
                   <img alt="♜" src="https://em-content.zobj.net/thumbs/320/twitter/322/castle_1f3f0.png" class="inline-block generalImg"><!--<img alt="🔍" src="https://em-content.zobj.net/thumbs/240/google/350/magnifying-glass-tilted-left_1f50d.png" class="inline-block">-->
                 </span>V&aacute;rd<span class="text-green-600">l</span>e</span>
             </h1>
-            <a class="ml-3 text-xl">
+            <a id="stats-button" class="ml-3 text-xl">
               <span class="undefined">
                 <img alt="📈" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f4c8.png" class="generalImg">
               </span>
@@ -107,27 +107,48 @@
       <div class="col-span-7 h-8 bg-gray-200 rounded"></div>
     </template>
     <template id="tmpl-togglecolor">
-      <div id="toggleColoured" class="flex rounded">
+      <div id="toggleColoured" class="flex rounded absolute">
         <button role="toggle" id="toggleColoureButton" class="rounded"><img alt="🎨" src="https://em-content.zobj.net/thumbs/240/whatsapp/352/artist-palette_1f3a8.png" width="32px"></button>
       </div>
     </template>
     <template id="tmpl-cancel-rotation">
       <button class="rounded p-1 border-2 uppercase mb-2" type="button" id="cancel-rot"><span ln="norot" class="font-bold"><img alt="🌀" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f300.png" class="inline-block generalImg valign"></span></button>
     </template>
+    <template id="tmpl-about">
+      <div id="aboutPage" class="flex w-full h-full max-w-lg relative">
+        <div class="flex flex-col gap-2 text-justify border-b-2 border-gray-200 mb-3 my-2 p-1">
+          <div id="about1" class="ml-3">
+            <span ln="guessthe"></span><span class="font-bold">VÁRD<span class="text-green-600">L</span>E</span><span ln="inguesses"></span>
+          </div>
+          <div id="about2" class="ml-3" ln="vardle"></div>
+          <div id="about3" class="ml-3" ln="yourguess"></div>
+          <div id="about3" class="ml-3 mb-2" ln="eachguess"></div>
+        </div>
+      </div>
+    </template>
+    <template id="tmpl-header">
+      <header id="" class="border-b-2 px-3 border-gray-200 justify-center items-center flex flex-shrink w-full">
+        <h2 class="text-2xl font-bold uppercase tracking-wide text-center my-1 flex-auto" ln=""></h2>
+        <a id="cancel" lnt="close">
+          <span class="undefined">
+            <img alt="❌" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/274c.png" style="width: 1em; height: 1em; margin: 0px 0.05em 0px 0.1em; vertical-align: -0.1em;">
+          </span>
+        </a>
+      </header>
+    </template>
+    <template id="tmpl-stats">
+      <div id="statsPage" class="flex w-full h-full max-w-lg relative">
+        <div class="flex flex-col gap-2 text-justify border-b-2 border-gray-200 mb-3 my-2 p-1">
+          <div id="stats1" class="ml-3" ln="nostats"></div>
+        </div>
+      </div>
+    </template>
     <template id="tmpl-settings">
       <div id="settingsPage" class="flex w-full h-full max-w-lg relative">
-        <header id="settingsHeader" class="border-b-2 px-3 border-gray-200 justify-center items-center flex flex-shrink w-full">
-          <h2 class="text-2xl font-bold uppercase tracking-wide text-center my-1 flex-auto" ln="settings"></h2>
-          <a id="cancel" lnt="close">
-            <span class="undefined">
-              <img alt="❌" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/274c.png" style="width: 1em; height: 1em; margin: 0px 0.05em 0px 0.1em; vertical-align: -0.1em;">
-            </span>
-          </a>
-        </header>
-        <div class="my-4 flex">
+        <div class="my-2 flex">
           <div class="flex flex-col p-1 gap-2"></div>
         </div>
-        <div class="my-4 flex flex-col gap-2 ml-3">
+        <div class="my-2 flex flex-col gap-2 ml-3">
           <header class="my-2">
             <h3 class="text-lg font-bold" ln="settings1"></h3>
             <div class="text-sm italic text-gray-500" ln="settings2"></div>
@@ -155,6 +176,11 @@
         <input type="checkbox" id="setting-" class="p-1">
         <label class="flex-1 ml-3" for="setting-"></label>
       </div>
+    </template>
+    <template id="tmpl-showmap">
+      <button id="showmap-button" class="font-bold border-2 p-1 rounded absolute uppercase my-2" type="button">
+        <span ln="showmap"><img alt="🗺️" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f5fa.png" class="inline-block generalImg"></span>
+      </button>
     </template>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <script defer src="scripts.js"></script>
