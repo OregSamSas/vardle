@@ -134,11 +134,19 @@ function getCountyImage(id, num) {
     let ratio;
     let placeToInsert = document.getElementById(id);
     let allCounties = new XMLHttpRequest();
-    allCounties.open("GET", imageOrigin,false);
+    allCounties.open("GET", imageOrigin, false);
     // Following line is just to be on the safe side
     allCounties.overrideMimeType("image/svg+xml");
     allCounties.onload = (e) => {
-        placeToInsert.appendChild(allCounties.responseXML.documentElement);
+        try {
+            placeToInsert.appendChild(allCounties.responseXML.documentElement);
+        } catch {
+            allCounties.open("GET", "img/Kingdom_of_Hungary_counties_(Plain).svg", false);
+            allCounties.onload = (e) => {
+                placeToInsert.appendChild(allCounties.responseXML.documentElement);
+            }
+            allCounties.send("");
+        }
     };
     allCounties.send("");
     titleToId(id);
