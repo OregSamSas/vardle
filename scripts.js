@@ -34,7 +34,7 @@ let otherMetaData = metaData;
 let SuggestionList = [];
 let Won = false;
 let Solution;
-let imageOrigin = "Kingdom_of_Hungary_counties (Plain).svg";
+let imageOrigin = "img/Kingdom_of_Hungary_counties_(Plain).svg";
 
 // Theme Metadata
 const lightThemeArray = data.themes[0];
@@ -43,11 +43,11 @@ const darkThemeArray = data.themes[1];
 // Get URL params
 const urlParams = new URLSearchParams(window.location.search);
 if(urlParams.get('map') === 'bundesländer') {
-    imageOrigin = "Karte_Deutsche_Bundesländer_(Plain).svg";
+    imageOrigin = "img/Karte_Deutsche_Bundesländer_(Plain).svg";
 } else if(urlParams.get('map') === 'modern') {
-    imageOrigin = "Hungary_counties (Plain).svg";
+    imageOrigin = "img/Hungary_counties_(Plain).svg";
 } else if(urlParams.get('map') === 'romania') {
-    imageOrigin = "Romania_Counties (Plain).svg";
+    imageOrigin = "img/Romania_Counties_(Plain).svg";
 } else if (urlParams.has('map')) {
     imageOrigin = urlParams.get('map');
 }
@@ -716,7 +716,7 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
         let myPlace = removeGuessArea(true);
         myPlace.appendChild(finishArea);
         let finishImage = finishArea.childNodes[3].childNodes[1].firstElementChild;
-        finishImage.setAttribute('src', 'loseMeme.jpg');
+        finishImage.setAttribute('src', 'img/loseMeme.jpg');
         finishImage.setAttribute('alt', '😒');
 
         // Cancel rotation when no tries left too
@@ -1004,12 +1004,12 @@ function swapMapColour(paletteIcon, forcetrue=false) {
         modifiedStyles = document.createElement('style');
         modifiedStyles.id = 'style-modification';
         modifiedStyles.innerHTML = `
-            #helpMap > g > path           { fill: #FFFFFF; stroke-linecap:round; stroke-linejoin:round }
-            #helpMap > g > path.county_y  { fill: #FFFFC0; stroke-linecap:round; stroke-linejoin:round }
-            #helpMap > g > path.county_r  { fill: #FFC0C0; stroke-linecap:round; stroke-linejoin:round }
-            #helpMap > g > path.county_b  { fill: #C0C0FF; stroke-linecap:round; stroke-linejoin:round }
-            #helpMap > g > path.county_g  { fill: #C0FFC0; stroke-linecap:round; stroke-linejoin:round }
-            #helpMap > g > path.water     { fill: #0080FF; stroke-linecap:round; stroke-linejoin:round }
+            #helpMap > g > path           { fill: #FFFFFF; }
+            #helpMap > g > path.county_y  { fill: #FFFFC0; }
+            #helpMap > g > path.county_r  { fill: #FFC0C0; }
+            #helpMap > g > path.county_b  { fill: #C0C0FF; }
+            #helpMap > g > path.county_g  { fill: #C0FFC0; }
+            #helpMap > g > path.water     { fill: #0080FF; }
             #helpMap > g > text           { fill: #000}
             #helpMap > g > path[style*="var(--red)"] { fill: var(--toastify-color-error) !important;}
             `;

@@ -349,6 +349,8 @@ footer {
 }
 svg > g > path {
     fill: var(--text);
+    stroke-linecap:round;
+    stroke-linejoin:round
 }
 #helpMap > g > path { 
     stroke: var(--border2); 
