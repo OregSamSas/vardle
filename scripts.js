@@ -122,7 +122,7 @@ function titleToId(imageId) {
 
 function checkTexts(imageId) {
     let textgroup = document.querySelector(`#${imageId} > svg > g#textgroup`);
-    if (textgroup === null) {
+    if (textgroup === null || textgroup === undefined) {
         let newtextgroup = document.createElement('g');
         newtextgroup.id = 'textgroup';
     }
@@ -130,7 +130,7 @@ function checkTexts(imageId) {
 
 function pathUnderGroup(imageId) {
     let paths = document.querySelector(`#${imageId} > svg > g > path`);
-    if (paths === null) {
+    if (paths === null || paths === undefined) {
         paths = document.querySelectorAll(`#${imageId} > svg > path`);
         let newgroup = document.createElement('g');
         let newpath;
