@@ -131,7 +131,7 @@ function checkTexts(imageId) {
 function pathUnderGroup(imageId) {
     let paths = document.querySelector(`#${imageId} > svg > g > path`);
     if (paths === null) {
-        paths = document.querySelector(`#${imageId} > svg > path`);
+        paths = document.querySelectorAll(`#${imageId} > svg > path`);
         let newgroup = document.createElement('g');
         let newpath;
         for (let thispath of paths) {
