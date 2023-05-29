@@ -34,7 +34,7 @@ let otherMetaData = metaData;
 let SuggestionList = [];
 let Won = false;
 let Solution;
-let imageOrigin = "img/Kingdom_of_Hungary_counties_(Plain).svg";
+let imageOrigin = "Kingdom_of_Hungary_counties_(Plain).svg";
 
 // Theme Metadata
 const lightThemeArray = data.themes[0];
@@ -43,11 +43,11 @@ const darkThemeArray = data.themes[1];
 // Get URL params
 const urlParams = new URLSearchParams(window.location.search);
 if(urlParams.get('map') === 'bundesländer') {
-    imageOrigin = "img/Karte_Deutsche_Bundesländer_(Plain).svg";
+    imageOrigin = "Karte_Deutsche_Bundesländer_(Plain).svg";
 } else if(urlParams.get('map') === 'modern') {
-    imageOrigin = "img/Hungary_counties_(Plain).svg";
+    imageOrigin = "Hungary_counties_(Plain).svg";
 } else if(urlParams.get('map') === 'romania') {
-    imageOrigin = "img/Romania_Counties_(Plain).svg";
+    imageOrigin = "Romania_Counties_(Plain).svg";
 } else if (urlParams.has('map')) {
     imageOrigin = urlParams.get('map');
 }
@@ -141,7 +141,7 @@ function getCountyImage(id, num) {
         try {
             placeToInsert.appendChild(allCounties.responseXML.documentElement);
         } catch {
-            allCounties.open("GET", "img/Kingdom_of_Hungary_counties_(Plain).svg", false);
+            allCounties.open("GET", "Kingdom_of_Hungary_counties_(Plain).svg", false);
             allCounties.onload = (e) => {
                 placeToInsert.appendChild(allCounties.responseXML.documentElement);
             }
@@ -724,7 +724,7 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
         let myPlace = removeGuessArea(true);
         myPlace.appendChild(finishArea);
         let finishImage = finishArea.childNodes[3].childNodes[1].firstElementChild;
-        finishImage.setAttribute('src', 'img/loseMeme.jpg');
+        finishImage.setAttribute('src', 'loseMeme.jpg');
         finishImage.setAttribute('alt', '😒');
 
         // Cancel rotation when no tries left too
