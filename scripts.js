@@ -122,9 +122,10 @@ function titleToId(imageId) {
 
 function checkTexts(imageId) {
     let textgroup = document.querySelector(`#${imageId} > svg > g#textgroup`);
-    if (textgroup === null || textgroup === undefined) {
+    if (textgroup == null || textgroup == undefined) {
         let newtextgroup = document.createElement('g');
         newtextgroup.id = 'textgroup';
+        document.querySelector(`#${imageId} > svg`).appendChild(newtextgroup);
     }
 }
 
