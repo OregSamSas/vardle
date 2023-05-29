@@ -125,7 +125,21 @@ function checkTexts(imageId) {
     if (textgroup === null) {
         let newtextgroup = document.createElement('g');
         newtextgroup.id = 'textgroup';
-        document.querySelector(`#${imageId} > svg`).appendChild(newtextgroup);
+    }
+}
+
+function pathUnderGroup(imageId) {
+    let paths = document.querySelector(`#${imageId} > svg > g > path`);
+    if (paths === null) {
+        paths = document.querySelector(`#${imageId} > svg > path`);
+        let newgroup = document.createElement('g');
+        let newpath;
+        for (let thispath of paths) {
+            newpath = thispath.cloneNode();
+            newgroup.appendChild(newpath);
+            thispath.remove();
+        }
+        document.querySelector(`#${imageId} > svg`).appendChild(newgroup);
     }
 }
 
@@ -149,6 +163,7 @@ function getCountyImage(id, num) {
         }
     };
     allCounties.send("");
+    pathUnderGroup(id);
     titleToId(id);
     checkTexts(id);
     if(num != undefined) {
