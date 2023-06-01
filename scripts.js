@@ -369,9 +369,15 @@ function trackPath(path) {
     while (char < path.length) {
         command = path[char];
         char += 2;
-        if (command === 'z' && path[char] === 'm') {
-            command = 'l';
-            char += 2;
+        if (command === 'z' && path[char] != undefined) {
+            if (path[char].toLowerCase() === 'm') {
+                if (path[char] === 'M') {
+                    command = 'L';
+                } else {
+                    command = 'l';
+                }
+                char += 2;
+            }
         }
         if (command === 'M' || command === 'm') {
             x0 = 0;
