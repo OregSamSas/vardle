@@ -48,6 +48,8 @@ if(urlParams.get('map') === 'bundesländer') {
     imageOrigin = "Hungary_counties_(Plain).svg";
 } else if(urlParams.get('map') === 'romania') {
     imageOrigin = "Romania_Counties_(Plain).svg";
+} else if(urlParams.get('map') === 'france') {
+    imageOrigin = "Regions_France_(Plain).svg";
 } else if (urlParams.has('map')) {
     imageOrigin = urlParams.get('map');
 }
@@ -1192,7 +1194,7 @@ function displayStats() {
 
 function displayAbout() {
     addForeGroundPage('about');
-    if (imageOrigin !==  "Kingdom_of_Hungary_counties (Plain).svg") {
+    if (imageOrigin !==  "Kingdom_of_Hungary_counties_(Plain).svg") {
         mainAboutContent = document.querySelectorAll('#aboutPage > div');
         for (let divToDelete of mainAboutContent) {
             divToDelete.remove();
