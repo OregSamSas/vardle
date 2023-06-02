@@ -48,6 +48,8 @@ if(urlParams.get('map') === 'bundesländer') {
     imageOrigin = "Hungary_counties_(Plain).svg";
 } else if(urlParams.get('map') === 'romania') {
     imageOrigin = "Romania_Counties_(Plain).svg";
+} else if(urlParams.get('map') === 'map' || urlParams.get('map') === 'world') {
+    imageOrigin = "world-map.svg";
 } else if(urlParams.get('map') === 'france') {
     imageOrigin = "Regions_France_(Plain).svg";
 } else if (urlParams.has('map')) {
@@ -115,20 +117,38 @@ function titleToId(imageId) {
         } else if (path.getAttribute('title') != undefined) {
             newId = path.getAttribute('title');
             path.setAttribute('title', '');
+        } else if (path.getAttribute('data-name') != undefined) {
+            newId = path.getAttribute('data-name');
+            path.setAttribute('data-name', '');
         } else {
             newId = path.id;
         }
         path.id = newId
+        path.id = replaceSpecialCharacters(path.id);
     }
 }
 
-function checkTexts(imageId) {
+function replaceSpecialCharacters(text = "", vicaversa = false) {
+    if (vicaversa) {
+        return titleCase(text).replace(/\_/g, "'").replace(/–/g, ' ').replace(/°/g, '.');
+    } else {
+        return titleCase(text).replace(/\'/g, '_').replace(/ /g, '–').replace(/\./g, '°');
+    }
+}
+
+function rectifyImage(imageId) {
     let textgroup = document.querySelector(`#${imageId} > svg > g#textgroup`);
     if (textgroup == null || textgroup == undefined) {
         let newtextgroup = document.createElement('g');
         newtextgroup.id = 'textgroup';
         document.querySelector(`#${imageId} > svg`).appendChild(newtextgroup);
     }
+    let svg = document.querySelector(`#${imageId} > svg`);
+    svg.setAttribute('viewBox', '');
+}
+
+function makeSpaceInSVG(svg) {
+    svg.innerHTML = svg.innerHTML.replace('\n', '');
 }
 
 function pathUnderGroup(imageId) {
@@ -144,6 +164,14 @@ function pathUnderGroup(imageId) {
         }
         document.querySelector(`#${imageId} > svg`).appendChild(newgroup);
     }
+}
+
+function adjustMetaData(data, withRatio) {
+    console.log(metaData)
+    for (let datapiece in data) {
+        data[datapiece] = data[datapiece] / withRatio;
+    }
+    return data;
 }
 
 // function for insert a county to guess
@@ -168,7 +196,7 @@ function getCountyImage(id, num) {
     allCounties.send("");
     pathUnderGroup(id);
     titleToId(id);
-    checkTexts(id);
+    rectifyImage(id);
     if(num != undefined) {
         let allPaths = document.querySelectorAll('#' + id + ' > svg > g > path');
         for (thisPath of allPaths) {
@@ -177,13 +205,18 @@ function getCountyImage(id, num) {
             } else {
                 Solution = thisPath.id;
                 thisPath.setAttribute("d", absToRel(thisPath.getAttribute("d")));
+                let imgRatio = document.querySelector(`#${id} > svg`).getAttribute('aspectRatio');
+                if (imgRatio == null) {
+                    imgRatio = 1;
+                }
                 metaData = trackPath(thisPath.getAttribute("d"));
+                metaData = adjustMetaData(metaData, imgRatio);
                 if(metaData.height === 0) {
                     metaData.height = 120;
                     metaData.width = 120;
                 }
                 let biggerSize = Math.sqrt(metaData.width ** 2 + metaData.height ** 2);
-                thisPath.setAttribute("d", movePath(thisPath.getAttribute("d"), 0-metaData.x, 0-metaData.y));
+                thisPath.setAttribute("d", movePath(thisPath.getAttribute("d"), 0 - metaData.x * imgRatio, 0 - metaData.y * imgRatio));
                 ratio = (Math.floor((180 / biggerSize) * 100000) / 100000).toString();
                 thisPath.style.transform = `scale(${ratio})`;
             }
@@ -193,6 +226,8 @@ function getCountyImage(id, num) {
         svgImage = document.querySelector('#' + id + ' > svg');
         svgImage.setAttribute("width", metaData.width * parseFloat(ratio));
         svgImage.setAttribute("height", metaData.height * parseFloat(ratio));
+
+        makeSpaceInSVG(svgImage);
 
         // Rotate image if desired
         if (rotateShape) {
@@ -238,19 +273,29 @@ function isCharNumber(c) {
 
 // Function for making a string to TitleCase (all initial letters are capitalised)
 // Modified version of https://www.freecodecamp.org/news/three-ways-to-title-case-a-sentence-in-javascript-676a9175eb27/
-function titleCase(str) {
+function titleCase(str = "") {
     str = str.toLowerCase();
     str = str.split(' ');
     for (let i = 0; i < str.length; i++) {
-        str[i] = str[i].split('-');
+        let emdash = false;
+        if (str[i].includes('–')) {
+            str[i] = str[i].split('–');
+            emdash = true;
+        } else {
+            str[i] = str[i].split('-');
+        }
         for(let j = 0; j < str[i].length; j++) {
-            if (str[i][j].toLowerCase() === "és") { // Do not capitalise the conjunctive word "és" (meaning and)
+            if (str[i][j].toLowerCase() === "és" || str[i][j].toLocaleLowerCase() === "and") { // Do not capitalise conjunctive words (és = and)
                 str[i][j] = str[i][j].toLowerCase();
             } else {
                 str[i][j] = str[i][j].charAt(0).toUpperCase() + str[i][j].slice(1);
             }
         }
-        str[i] = str[i].join('-');
+        if (emdash) {
+            str[i] = str[i].join('–');
+        } else {
+            str[i] = str[i].join('-');
+        }
     }
     str = str.join(' ');
     return str;
@@ -581,6 +626,7 @@ function createCountiesElement() {
 
 // Creates an item of the Counties Suggestion list
 function createCountyElement(elementIndex, MyInputId, CountyName, countySuggContId) {
+    CountyName = replaceSpecialCharacters(CountyName, true);
     let element = document.getElementById('tmpl-county-suggestion-piece').content.firstElementChild.cloneNode(true);
     element.setAttribute('aria-selected', elementIndex === 0);
     if (elementIndex === 0) {
@@ -704,7 +750,7 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
     newLine.id = `guess-line${Guesses.length}`;
     let partyEmoji = newLine.children[2].childNodes[1].firstChild;
     try {
-        newLine.children[0].childNodes[1].innerHTML = name;
+        newLine.children[0].childNodes[1].innerHTML = replaceSpecialCharacters(name, true);
         newLine.children[1].innerHTML = insertSpacesToNum(dist) + " " + distUnit;
         partyEmoji.setAttribute('alt', Directions[dir].alt);
         partyEmoji.setAttribute('src', 'https://em-content.zobj.net/thumbs/240/twitter/' + Directions[dir].img)
@@ -844,7 +890,7 @@ function normalModulus(a, b) {
 // When the form is submitted
 function handleGuess() {
     let guessInput = document.querySelector('input[aria-autocomplete="list"]');
-    let guess = titleCase(guessInput.value);
+    let guess = replaceSpecialCharacters(guessInput.value);
     if(guess != '') {
         if (Guesses.includes(guess)) {
             window.alert(translationPiece('already'));
@@ -1077,7 +1123,11 @@ function initialWork() {
     getCountyImage('mapTemplate');
     let AllCountyNames = document.querySelectorAll('#mapTemplate > svg > g > path');
     for (let thisCounty of AllCountyNames) {
-        try {if((thisCounty.id != undefined)) {CountyList.push(thisCounty.id)}} catch {}
+        try {
+            if((thisCounty.id != undefined)) {
+                CountyList.push(thisCounty.id);
+            }
+        } catch {}
     }
     getImageMetadata();
 
@@ -1388,13 +1438,15 @@ function docEvents() {
         let insertTo = document.getElementById('mapArea');
         if (insertTo != null) {
             let map = insertTo.firstElementChild;
-            let em = parseFloat(getComputedStyle(document.getElementById('midContent')).fontSize);
-            let scale = 31 * em;
-            if (scale > window.innerWidth * 0.9) {
-                scale = window.innerWidth * 0.9;
+                if (map != null) {
+                let em = parseFloat(getComputedStyle(document.getElementById('midContent')).fontSize);
+                let scale = 31 * em;
+                if (scale > window.innerWidth * 0.9) {
+                    scale = window.innerWidth * 0.9;
+                }
+                map.style.transform = `scale(${scale / map.width.baseVal.value})`;
+                insertTo.style.height = `${map.getBoundingClientRect().height * 1.1}px`;
             }
-            map.style.transform = `scale(${scale / map.width.baseVal.value})`;
-            insertTo.style.height = `${map.getBoundingClientRect().height * 1.1}px`;
         }
     });
 }
@@ -1412,7 +1464,9 @@ placeGuessLines(numberOfTries);
 // Setup event listeners
 inputEventListeners();
 
-Furthest = getFurthest();
+window.onload = function () {
+    Furthest = getFurthest();
+}
 
 // Header buttons
 buttonEventListeners('about-button');
