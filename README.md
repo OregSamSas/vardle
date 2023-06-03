@@ -1,5 +1,6 @@
 # Várdle
-A [Worldle](https://worldle.teuteuf.fr) based geography quiz game with the counties of the old Hungarian Kingdom
+A [Worldle](https://worldle.teuteuf.fr) based geography quiz game with the counties of the old Hungarian Kingdom.
+(There are other alternative maps to choose from, e.g. the regions of France, or Germany.)
 
 Vár (*meaning castle, fortress, palace*) is included in the name we use in Hungarian ("*vármegye*") for the counties of the Hungarian Kingdom (and it is used again sadly from 2022 to the current ones...). So this is where the name s from. And the icon also.
 
