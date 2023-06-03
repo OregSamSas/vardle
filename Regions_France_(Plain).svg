@@ -11,6 +11,13 @@
      scale="1080"
      placeholder="ph2"
      id="mapMetadata" />
+  <style
+     type="text/css"
+     id="style1848"><![CDATA[
+        text {
+         text-anchor:middle;
+        }
+     ]]></style>
   <g
      id="g1395">
     <path
@@ -104,8 +111,8 @@
   </g>
   <g
      id="textgroup"
-     style="font-style:italic;fill-opacity:1;fill-rule:nonzero"
-     transform="matrix(2.6630554,0,0,2.6630554,-22.05639,-4.7243264)">
+     style="font-style:italic;"
+     transform="matrix(2.6630554,0,0,2.6630554,71.94361,-4.7243264)">
     <text
        x="153.83365"
        y="286.78046"
@@ -138,39 +145,39 @@
          x="141.40625"
          y="460.17468" /></text>
     <text
-       x="302.51248"
-       y="420.93884"
+       x="301.97699"
+       y="423.34851"
        id="text9716"><tspan
          id="tspan9718"
-         x="302.51248"
-         y="420.93884">Languedoc-</tspan></text>
+         x="301.97699"
+         y="423.34851">Languedoc-</tspan></text>
     <text
-       x="403.84875"
-       y="391.12671"
+       x="404.22739"
+       y="391.50534"
        id="text9720"><tspan
          id="tspan9722"
-         x="403.84875"
-         y="391.12671">Provence-</tspan><tspan
-         x="403.84875"
-         y="407.12671"
+         x="404.22739"
+         y="391.50534">Provence-</tspan><tspan
+         x="404.22739"
+         y="407.50534"
          id="tspan9802">Alpes-</tspan><tspan
-         x="403.84875"
-         y="423.12671"
+         x="404.22739"
+         y="423.50534"
          id="tspan9804">Côte d'Azur</tspan></text>
     <text
-       x="363.06622"
-       y="319.7645"
+       x="373.24036"
+       y="314.94516"
        id="text9724"><tspan
          id="tspan9726"
-         x="363.06622"
-         y="319.7645">Rhône-Alpes</tspan></text>
+         x="373.24036"
+         y="314.94516">Rhône-Alpes</tspan></text>
     <text
-       x="287.74484"
-       y="323.83038"
+       x="283.00052"
+       y="334.27228"
        id="text9728"><tspan
          id="tspan9730"
-         x="287.74484"
-         y="323.83038">Auvergne</tspan></text>
+         x="283.00052"
+         y="334.27228">Auvergne</tspan></text>
     <text
        x="315.0957"
        y="216.42612"
@@ -179,22 +186,22 @@
          x="315.0957"
          y="216.42612">Bourgogne</tspan></text>
     <text
-       x="399.00604"
+       x="395.25101"
        y="218.16653"
        id="text9736"><tspan
-         x="399.00604"
+         x="395.25101"
          y="218.16653"
          id="tspan9740">Franche-</tspan><tspan
-         x="399.00604"
+         x="395.25101"
          y="234.16653"
          id="tspan9808">Comté</tspan></text>
     <text
-       x="443.72525"
-       y="161.45543"
+       x="436.72037"
+       y="184.5526"
        id="text9744"><tspan
          id="tspan9746"
-         x="443.72525"
-         y="161.45543">Alsace</tspan></text>
+         x="436.72037"
+         y="184.5526">Alsace</tspan></text>
     <text
        x="392.31775"
        y="133.71335"
@@ -203,14 +210,14 @@
          x="392.31775"
          y="133.71335">Lorraine</tspan></text>
     <text
-       x="316.46594"
-       y="151.07721"
+       x="331.26389"
+       y="152.57925"
        id="text9752"><tspan
          id="tspan9754"
-         x="316.46594"
-         y="151.07721">Champagne-</tspan><tspan
-         x="316.46594"
-         y="167.07721"
+         x="331.26389"
+         y="152.57925">Champagne-</tspan><tspan
+         x="331.26389"
+         y="168.57925"
          id="tspan9820" /></text>
     <text
        x="261.35037"
@@ -223,56 +230,56 @@
          y="149.28191"
          id="tspan23714">France</tspan></text>
     <text
-       x="288.80118"
-       y="91.067604"
+       x="266.08264"
+       y="89.553032"
        id="text9760"><tspan
          id="tspan9762"
-         x="288.80118"
-         y="91.067604">Picardie</tspan></text>
+         x="266.08264"
+         y="89.553032">Picardie</tspan></text>
     <text
-       x="255.45692"
-       y="42.409424"
+       x="254.7059"
+       y="41.658405"
        id="text9764"><tspan
-         x="255.45692"
-         y="42.409424"
+         x="254.7059"
+         y="41.658405"
          id="tspan9812">Nord-Pas-</tspan><tspan
-         x="255.45692"
-         y="58.409424"
+         x="254.7059"
+         y="57.658405"
          id="tspan9816" /></text>
     <text
-       x="198.47665"
-       y="87.269341"
+       x="199.81535"
+       y="82.985497"
        id="text9776"><tspan
          id="tspan9778"
-         x="198.47665"
-         y="87.269341">Haute-</tspan><tspan
-         x="198.47665"
-         y="103.26933"
+         x="199.81535"
+         y="82.985497">Haute-</tspan><tspan
+         x="199.81535"
+         y="98.985489"
          id="tspan9818">Normandie</tspan></text>
     <text
-       x="131.06451"
-       y="127.29675"
+       x="139.89995"
+       y="120.87099"
        id="text9780"><tspan
          id="tspan9782"
-         x="131.06451"
-         y="127.29675">Basse-</tspan><tspan
-         x="131.06451"
-         y="143.29675"
+         x="139.89995"
+         y="120.87099">Basse-</tspan><tspan
+         x="139.89995"
+         y="136.87099"
          id="tspan9810">Normandie</tspan></text>
     <text
-       x="52.282204"
-       y="174.99625"
+       x="57.904751"
+       y="172.31885"
        id="text9784"><tspan
          id="tspan9786"
-         x="52.282204"
-         y="174.99625">Bretagne</tspan></text>
+         x="57.904751"
+         y="172.31885">Bretagne</tspan></text>
     <text
-       x="104.88309"
-       y="212.66872"
+       x="121.6454"
+       y="210.98386"
        id="text9788"><tspan
          id="tspan9790"
-         x="104.88309"
-         y="212.66872">Pays de la Loire</tspan></text>
+         x="121.6454"
+         y="210.98386">Pays de la Loire</tspan></text>
     <text
        x="223.99066"
        y="211.26514"
@@ -288,12 +295,12 @@
          x="225.54813"
          y="302.92404">Limousin</tspan></text>
     <text
-       x="516.82428"
-       y="503.2222"
+       x="510.00873"
+       y="502.4649"
        id="text9822"><tspan
          id="tspan9824"
-         x="516.82428"
-         y="503.2222">Corse</tspan></text>
+         x="510.00873"
+         y="502.4649">Corse</tspan></text>
     <text
        x="257.54211"
        y="442.78293"
@@ -303,10 +310,10 @@
          y="442.78293">Roussillon</tspan></text>
     <text
        x="345.48254"
-       y="150.44148"
+       y="151.94353"
        id="text53313"><tspan
          x="345.48254"
-         y="166.44148"
+         y="167.94353"
          id="tspan53311">Ardenne</tspan></text>
     <text
        x="282.03683"
