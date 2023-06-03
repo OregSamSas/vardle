@@ -18,7 +18,7 @@ const translations = data.l10n;
 
 let showImageButtonRemoved = false;
 let rotationRemoved = false;
-let Scale = 1227.3;
+let Scale = undefined;
 let Rotation = 1 - Math.random()*2;
 let sizePercent = false;
 let numberOfTries = 6;
@@ -148,7 +148,10 @@ function rectifyImage(imageId) {
 }
 
 function makeSpaceInSVG(svg) {
-    svg.innerHTML = svg.innerHTML.replace('\n', '');
+    let newContent = svg.innerHTML.replace('\n', '');
+    if (newContent != undefined) {
+        svg.innerHTML = newContent;
+    }
 }
 
 function pathUnderGroup(imageId) {
@@ -581,7 +584,7 @@ function handleKeysForEvent(e, input) {
     }
     if (e.keyCode === 38 || e.keyCode === 40) { // Up-down arrow navigation in list
         e.preventDefault();
-        let oldSelected = findSelectedCountyItem(input).firstChild.innerHTML;
+        let oldSelected = replaceSpecialCharacters(findSelectedCountyItem(input).firstChild.innerHTML);
         let change;
         if (e.keyCode === 38) {
             change = -1;
@@ -611,7 +614,7 @@ function insertAutoList(inputPlace) {
     completeList.appendChild(countiesElement);
     let inputValue = inputPlace.value;
     for (let county=0; county<CountyListOrdered.length; county++) {
-        if (CountyListOrdered[county].toUpperCase().includes(inputValue.toUpperCase())) { // Fullfills search keyword (important to have the same letter case)
+        if (CountyListOrdered[county].includes(replaceSpecialCharacters(inputValue))) { // Fullfills search keyword (important to have the same letter case)
             SuggestionList.push(CountyListOrdered[county]);
             let countyElement = createCountyElement(countiesElement.childElementCount, inputPlace.id, CountyListOrdered[county], completeList.id);
             countiesElement.appendChild(countyElement);
@@ -696,7 +699,7 @@ function selectCountyItem(inp, value) {
     let searchedItem;
     for (thisItem of allItems) {
         try {
-            if (thisItem.firstChild.innerHTML.toUpperCase() === value.toUpperCase()) {
+            if (replaceSpecialCharacters(thisItem.firstChild.innerHTML) === titleCase(value)) {
                 searchedItem = thisItem;
             }
         } catch {}
@@ -751,7 +754,7 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
     let partyEmoji = newLine.children[2].childNodes[1].firstChild;
     try {
         newLine.children[0].childNodes[1].innerHTML = replaceSpecialCharacters(name, true);
-        newLine.children[1].innerHTML = insertSpacesToNum(dist) + " " + distUnit;
+        newLine.children[1].innerHTML = ((Scale == undefined) ? '?' : insertSpacesToNum(dist)) + " " + distUnit;
         partyEmoji.setAttribute('alt', Directions[dir].alt);
         partyEmoji.setAttribute('src', 'https://em-content.zobj.net/thumbs/240/twitter/' + Directions[dir].img)
         newLine.children[3].innerHTML = (Math.round(percent)).toString() + '%';
@@ -852,13 +855,13 @@ function guessAnalisys(myGuess, specialplace) {
             let unit = "m";
             let accuracy = 0;
             if (guessPath != "") {
-                distance = Math.floor(distance * Scale); // m
+                distance = Math.floor(distance * ((Scale === undefined) ? 1 : Scale)); // m
                 if (sizePercent) {
                     let size0 = metaData.width * metaData.height;
                     let size1 = otherMetaData[myGuess].width * otherMetaData[myGuess].height;
                     accuracy = (normalModulus((size1 - size0), size0) / size0) * 100;
                 } else {
-                    accuracy = (1 - distance / Scale / Furthest.dist)*100;
+                    accuracy = (1 - distance / ((Scale === undefined) ? 1 : Scale) / Furthest.dist)*100;
                 }
                 if ((distance > 99999 && distanceUnit === "mixed") || distanceUnit === "km") {
                     unit = "km";
@@ -1048,6 +1051,7 @@ function placeMapOnpage(showMap) {
     let insertTo = document.getElementById(showMap.getAttribute('maparea-id'));
     if (map == null) { // Check if it's already toggled, and the mp is displayed => then it hides it
         let mapTemplate = document.querySelector('#mapTemplate > svg').cloneNode(true);
+        makeSpaceInSVG(mapTemplate);
         mapTemplate.id = "helpMap";
         let em = parseFloat(getComputedStyle(document.getElementById('midContent')).fontSize);
         let scale = 31 * em / mapTemplate.width.baseVal.value;
