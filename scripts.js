@@ -1145,7 +1145,7 @@ function initialWork() {
     guessImage.className = 'flex items-center justify-center w-full';
     document.getElementById('mainImage').appendChild(guessImage);
     console.log(CountyList);
-    getCountyImage('imageToGuess', ((Solution != undefined) ? CountyList.indexOf(Solution) - 1 : getRandomCounty()));
+    getCountyImage('imageToGuess', ((Solution != undefined) ? CountyList.indexOf(Solution) : getRandomCounty()));
 
     // Theme Setup
     initialThemeSetup();
