@@ -42,18 +42,22 @@ const darkThemeArray = data.themes[1];
 
 // Get URL params
 const urlParams = new URLSearchParams(window.location.search);
-if(urlParams.get('map') === 'bundesländer') {
+if (urlParams.get('map') === 'bundesländer') {
     imageOrigin = "Karte_Deutsche_Bundesländer_(Plain).svg";
-} else if(urlParams.get('map') === 'modern') {
+} else if (urlParams.get('map') === 'modern') {
     imageOrigin = "Hungary_counties_(Plain).svg";
-} else if(urlParams.get('map') === 'romania') {
+} else if (urlParams.get('map') === 'romania') {
     imageOrigin = "Romania_Counties_(Plain).svg";
-} else if(urlParams.get('map') === 'map' || urlParams.get('map') === 'world') {
+} else if (urlParams.get('map') === 'map' || urlParams.get('map') === 'world') {
     imageOrigin = "world-map.svg";
-} else if(urlParams.get('map') === 'france') {
+} else if (urlParams.get('map') === 'france') {
     imageOrigin = "Regions_France_(Plain).svg";
 } else if (urlParams.has('map')) {
     imageOrigin = urlParams.get('map');
+}
+
+if (urlParams.has('sol')) {
+   Solution = urlParams.get('sol');
 }
 
 // FUNCTION DEFINITIONS
@@ -1141,7 +1145,7 @@ function initialWork() {
     guessImage.className = 'flex items-center justify-center w-full';
     document.getElementById('mainImage').appendChild(guessImage);
     console.log(CountyList);
-    getCountyImage('imageToGuess', getRandomCounty());
+    getCountyImage('imageToGuess', ((Solution != undefined) ? CountyList.indexOf(Solution) : getRandomCounty());
 
     // Theme Setup
     initialThemeSetup();
