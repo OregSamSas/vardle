@@ -52,6 +52,8 @@ if (urlParams.get('map') === 'bundesländer') {
     imageOrigin = "world-map.svg";
 } else if (urlParams.get('map') === 'france') {
     imageOrigin = "Regions_France_(Plain).svg";
+} else if (urlParams.get('map') === 'bp') {
+    imageOrigin = "Budapest_Districts.svg";
 } else if (urlParams.has('map')) {
     imageOrigin = urlParams.get('map');
 }
@@ -174,7 +176,6 @@ function pathUnderGroup(imageId) {
 }
 
 function adjustMetaData(data, withRatio) {
-    console.log(metaData)
     for (let datapiece in data) {
         data[datapiece] = data[datapiece] / withRatio;
     }
@@ -206,9 +207,11 @@ function getCountyImage(id, num) {
     rectifyImage(id);
     if(num != undefined) {
         let allPaths = document.querySelectorAll('#' + id + ' > svg > g > path');
-        for (thisPath of allPaths) {
+        for (let thisPath of allPaths) {
             if(thisPath.id != CountyList[num]) {
-                try {thisPath.remove();} catch {};
+                try {
+                    thisPath.remove();
+                } catch {};
             } else {
                 Solution = thisPath.id;
                 thisPath.setAttribute("d", absToRel(thisPath.getAttribute("d")));
@@ -226,7 +229,17 @@ function getCountyImage(id, num) {
                 thisPath.setAttribute("d", movePath(thisPath.getAttribute("d"), 0 - metaData.x * imgRatio, 0 - metaData.y * imgRatio));
                 ratio = (Math.floor((180 / biggerSize) * 100000) / 100000).toString();
                 thisPath.style.transform = `scale(${ratio})`;
+                thisPath.style.stroke = "";
+                thisPath.style.strokeWidth = "";
             }
+        }
+
+        // Delete unnecessary nodes
+        allPaths = document.querySelectorAll('#' + id + ' > svg > g > g > *');
+        for (let notNeeded of allPaths) {
+            try {
+                notNeeded.remove();
+            } catch {}
         }
 
         // Resize SVG
@@ -334,12 +347,13 @@ function absToRel(path) {
     let pathCommands = [];
     let pathCoordinates = [];
     let coordinates = Array(8).fill(''); //x0:last x, y0:last y, x1, y1, x2, y2, x3, y3
+    let lastCommand = ((path[0] === 'M') ? 'L' : 'l');
     while (char < path.length) {
         command = path[char];
-        if ("chtqlmvz".includes(command.toLocaleLowerCase())) {
+        if ("chtqlmvz".includes(command.toLowerCase())) {
             char += 2;
         } else {
-            command = 'l';
+            command = lastCommand;
         }
         if (command.toLocaleLowerCase() === 'z') {
             pathCoordinates.push(['']);
@@ -386,6 +400,10 @@ function absToRel(path) {
             } else {
                 coordinates[6] = originalx;
                 coordinates[7] = originaly;
+            }
+            if (command.toLowerCase() !== 'm') {
+                lastCommand = command;
+                console.log(lastCommand)
             }
         }
         pathCommands.push((command === 'M') ? 'M' : command.toLocaleLowerCase());
@@ -1090,12 +1108,12 @@ function swapMapColour(paletteIcon, forcetrue=false) {
         modifiedStyles = document.createElement('style');
         modifiedStyles.id = 'style-modification';
         modifiedStyles.innerHTML = `
-            #helpMap > g > path           { fill: #FFFFFF; }
-            #helpMap > g > path.county_y  { fill: #FFFFC0; }
-            #helpMap > g > path.county_r  { fill: #FFC0C0; }
-            #helpMap > g > path.county_b  { fill: #C0C0FF; }
-            #helpMap > g > path.county_g  { fill: #C0FFC0; }
-            #helpMap > g > path.water     { fill: #0080FF; }
+            #helpMap > g > path           { fill: #FFFFFF !important; }
+            #helpMap > g > path.county_y  { fill: #FFFFC0 !important; }
+            #helpMap > g > path.county_r  { fill: #FFC0C0 !important; }
+            #helpMap > g > path.county_b  { fill: #C0C0FF !important; }
+            #helpMap > g > path.county_g  { fill: #C0FFC0 !important; }
+            #helpMap > g > path.water     { fill: #0080FF !important; }
             #helpMap > g > text           { fill: #000}
             #helpMap > g > path[style*="var(--red)"] { fill: var(--toastify-color-error) !important;}
             `;

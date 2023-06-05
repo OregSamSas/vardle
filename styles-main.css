@@ -348,14 +348,16 @@ footer {
     font-family: Helvetica 
 }
 svg > g > path {
-    fill: var(--text);
-    stroke-linecap:round;
-    stroke-linejoin:round;
-    fill-rule: nonzero
+    fill: var(--text) !important;
+    stroke: unset !important;
+    stroke-width: 0% !important;
+    stroke-linecap:round !important;
+    stroke-linejoin:round !important;
+    fill-rule: nonzero !important
 }
 #helpMap > g > path { 
-    stroke: var(--border2); 
-    stroke-width:2
+    stroke: var(--border2) !important;
+    stroke-width:2 !important
 }
 #toggleColoured {
     transform: translate(50%, 50%);
