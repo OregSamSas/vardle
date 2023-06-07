@@ -1106,7 +1106,7 @@ function placeMapOnpage(showMap) {
         mapTemplate.style.transform = `scale(${scale})`;
         insertTo.appendChild(mapTemplate);
         let solutionCounty = document.querySelector(`#helpMap > g > #${Solution}`);
-        solutionCounty.style.fill = 'var(--red)';
+        solutionCounty.setAttribute('style', 'fill: var(--red) !important');
         let toggleColor = document.getElementById('tmpl-togglecolor').content.firstElementChild.cloneNode(true);
         insertTo.appendChild(toggleColor);
         buttonEventListeners("change-colour");
@@ -1139,13 +1139,14 @@ function swapMapColour(paletteIcon, forcetrue=false) {
             #helpMap > g > path.county_g  { fill: #C0FFC0 !important; }
             #helpMap > g > path.water     { fill: #0080FF !important; }
             #helpMap > g > text           { fill: #000}
-            #helpMap > g > path[style*="var(--red)"] { fill: var(--toastify-color-error) !important;}
             `;
+        try {document.querySelector('#helpMap > g > path[style*="var(--red)"]').setAttribute('style', 'fill:var(--toastify-color-error) !important')} catch {}
         document.head.appendChild(modifiedStyles);
     } else {
         if (!forcetrue) {
             modifiedStyles.remove();
             paletteIcon.style.filter = '';
+            try {document.querySelector('#helpMap > g > path[style*="var(--toastify-color-error)"]').setAttribute('style', 'fill:var(--red) !important')} catch {}
         }
     }
 }
