@@ -123,6 +123,9 @@ function titleToId(imageId) {
         } else if (path.getAttribute('title') != undefined) {
             newId = path.getAttribute('title');
             path.setAttribute('title', '');
+        } else if (path.getAttribute('data-qText') != undefined) {
+            newId = path.getAttribute('data-qText');
+            path.setAttribute('title', '');
         } else if (path.getAttribute('data-name') != undefined) {
             newId = path.getAttribute('data-name');
             path.setAttribute('data-name', '');
