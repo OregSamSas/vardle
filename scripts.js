@@ -59,7 +59,7 @@ if (urlParams.get('map') === 'bundesländer') {
 }
 
 if (urlParams.has('sol')) {
-   Solution = urlParams.get('sol');
+   Solution = replaceSpecialCharacters(urlParams.get('sol'));
 }
 
 // FUNCTION DEFINITIONS
@@ -403,7 +403,6 @@ function absToRel(path) {
             }
             if (command.toLowerCase() !== 'm') {
                 lastCommand = command;
-                console.log(lastCommand)
             }
         }
         pathCommands.push((command === 'M') ? 'M' : command.toLocaleLowerCase());
@@ -1477,11 +1476,65 @@ function docEvents() {
     });
 }
 
+const arabicNums = [5000, 4000, 1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+const romanNums = ['V&#773;', 'MV&#773;','M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I'];
+
+function advancedSort(list, forceToSortAsRomanNumerals) {
+    let isRoman = true;
+    if (!forceToSortAsRomanNumerals) {
+        list.forEach(ival => {
+            for (let letter of ival) {
+                if (!romanNums.includes(letter.toUpperCase()) && letter !== '°' && letter !== '.') {
+                    isRoman = false;
+                }
+            }
+        });
+    }
+    if (isRoman) {
+        list.forEach(element => {
+            list[list.indexOf(element)] = {roman: element, arabic: romanToArabic(element.toUpperCase())};
+        });
+        list.sort( (num1, num2) => num1.arabic - num2.arabic);
+        list.forEach(element => {
+            list[list.indexOf(element)] = element.roman;
+        });
+    } else {
+        // Ignore accents
+        list.sort( (a, b) => {
+            a = a.normalize("NFD").replace(/[\u0300-\u036f]/g, '');
+            b = b.normalize("NFD").replace(/[\u0300-\u036f]/g, '');
+            if ([a, b].sort()[0] === a) {
+                return -1;
+            } else {
+                return 1;
+            }
+        });
+    }
+
+    return list;
+}
+
+function romanToArabic(romanNum) {
+    let currentvalue = 0, nextvalue = 0, allvalue = 0;
+    while (romanNum.length > 0) {
+        currentvalue = arabicNums[romanNums.indexOf(romanNum[0])];
+        nextvalue = arabicNums[romanNums.indexOf(romanNum[1])];
+        if (nextvalue > currentvalue) {
+            allvalue -= parseInt(currentvalue);
+        } else {
+            allvalue += parseInt(currentvalue);
+        }
+        romanNum = romanNum.slice(1, romanNum.length);
+    }
+
+    return allvalue;
+}
+
 // END OF DEFINITIONS
 
 initialWork();
 let CountyListOrdered = CountyList.slice(0, CountyList.length);
-CountyListOrdered = CountyListOrdered.sort();
+CountyListOrdered = advancedSort(CountyListOrdered);
 localalisation();
 
 // Insert grey lines for guess analysises;
