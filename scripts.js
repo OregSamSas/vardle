@@ -134,12 +134,20 @@ function titleToId(imageId) {
     }
 }
 
-function replaceSpecialCharacters(text = "", vicaversa = false) {
-    if (vicaversa) {
-        return titleCase(text).replace(/\_/g, "'").replace(/–/g, ' ').replace(/°/g, '.');
-    } else {
-        return titleCase(text).replace(/\'/g, '_').replace(/ /g, '–').replace(/\./g, '°');
+function replaceSpecialCharacters(text = "", vicaversa = false, nocasechange = false) {
+    if (!nocasechange) {
+        text = titleCase(text);
     }
+
+    if (vicaversa) {
+        return text.replace(/\_/g, "'").replace(/–/g, ' ').replace(/°/g, '.');
+    } else {
+        return text.replace(/\'/g, '_').replace(/ /g, '–').replace(/\./g, '°');
+    }
+}
+
+function removeAccents(txt) {
+    return txt.normalize("NFD").replace(/[\u0300-\u036f]/g, '');
 }
 
 function rectifyImage(imageId) {
@@ -386,8 +394,8 @@ function absToRel(path) {
                     coordinates[0] = '0';
                 }
             }
-            originalx = coordinates[6];
-            originaly = coordinates[7];
+            originalx = parseFloat(coordinates[6]);
+            originaly = parseFloat(coordinates[7]);
             if(command === 'C' || command === 'L' || command === 'H' || command === 'V') {
                 for(let i = startPos; i < coordinatesNum; i++) {
                     coordinates[i] = (Math.round((parseFloat(coordinates[i]) - parseFloat(coordinates[i % 2])) * 1000) / 1000).toString();
@@ -634,13 +642,30 @@ function insertAutoList(inputPlace) {
     let countiesElement = createCountiesElement();
     completeList.appendChild(countiesElement);
     let inputValue = inputPlace.value;
-    for (let county=0; county<CountyListOrdered.length; county++) {
-        if (CountyListOrdered[county].includes(replaceSpecialCharacters(inputValue))) { // Fullfills search keyword (important to have the same letter case)
-            SuggestionList.push(CountyListOrdered[county]);
-            let countyElement = createCountyElement(countiesElement.childElementCount, inputPlace.id, CountyListOrdered[county], completeList.id);
-            countiesElement.appendChild(countyElement);
+    let searchIn, searchKey, searchAlternative;
+    for (let county=0; county<CountyListOrdered.length; county++) { // Priority
+        searchIn = removeAccents(CountyListOrdered[county].slice(0, inputValue.length));
+        searchKey = replaceSpecialCharacters(inputValue);
+        if (searchIn.includes(searchKey)) { // First the ones that starts with it
+            addSuggestion(CountyListOrdered[county], countiesElement, inputPlace.id, CountyListOrdered[county], completeList.id)
         }
     }
+    for (let county=0; county<CountyListOrdered.length; county++) {
+        searchIn = removeAccents(CountyListOrdered[county].toLowerCase());
+        searchAlternative = CountyListOrdered[county].toLowerCase();
+        searchKey = replaceSpecialCharacters(inputValue, false, true).toLowerCase();
+        if (searchIn.includes(searchKey) || searchAlternative.includes(searchKey)) { // Fullfills search keyword (important to have the same letter case)
+            if (!SuggestionList.includes(CountyListOrdered[county])) {
+                addSuggestion(CountyListOrdered[county], countiesElement, inputPlace.id, CountyListOrdered[county], completeList.id)
+            }
+        }
+    }
+}
+
+function addSuggestion(suggestion, countiesElement, inputID, countyID, suggestionListID) {
+        SuggestionList.push(suggestion);
+        let countyElement = createCountyElement(countiesElement.childElementCount, inputID, countyID, suggestionListID);
+        countiesElement.appendChild(countyElement);
 }
 
 // Creates the Suggestions list element for Counties
@@ -1501,8 +1526,8 @@ function advancedSort(list, forceToSortAsRomanNumerals) {
     } else {
         // Ignore accents
         list.sort( (a, b) => {
-            a = a.normalize("NFD").replace(/[\u0300-\u036f]/g, '');
-            b = b.normalize("NFD").replace(/[\u0300-\u036f]/g, '');
+            a = removeAccents(a);
+            b = removeAccents(b);
             if ([a, b].sort()[0] === a) {
                 return -1;
             } else {
