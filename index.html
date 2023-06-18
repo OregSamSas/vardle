@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <link rel="stylesheet" href="styles-main.css" />
+        <link rel="stylesheet" href="src/styles-main.css" />
         <!-- <link rel="stylesheet" href="styles.css" /> -->
         <link rel="icon" href="https://em-content.zobj.net/thumbs/320/twitter/322/castle_1f3f0.png">
         <title>V&aacute;rdle</title>
@@ -13,7 +13,7 @@
       <div id="page" class="flex w-full h-full justify-center items-center bg-white">
         <div id="mainContent" class="flex w-full h-full max-w-lg relative">
           <header id="mainHeader" class="border-b-2 px-3 border-gray-200 justify-center items-center flex flex-shrink w-full">
-            <a id="about-button" class="mr-3 text-xl">
+            <a id="about-button" class="mr-3 text-xl" lnt="about">
               <span class="undefined">
                 <img alt="❓" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/2753.png" class="generalImg">
               </span>
@@ -24,7 +24,7 @@
                   <img alt="♜" src="https://em-content.zobj.net/thumbs/320/twitter/322/castle_1f3f0.png" class="inline-block generalImg"><!--<img alt="🔍" src="https://em-content.zobj.net/thumbs/240/google/350/magnifying-glass-tilted-left_1f50d.png" class="inline-block">-->
                 </span>V&aacute;rd<span class="text-green-600">l</span>e</span>
             </h1>
-            <a id="stats-button" class="ml-3 text-xl">
+            <a id="stats-button" class="ml-3 text-xl" lnt="stats">
               <span class="undefined">
                 <img alt="📈" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f4c8.png" class="generalImg">
               </span>
@@ -38,22 +38,8 @@
           <div id="midContent" class="flex">
             <div id="mainImage" class="flex justify-center" style="height: 210px"></div>
             <div id="game" class="block w-full min-w-full relative flex-col  max-w-lg">
-              <div id="guesses" class="grid grid-cols-7 gap-1 text-center lines">
-              </div>
-              <div class="my-2">
-                <div class="flex flex-col">
-                  <div role="combobox" aria-haspopup="listbox" aria-owns="react-auto-1" aria-expanded="false" class="border-2 rounded flex-auto relative">
-                    <input id="input1" type="text" autocomplete="off" aria-autocomplete="list" aria-controls="react-auto-1" class="w-full p-1" placeholder="" lnph="ph1" value="">
-                    <div id="react-auto-1" role="listbox" class="undefined rounded absolute bottom-full w-full bg-gray-300 mb-1 divide-x-2 max-h-52 overflow-auto"></div>
-                  </div>
-                  <button class="rounded font-bold p-1 flex items-center justify-center border-2 uppercase my-0.5" onclick="handleGuess()">
-                    <span class="flex items-center justify-center undefined">
-                      <img alt="♜" src="https://em-content.zobj.net/thumbs/320/twitter/322/castle_1f3f0.png" class="inline-block generalImg">
-                    </span>
-                    <span ln="g" class="ml-1"></span>
-                  </button>
-                </div>
-              </div>
+              <div id="guesses" class="grid grid-cols-7 gap-1 text-center lines"></div>
+              <div id="guessInput"></div>
             </div>
           </div>
           <footer class="flex justify-center w-full items-center flex-col">
@@ -85,12 +71,40 @@
       </div>
       <div class="flex items-center justify-center border-2 h-8 col-span-1 animate-reveal animate-pop rounded"></div>
     </template>
+    <template id="tmpl-guessinput">
+      <div class="my-2">
+        <div class="flex flex-col">
+          <div role="combobox" aria-haspopup="listbox" aria-owns="react-auto-1" aria-expanded="false" class="border-2 rounded flex-auto relative">
+            <input id="input1" type="text" autocomplete="off" aria-autocomplete="list" aria-controls="react-auto-1" class="w-full p-1" placeholder="" lnph="ph1" value="">
+            <div id="react-auto-1" role="listbox" class="undefined rounded absolute bottom-full w-full bg-gray-300 mb-1 divide-x-2 max-h-52 overflow-auto"></div>
+          </div>
+          <button class="rounded font-bold p-1 flex items-center justify-center border-2 uppercase my-0.5" onclick="handleGuess()">
+            <span class="flex items-center justify-center undefined">
+              <img alt="♜" src="https://em-content.zobj.net/thumbs/320/twitter/322/castle_1f3f0.png" class="inline-block generalImg">
+            </span>
+            <span ln="g" class="ml-1"></span>
+          </button>
+        </div>
+      </div>
+    </template>
     <template id="tmpl-finish">
       <div class="my-2" id="finished">
         <p class="flex justify-center text-center mt-4" id="finishStatictic"></p>
-        <div class="flex justify-center border-gray-200 border-2 rounded mb-4 mt-4" id="wonImg">
-          <span class="uppercase font-bold flex items-center"><img alt="👑" src="https://www.szentkoronaorszaga.hu/hun/kepek/newspost_images/korona_httnelkul.png" class="inline-block" width="65em"></span>
-        </div>
+          <div class="flex justify-center border-gray-200 border-2 rounded p-1 mb-4 mt-4" id="wonImg" style="display: grid;grid-auto-flow: column;grid-template-columns: minmax(0, .5fr) minmax(0, 1fr) minmax(0, .5fr);">
+            <span id="prev-round" class="flex items-center">
+                <svg height="70" width="70">
+                  <rect width="70" height="70" style="fill:rgb(22, 163, 74)" ry="5"></rect>
+                  <path style="fill:#eee" d="M 61.989834,34.233908 C 61.989187,32.826497 60.848417,31.685727 59.441006,31.68508 H 18.394131 L 30.935147,16.049924 C 31.764149,14.911385 31.513179,13.316371 30.3746,12.487423 29.236061,11.658421 27.641048,11.90939 26.8121,13.047969 L 8.3726479,35.198189 26.8121,57.348414 c 0.828947,1.13858 2.42396,1.38955 3.5625,0.56055 1.138579,-0.82895 1.389549,-2.42396 0.560547,-3.5625 L 18.394131,38.182085 h 41.046875 c 1.407411,-6.47e-4 2.548181,-1.141417 2.548828,-2.548828 0.03868,-3.239547 0.05129,1.56053 0,-1.399349 z"></path>
+                </svg>
+            </span>
+            <span id="finish-text" class="uppercase justify-center font-bold flex items-center" style="overflow: hidden;"><img alt="👑" src="https://www.szentkoronaorszaga.hu/hun/kepek/newspost_images/korona_httnelkul.png" class="inline-block" width="65em"></span>
+            <span id="next-round" class="flex items-center" style="flex-direction: column;align-items: end;">
+                <svg height="70" width="70">
+                  <rect width="70" height="70" style="fill:rgb(22, 163, 74)" ry="5"></rect>
+                  <path style="fill:#eee" d="m 8.4065508,34.233908 c 6.47e-4,-1.407411 1.141417,-2.548181 2.5488282,-2.548828 H 52.002254 L 39.461238,16.049924 c -0.829002,-1.138539 -0.578032,-2.733553 0.560547,-3.562501 1.138539,-0.829002 2.733552,-0.578033 3.5625,0.560546 l 18.439452,22.15022 -18.439452,22.150225 c -0.828947,1.13858 -2.42396,1.38955 -3.5625,0.56055 -1.138579,-0.82895 -1.389549,-2.42396 -0.560547,-3.5625 L 52.002254,38.182085 H 10.955379 c -1.4074112,-6.47e-4 -2.5481812,-1.141417 -2.5488282,-2.548828 -0.03868,-3.239547 -0.05129,1.56053 0,-1.399349 z"></path>
+                </svg>
+            </span>
+          </div>
         <div class="flex flex-wrap gap-2 justify-center">
           <a role="button" maparea-id="mapArea" class="underline text-center">
             <span ln="map"><img alt="👀" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f440.png" class="inline-block generalImg pr-1"></span>
@@ -195,6 +209,17 @@
         <span ln="showmap"><img alt="🗺️" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f5fa.png" class="inline-block generalImg"></span>
       </button>
     </template>
+    <script src="src/popups.js"></script>
+    <script src="src/utilities.js"></script>
+    <script src="src/translate.js"></script>
+    <script src="src/data.js"></script>
+    <script src="src/handleSVG.js"></script>
+    <script src="src/guesses.js"></script>
+    <script src="src/suggestions.js"></script>
+    <script src="src/events.js"></script>
+    <script src="src/main-image.js"></script>
+    <script src="src/map.js"></script>
+    <script src="src/themes.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <script src="scripts.js" defer></script>
+    <script src="src/scripts.js"></script>
 </html>

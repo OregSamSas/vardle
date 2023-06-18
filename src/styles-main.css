@@ -391,3 +391,6 @@ svg > g > path {
 html {
     background-color: var(--main-bg)
 }
+span#next-round > svg:hover, span#prev-round > svg:hover {
+    filter: brightness(1.2);
+}

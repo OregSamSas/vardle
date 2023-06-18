@@ -171,6 +171,7 @@
         "setting-hideImage": {"en": "Hide county image for more of a challenge", "hu": "Vármegye képének elrejtése a nehézség fokozása érdekében"},
         "setting-rotateImage": {"en": "Randomly rotate county image", "hu": "Vármegye képének véletlenszerű elforgatása"},
         "setting-sizePercent": {"en": "Replace proximity percent with size percent", "hu": "A távolságbeli közelségi százalék lecserélése méretbelire"},
+        "setting-arabicNums": {"en": "Replace roman numbers with arabic ones for representing districts", "hu": "Kerületek számához arab számok használata rómaiak helyett"},
         "about":     {"en": "How to play", "hu": "Hogyan játssz"},
         "variants":  {"en": "Variants with other maps:", "hu": "Változatok más térképpel:"},
         "modern":    {"en": "Counties of the modern Hungarian (Undemocratic) Republic", "hu": "A mai Magyar (Demokratikustalan) Köztársoság vármegyéi"},

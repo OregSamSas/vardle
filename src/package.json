@@ -1,0 +1,9 @@
+{
+    "name": "vardle",
+    "version": "0.0.1",
+    "description": "Worldle adaptation with Hungarian Counties",
+    "license": "MIT",
+    "author": {
+      "name": "Oreg Sam"
+    }
+  }
