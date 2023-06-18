@@ -2,10 +2,12 @@
 
 // Sets the language in accordance with browser's preferences
 function languageSetup() {
-    if ((navigator.language || navigator.userLanguage) === "hu") {
-        Language = "hu";
-    } else {
-        Language = "en";
+    if (Language == undefined) {
+        if ((navigator.language || navigator.userLanguage) === "hu") {
+            Language = "hu";
+        } else {
+            Language = "en";
+        }
     }
 }
 

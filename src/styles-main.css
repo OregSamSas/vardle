@@ -7,6 +7,7 @@
     --hover-bg: ;
     --text: ;
     --text2: ;
+    --text3: ;
     --border: ;
     --toastify-color-info: #3498db;
     --toastify-color-success: #07bc0c;
@@ -393,4 +394,14 @@ html {
 }
 span#next-round > svg:hover, span#prev-round > svg:hover {
     filter: brightness(1.2);
+}
+[role="listbox"]::-webkit-scrollbar {
+    background-color: var(--button-bg);
+}
+[role="listbox"]::-webkit-scrollbar-thumb {
+    background-color: var(--text2);
+    border-radius: 15%;
+}
+[role="listbox"]::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text3);
 }

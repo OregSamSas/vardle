@@ -95,6 +95,7 @@
             "hover-bg": "#ecf0f6",
             "text": "#000",
             "text2": "#9ca3af",
+            "text3": "#bbb",
             "border": "#e5e7eb",
             "red": "#8b0e0e",
             "border2": "#888"
@@ -107,6 +108,7 @@
             "hover-bg": "#1e293b",
             "text": "#f5f5f5",
             "text2": "#7e8694",
+            "text3": "#aaa",
             "border": "#eee",
             "red": "#d33325",
             "border2": "#555"
@@ -173,6 +175,7 @@
         "setting-sizePercent": {"en": "Replace proximity percent with size percent", "hu": "A távolságbeli közelségi százalék lecserélése méretbelire"},
         "setting-arabicNums": {"en": "Replace roman numbers with arabic ones for representing districts", "hu": "Kerületek számához arab számok használata rómaiak helyett"},
         "about":     {"en": "How to play", "hu": "Hogyan játssz"},
+        "srccode":   {"en": "Source Code on GitHub", "hu": "Forráskód GitHub-on"},
         "variants":  {"en": "Variants with other maps:", "hu": "Változatok más térképpel:"},
         "modern":    {"en": "Counties of the modern Hungarian (Undemocratic) Republic", "hu": "A mai Magyar (Demokratikustalan) Köztársoság vármegyéi"},
         "districts": {"en": "Districts of Budapest", "hu": "Budpest kerületei"},

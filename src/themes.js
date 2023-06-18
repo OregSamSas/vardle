@@ -1,10 +1,12 @@
 // Sets the theme in accordance with browser's preferences
 function initialThemeSetup() {
-    let themeEqualDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    if (themeEqualDark) {
-        mainTheme = "dark";
-    } else {
-        mainTheme = "light";
+    if (mainTheme == undefined) {
+        let themeEqualDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (themeEqualDark) {
+            mainTheme = "dark";
+        } else {
+            mainTheme = "light";
+        }
     }
 }
 

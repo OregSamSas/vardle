@@ -1,3 +1,5 @@
+// **Main Thread**
+
 // import data from './data.json';
 let data = {"directions": "0", "wikilinks": "1"};
 dataXHR = new XMLHttpRequest();
@@ -32,7 +34,7 @@ let rotateShape = false;
 let mainTheme;
 let mapTheme = "mono";
 let distanceUnit = "mixed";
-let Language = "hu";
+let Language;
 let Furthest = {};
 let metaData = {"x": 0, "y": 0, "width": 0, "height": 0, "midx": 0, "midy": 0};
 let otherMetaData = metaData;
@@ -53,6 +55,7 @@ handleURL();
 
 // Get all of the county names and place the SVG image
 function initialWork() {
+    loadFromLocal();
     // Theme Setup
     initialThemeSetup();
     setThemeTo(mainTheme);
@@ -78,7 +81,6 @@ function initialWork() {
     }
     
     languageSetup();
-    loadFromLocal();
     updateMainCountyImage(!hideShape, rotateShape, finishedRounds[Round]);
 }
 
