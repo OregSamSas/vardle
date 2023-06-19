@@ -58,11 +58,12 @@ function displayAbout() {
         newDiv.style.paddingTop = "4em";
         newDiv.setAttribute('ln', "custom");
         let page = document.getElementById('aboutPage');
-        page.appendChild(newDiv);
         let newA = document.createElement('a');
         newA.setAttribute('ln', 'goback');
-        newA.setAttribute('href', window.location.toString().split('?')[0])
-        page.appendChild(newA);
+        newA.setAttribute('href', window.location.toString().split('?')[0]);
+        newA.style = "flex-grow:1";
+        page.firstElementChild.after(newA);
+        page.firstElementChild.after(newDiv);
         newA.className = 'ml-3 p-1 text-green-600';
         localisation();
     }
