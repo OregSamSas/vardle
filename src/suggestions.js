@@ -67,7 +67,7 @@ function createCountyElement(elementIndex, MyInputId, CountyName, countySuggCont
     });
 
     let divText = document.createElement('div');
-    divText.className = 'm-0.5 bg-white p-1 cursor-pointer uppercase';
+    divText.className = 'm-0.5 bg-white p-1 cursor-pointer transition-all trans05 uppercase';
     divText.innerHTML = CountyName;
     element.appendChild(divText);
     return element;

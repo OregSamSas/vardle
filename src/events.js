@@ -172,7 +172,7 @@ function buttonEventListeners(button = "") {
                 updateRounds(Round, Round - 1);
             });
         }
-        if (arrows[1] != null && Round !== numberOfRounds) {
+        if (arrows[1] != null && Round !== numberOfRounds - 1) {
             arrows[1].addEventListener('click', (e) => {
                 updateRounds(Round, Round + 1);
             });

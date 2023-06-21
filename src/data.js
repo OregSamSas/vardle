@@ -11,9 +11,14 @@ function loadFromLocal() {
         if (load("rotate")) rotateShape = (load("rotate") === 'true');
         if (load("size")) sizePercent = (load("size") === 'true');
         if (load("usearabicnums")) arabicInSuggestions = (load("usearabicnums") === 'true');
+        if (load("borders")) computingMethod = load("borders");
     }
 }
 
 function load(item) {
     return localStorage.getItem(item);
+}
+
+function clearLocalStorage() {
+    localStorage.clear();
 }

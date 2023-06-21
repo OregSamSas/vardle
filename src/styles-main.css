@@ -13,6 +13,7 @@
     --toastify-color-success: #07bc0c;
     --toastify-color-warning: #f1c40f;
     --toastify-color-error: #e74c3c;
+    --brightness: ;
 }
 
 *,
@@ -122,6 +123,14 @@ body {
 
 .p-1 {
     padding: .25rem
+}
+
+.pt-1 {
+    padding-top: .25rem;
+}
+
+.pb-1 {
+    padding-bottom: .25rem;
 }
 
 .pl-1 {
@@ -235,6 +244,9 @@ body {
 .text-green-600 {
     color: rgb(22, 163, 74)
 }
+.back-green-600 {
+    background-color: rgb(22, 163, 74)
+}
 
 .underline {
     text-decoration-line: underline
@@ -322,9 +334,6 @@ ul[role="listbox"] > li[aria-selected="true"] {
 .overflow-auto {
     overflow: auto
 }
-.text-ellipsis {
-    text-overflow: ellipsis
-}
 .overflow-hidden {
     text-overflow: hidden
 }
@@ -367,14 +376,13 @@ svg > g > path {
 .valign {
     vertical-align: -0.1rem
 }
-.transition-all {
+.transition-all, #helpMap {
     transition-duration: .15s;
     transition-property: all;
     transition-timing-function: cubic-bezier(.4,0,.2,1)
 }
-.animate-reveal {
-    -webkit-animation: fadeIn .2s forwards;
-    animation: fadeIn .2s forwards
+.trans05 {
+    transition-duration: 50ms;
 }
 #settingsPage, #aboutPage, #statsPage ,#backdrop {
     position: absolute;
@@ -404,4 +412,14 @@ span#next-round > svg:hover, span#prev-round > svg:hover {
 }
 [role="listbox"]::-webkit-scrollbar-thumb:hover {
     background-color: var(--text3);
+}
+#border-question {
+    text-align: center;
+}
+.col-span-6 {
+    grid-column: span 6/span 6;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
 }

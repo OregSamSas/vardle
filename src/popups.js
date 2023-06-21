@@ -32,7 +32,7 @@ function closeUppermostWindow(deleteCanvas) {
     if (lastContent.id !== "mainContent") {
         lastContent.remove();
         if (deleteCanvas) try {document.querySelector("#page > canvas").remove()} catch {};
-        updateGuessLines(numberOfTries);
+        updateGuessLines(guesslinesCount);
         updateMainCountyImage(!hideShape, rotateShape && !rotationRemoved, finishedRounds[Round]);
     }
     saveSettings();
@@ -48,7 +48,7 @@ function closeUppermostWindow(deleteCanvas) {
 
 function displayAbout() {
     addForeGroundPage('about');
-    if (imageOrigin !==  "Kingdom_of_Hungary_counties_(Plain).svg") {
+    if (imageOrigin !==  "img/Kingdom_of_Hungary_counties_(Plain).svg" && imageOrigin !== '') {
         mainAboutContent = document.querySelectorAll('#aboutPage > div');
         for (let divToDelete of mainAboutContent) {
             divToDelete.remove();
@@ -87,6 +87,7 @@ function saveSettings() {
     localStorage.setItem("rotate", rotateShape);
     localStorage.setItem("size", sizePercent);
     localStorage.setItem("usearabicnums", arabicInSuggestions);
+    localStorage.setItem("borders", computingMethod);
 }
 
 function displaySettings() {
@@ -96,7 +97,7 @@ function displaySettings() {
 function addGameSpecificSettings(parent) {
     let gameSpecific = data.settings.gameplay;
     for (let setting of gameSpecific) {
-        addSetting(parent, setting.type, setting.name, ((setting.type == "number") ? setting.range : null))
+        addSetting(parent, ((setting.type === "opt") ? "select" : setting.type), setting.name, ((setting.type == "number") ? setting.range : setting.options))
     }
 }
 
@@ -139,6 +140,9 @@ function addSetting(parent, type = "select", id, options) {
                 item.selected = true;
             }
             if (id === "mapColouring" && item.value === mapTheme) {
+                item.selected = true;
+            }
+            if (id === "distCalc" && item.value === computingMethod) {
                 item.selected = true;
             }
         }
@@ -206,6 +210,9 @@ function handleSetting(settingElement, variable, type, additional) {
                 break;
             case "arabicNums":
                 arabicInSuggestions = selectedVal;
+                break;
+            case "distCalc":
+                computingMethod = selectedVal;
                 break;
         }
     });

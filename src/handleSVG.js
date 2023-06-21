@@ -68,51 +68,52 @@ function adjustMetaData(data, withRatio) {
 function getCountyImage(id = '', num) {
     let ratio;
     let placeToInsert = document.getElementById(id);
-    let allCounties = new XMLHttpRequest();
-    allCounties.open("GET", imageOrigin, false);
-    // Following line is just to be on the safe side
-    allCounties.overrideMimeType("image/svg+xml");
-    allCounties.onload = (e) => {
-        try {
-            placeToInsert.appendChild(allCounties.responseXML.documentElement);
-        } catch {
-            allCounties.open("GET", "img/Kingdom_of_Hungary_counties_(Plain).svg", false);
-            allCounties.onload = (e) => {
+    let desiredshape = document.querySelector(`#mapTemplate > svg > g > #${CountyList[num]}`);
+    if (num != undefined && desiredshape != null) {
+        desiredshape = desiredshape.cloneNode();
+        let svg = document.getElementById('mapTemplate').firstElementChild.cloneNode();
+        svg.appendChild(document.createElement('g'));
+        svg.firstElementChild.appendChild(desiredshape);
+        placeToInsert.appendChild(svg);
+
+        ratio = handleDesiredShape(desiredshape);
+    } else {
+        let allCounties = new XMLHttpRequest();
+        allCounties.open("GET", imageOrigin, false);
+        // Following line is just to be on the safe side
+        allCounties.overrideMimeType("image/svg+xml");
+        allCounties.onload = (e) => {
+            try {
                 placeToInsert.appendChild(allCounties.responseXML.documentElement);
+            } catch {
+                allCounties.open("GET", "img/Kingdom_of_Hungary_counties_(Plain).svg", false);
+                allCounties.onload = (e) => {
+                    placeToInsert.appendChild(allCounties.responseXML.documentElement);
+                }
+                allCounties.send("");
             }
-            allCounties.send("");
-        }
-    };
-    allCounties.send("");
-    pathUnderGroup(id);
-    titleToId(id);
-    rectifyImage(id);
+        };
+        allCounties.send("");
+        pathUnderGroup(id);
+        titleToId(id);
+        rectifyImage(id);
+    }
     if(num != undefined) {
+        // Old and unefficient way of getting the svg by deleting all the other unneeded paths (Only here, if something went wrong with the new method)
         let allPaths = document.querySelectorAll('#' + id + ' > svg > g > path');
-        for (let thisPath of allPaths) {
-            if(thisPath.id != CountyList[num]) {
-                try {
-                    thisPath.remove();
-                } catch {};
-            } else {
-                Solution = thisPath.id;
-                thisPath.setAttribute("d", absToRel(thisPath.getAttribute("d")));
-                let imgRatio = document.querySelector(`#${id} > svg`).getAttribute('aspectRatio');
-                if (imgRatio == null) {
-                    imgRatio = 1;
+        if (desiredshape == null) {
+            for (let thisPath of allPaths) {
+                if(thisPath.id != CountyList[num]) {
+                    try {
+                        thisPath.remove();
+                    } catch {};
+                } else {
+                    imgRatio = document.querySelector(`#${id} > svg`).getAttribute('aspectRatio');
+                    if (imgRatio == null) {
+                        imgRatio = 1;
+                    }
+                    ratio = handleDesiredShape(thisPath, imgRatio);
                 }
-                metaData = trackPath(thisPath.getAttribute("d"));
-                metaData = adjustMetaData(metaData, imgRatio);
-                if(metaData.height === 0) {
-                    metaData.height = 120;
-                    metaData.width = 120;
-                }
-                let biggerSize = Math.sqrt(metaData.width ** 2 + metaData.height ** 2);
-                thisPath.setAttribute("d", movePath(thisPath.getAttribute("d"), 0 - metaData.x * imgRatio, 0 - metaData.y * imgRatio));
-                ratio = (Math.floor((180 / biggerSize) * 100000) / 100000).toString();
-                thisPath.style.transform = `scale(${ratio})`;
-                thisPath.style.stroke = "";
-                thisPath.style.strokeWidth = "";
             }
         }
 
@@ -137,8 +138,29 @@ function getCountyImage(id = '', num) {
         }
 
         // Remove text
-        document.querySelector(`#${id} > svg > #textgroup`).remove();
+        try {document.querySelector(`#${id} > svg > #textgroup`).remove();} catch {}
     }
+}
+
+function handleDesiredShape(thisPath, imgRatio = 1) {
+    if (Round === 0) {
+        Solution = thisPath.id;
+    }
+    thisPath.setAttribute("d", absToRel(thisPath.getAttribute("d")));
+    metaData = trackPath(thisPath.getAttribute("d"));
+    metaData = adjustMetaData(metaData, imgRatio);
+    if(metaData.height === 0) {
+        metaData.height = 120;
+        metaData.width = 120;
+    }
+    let biggerSize = Math.sqrt(metaData.width ** 2 + metaData.height ** 2);
+    thisPath.setAttribute("d", movePath(thisPath.getAttribute("d"), 0 - metaData.x * imgRatio, 0 - metaData.y * imgRatio));
+    let ratio = (Math.floor((180 / biggerSize) * 100000) / 100000).toString();
+    thisPath.style.transform = `scale(${ratio})`;
+    thisPath.style.stroke = "";
+    thisPath.style.strokeWidth = "";
+
+    return ratio;
 }
 
 function rotateSVG(svg, rotation, imagePlace) {
@@ -281,8 +303,8 @@ function absToRel(path = new String()) {
 }
 
 // Function to follow through a path and collect its data
-function trackPath(path = new String(), compare = new Object(), path2 = new String() /*Comparing does not work yet.*/) {
-    let minx=0, miny=0, maxx=0, maxy=0, x=0, y=0, x0=0, y0=0, x1=0, y1=0, x2=0, y2=0, x3=0, y3=0, i=0, char=0, t = 0, dist=0, mindist=-1;
+function trackPath(path = new String(), compare = new Object(), path0 = new String(), stillGetSizeData = false) {
+    let minx=0, miny=0, maxx=0, maxy=0, x=0, y=0, x0=0, y0=0, x1=0, y1=0, x2=0, y2=0, x3=0, y3=0, i=0, char=0, t = 0, dist=0, mindist=-1, dir=0;
     let command = "";
     let origCoordinates = Array(8).fill('');
     while (char < path.length) {
@@ -345,16 +367,22 @@ function trackPath(path = new String(), compare = new Object(), path2 = new Stri
                 }
             }
             t = 0;
-            if (path2 != "") {
-                dist = trackPath(path, {"x": x0,"y": y0});
+            if (path0 != "") {
+                dist = trackPath(path0, {"x": x0,"y": y0}, "");
                 if (mindist === -1 || dist["closest-point"] < mindist) {
                     mindist = dist["closest-point"];
+                    dir = dist["dir-of-borderpoints"];
                 }
-            } else {
+                if (mindist === 0) { // minimum distance found for sure (neighbouring territories), no need to check other points
+                    break;
+                }
+            }
+            if (path0 == "" || stillGetSizeData) {
                 if (compare.x != undefined) {
-                    dist = distanceOf(compare.x, compare.y, x0, y0);
+                    dist = distanceOf(x0, y0, compare.x, compare.y);
                     if (mindist === -1 || dist < mindist) {
                         mindist = dist;
+                        dir = getDirOfVector(x0, y0, compare.x, compare.y);
                     } else {
                         t = 1;
                     }
@@ -398,13 +426,19 @@ function trackPath(path = new String(), compare = new Object(), path2 = new Stri
         }
         i++;
     }
+    let returnWith = new Object();
     if (compare.x != undefined) {
-        return {"closest-point": mindist}
-    } else if(path2 != "") {
-        return {"closest-border": mindist}
+        returnWith = {"closest-point": compressNum(mindist, 1), "dir-of-borderpoints": dir}
     } else {
-        return {"x": minx*1, "y": miny*1, "width": (maxx - minx), "height": (maxy - miny), "midx": (minx + maxx) / 2, "midy": (miny + maxy) / 2}; // x position,  y position,length, height, middle point coordinates
+        if (path0 == "" || stillGetSizeData) {
+            returnWith = {"x": compressNum(minx, 3), "y": compressNum(miny, 3), "width": compressNum(maxx - minx, 3), "height": compressNum(maxy - miny, 3), "midx": compressNum((minx + maxx) / 2, 3), "midy": compressNum((miny + maxy) / 2, 3)}; // x position,  y position,length, height, middle point coordinates
+        }
+        if(path0 != "") {
+            returnWith["closest-border"] = compressNum(mindist, 1);
+            returnWith.dir = dir;
+        }
     }
+    return returnWith;
 }
 
 // For accuracy calculations
@@ -414,6 +448,9 @@ function getFurthest() {
     let AllCountyNames = document.querySelectorAll('#mapTemplate > svg > g > path');
     let tempDist;
     let tempData;
+    if (CountyList.length < closestTerritories.length) {
+        closestTerritories = Array(CountyList.length);
+    }
     let tempClosests = Array(closestTerritories.length);
     for (let examinedCounty of AllCountyNames) {
         tempData = trackPath(absToRel(examinedCounty.getAttribute('d')));
@@ -434,6 +471,23 @@ function getFurthest() {
     }
     closestTerritories = tempClosests;
     return {"name": furthestCounty, "dist": furthestDist};
+}
+
+function getNeighbours() {
+    let path1, pathdata = {};
+    console.log(closestTerritories)
+    let path0 = absToRel(document.querySelector(`#mapTemplate > svg > g > #${Solution}`).getAttribute('d'));
+    for (let territory = 0; territory < closestTerritories.length;) {
+        if (Solution !== closestTerritories[territory].name) {
+            path1 = absToRel(document.querySelector(`#mapTemplate > svg > g > #${closestTerritories[territory].name}`).getAttribute('d'));
+            pathdata = trackPath(path1, {}, path0);
+        }
+        if(pathdata["closest-border"] > 1 || Solution === closestTerritories[territory].name) {
+            closestTerritories = removeFromArray(closestTerritories, territory);
+        } else {
+            territory++
+        }
+    }
 }
 
 function getImageMetadata() {

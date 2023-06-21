@@ -36,7 +36,7 @@
             </a>
           </header>
           <div id="midContent" class="flex">
-            <div id="mainImage" class="flex justify-center" style="height: 210px"></div>
+            <div id="mainImage" class="flex justify-center items-center" style="height: 210px"></div>
             <div id="game" class="block w-full min-w-full relative flex-col  max-w-lg">
               <div id="guesses" class="grid grid-cols-7 gap-1 text-center lines"></div>
               <div id="guessInput"></div>
@@ -62,17 +62,17 @@
       <li role="option"></li>
     </template>
     <template id="tmpl-guess-analisys">
-      <div class="flex items-center justify-center border-2 h-8 col-span-3 animate-reveal rounded">
+      <div class="flex items-center justify-center border-2 h-8 col-span-3 transition-all rounded">
         <p class="text-ellipsis uppercase"></p>
       </div>
-      <div class="flex items-center justify-center border-2 h-8 col-span-2 animate-reveal rounded"></div>
-      <div class="flex items-center justify-center border-2 h-8 col-span-1 animate-reveal rounded">
+      <div class="flex items-center justify-center border-2 h-8 col-span-2 transition-all rounded"></div>
+      <div class="flex items-center justify-center border-2 h-8 col-span-1 transition-all rounded">
         <span class="undefined"><img alt="" src="" class="generalImg"></span>
       </div>
-      <div class="flex items-center justify-center border-2 h-8 col-span-1 animate-reveal animate-pop rounded"></div>
+      <div class="flex items-center justify-center border-2 h-8 col-span-1 transition-all animate-pop rounded"></div>
     </template>
     <template id="tmpl-guessinput">
-      <div class="my-2">
+      <div class="my-2 flex flex-col justify-center">
         <div class="flex flex-col">
           <div role="combobox" aria-haspopup="listbox" aria-owns="react-auto-1" aria-expanded="false" class="border-2 rounded flex-auto relative">
             <input id="input1" type="text" autocomplete="off" aria-autocomplete="list" aria-controls="react-auto-1" class="w-full p-1" placeholder="" lnph="ph1" value="">
@@ -86,6 +86,11 @@
           </button>
         </div>
       </div>
+    </template>
+    <template id="tmpl-giveup">
+      <button id="giveup-button" class="font-bold border-2 p-1 rounded mt-4 uppercase my-2" type="button" style="align-self: center;" onclick="finishedRounds[Round] = 'lost';updateRounds(Round, Round)">
+        <span ln="giveup"><img alt="🤷‍♂️" src="https://em-content.zobj.net/thumbs/240/twitter/351/person-shrugging_1f937.png" class="inline-block generalImg"></span>
+      </button>
     </template>
     <template id="tmpl-finish">
       <div class="my-2" id="finished">
@@ -114,7 +119,7 @@
             <span ln="wiki"><img alt="📚" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/1f4da.png" class="inline-block generalImg pr-1"></span>
           </a>
         </div>
-        <div id="mapArea" class="grid justify-center border-gray-200 border-2 rounded mb-4 mt-4" style="align-content: space-around"></div>
+        <div id="mapArea" class="grid justify-center border-gray-200 border-2 transition-all mb-4 mt-4" style="align-content: space-around"></div>
       </div>
     </template>
     <template id="tmpl-guessline">
@@ -165,7 +170,7 @@
         <h2 class="text-2xl font-bold uppercase tracking-wide text-center my-1 flex-auto" ln=""></h2>
         <a id="cancel" lnt="close">
           <span class="undefined">
-            <img alt="❌" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/274c.png" style="width: 1em; height: 1em; margin: 0px 0.05em 0px 0.1em; vertical-align: -0.1em;">
+            <img alt="❌" src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/274c.png" class="generalImg">
           </span>
         </a>
       </header>
@@ -182,13 +187,18 @@
         <div class="my-2 flex">
           <div class="flex flex-col p-1 gap-2"></div>
         </div>
-        <div class="my-2 flex flex-col gap-2 ml-3">
+        <div class="my-2 flex flex-col gap-2 ml-3" style="flex-grow: 1;">
           <header class="my-2">
             <h3 class="text-lg font-bold" ln="settings1"></h3>
             <div class="text-sm italic text-gray-500" ln="settings2"></div>
           </header>
           <div class="flex flex-col p-1 gap-2"></div>
         </div>
+        <footer class="flex justify-center w-full pb-3">
+          <a class="flex items-center gap-1" ln="default" lnt="clearinfo" onclick="clearLocalStorage()" href="">
+            <img alt="🔄" src="https://em-content.zobj.net/thumbs/240/htc/37/anticlockwise-downwards-and-upwards-open-circle-arrows_1f504.png" class="generalImg" style="filter: brightness(var(--brightness));"></span>
+          </a>
+        </footer>
       </div>
     </template>
     <template id="tmpl-setting-select">

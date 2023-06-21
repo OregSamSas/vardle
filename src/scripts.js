@@ -26,27 +26,30 @@ const darkThemeArray = data.themes[1];
 let showImageButtonRemoved = false;
 let rotationRemoved = false;
 let Scale = undefined;
-let Rotation = 1 - Math.random()*2;
+let Rotation = 1 - Math.random() * 2;
 let sizePercent = false;
 let numberOfTries = 6;
 let hideShape = false;
 let rotateShape = false;
-let mainTheme;
+let sysTheme;
+let mainTheme = "system";
 let mapTheme = "mono";
 let distanceUnit = "mixed";
 let Language;
 let Furthest = {};
-let metaData = {"x": 0, "y": 0, "width": 0, "height": 0, "midx": 0, "midy": 0};
+let metaData = {"x": 0, "y": 0, "width": 0, "height": 0, "midx": 0, "midy": 0, "closest-border": 0, "dir": 0};
 let otherMetaData = metaData;
 let SuggestionList = [];
 let Won = false;
 let finishedRounds = [false];
 let Solution;
-let imageOrigin = "Kingdom_of_Hungary_counties_(Plain).svg";
+let imageOrigin = "";
 let Round = 0;
 let numberOfRounds = 3;
 let arabicInSuggestions = false;
-let closestTerritories = Array(10).fill('');
+let closestTerritories = Array(20).fill('');
+let computingMethod = "centre";
+let guesslinesCount = 0;
 
 // Get URL params
 handleURL();
@@ -85,7 +88,8 @@ function initialWork() {
 }
 
 function updateRounds(oldr, newr) {
-    console.log()
+    guesslinesCount = ((newr === 1) ? closestTerritories.length + parseInt(numberOfTries*0.5) : numberOfTries);
+
     if (oldr === 0) {
         let test = document.querySelector("#mainImage > #imageToGuess");
         if (test != null) {
@@ -95,24 +99,41 @@ function updateRounds(oldr, newr) {
 
     Round = newr;
 
-    placeMainImage();
+    let maincontent = document.getElementById('midContent');
+    if (oldr === 1) {
+        while (maincontent.firstElementChild.id !== "mainImage") {
+            maincontent.firstElementChild.remove();
+        }
+        maincontent.firstElementChild.innerHTML = "";
+    }
+    if (newr === 0) {
+        maincontent.firstElementChild.style = "height:210px";
+        maincontent.firstElementChild.className = "flex justify-center";
+    }
+
     removeGuessArea();
+    placeMainImage();
     if (newr > 0) {
+        let finishTemplate = document.getElementById('tmpl-finish').content.firstElementChild.cloneNode(true);
         if (finishedRounds[Round]) {
-            finishedBottom(document.getElementById('tmpl-finish').content.firstElementChild.cloneNode(true), finishedRounds[Round] === "lost", true);
-            buttonEventListeners('rounds');
+            finishedBottom(finishTemplate, finishedRounds[Round] === "lost", true);
             buttonEventListeners('show-map');
         } else if(Round === 1) {
             placeGuessInput();
+            let giveupbutton = document.getElementById('tmpl-giveup').content.cloneNode(true);
+            document.querySelector('#guessInput > .my-2').appendChild(giveupbutton);
             inputEventListeners();
+        } else if (Round === 2) {
+            finishedBottom(finishTemplate)
         }
         localisation();
     }
-    updateGuessLines(numberOfTries);
+    updateGuessLines(guesslinesCount);
 }
 
 // END OF DEFINITIONS
 
+guesslinesCount = ((Round === 1) ? closestTerritories.length + parseInt(numberOfTries*0.5) : numberOfTries);
 initialWork();
 let CountyListOrdered = CountyList.slice(0, CountyList.length);
 CountyListOrdered = advancedSort(CountyListOrdered);
@@ -126,6 +147,7 @@ inputEventListeners();
 
 window.onload = function () {
     Furthest = getFurthest();
+    getNeighbours();
 }
 
 // Header buttons

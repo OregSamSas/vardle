@@ -162,6 +162,14 @@ function titleCase(str = "") {
     return str;
 }
 
+// From https://stackoverflow.com/questions/17267329/converting-unicode-character-to-string-format
+function unicodeToChar(text) {
+    return text.replace(/\\u[\dA-F]{4}/gi, 
+           function (match) {
+                return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
+           });
+ }
+
 // *Calculations*
 
 function distanceOf(x1, y1, x2, y2) {
@@ -203,9 +211,13 @@ function randomElement() {
     return Math.floor(Math.random()*(CountyList.length-1));
 }
 
+function compressNum(num, depth = 0) {
+    return Math.round(num * 10 ** depth) / 10 ** depth;
+}
+
 // *Data utilities*
 
-function getWikipediaLink(forCounty, lang) {
+function getWikipediaLink(forCounty, lang = Language, onlyArticleName = false) {
     forCounty = replaceSpecialCharacters(forCounty, true)
     let articleName = wikiLinks[forCounty];
     if (articleName == undefined) {
@@ -219,13 +231,17 @@ function getWikipediaLink(forCounty, lang) {
         articleName = articleName[lang];
         if (articleName == undefined) {
             let endings = {en: "", hu: ""};
-            if (Round === 0) {
+            if (Round < 3) {
                 endings = {en: "County", hu: "vármegye"};
             }
             articleName = `${forCounty}_${endings[lang]}`;
         }
     }
-    return `https://${lang}.wikipedia.org/wiki/${articleName}`;
+    if (onlyArticleName) {
+        return articleName;
+    } else {
+        return `https://${lang}.wikipedia.org/wiki/${articleName}${(Round === 1) ? `#${translationPiece('geography')}` : ""}`;
+    }
 }
 
 // *Other Utilities*
@@ -234,6 +250,13 @@ function insertToArray(array = new Array(), item, idx = new Number()) {
     let arrayBef = array.slice(0, idx);
     let arrayAft = array.slice(idx, array.length);
     array = arrayBef.concat([item].concat(arrayAft));
+    return array;
+}
+
+function removeFromArray(array = new Array(), idx = new Number()) {
+    let arrayBef = array.slice(0, idx);
+    let arrayAft = array.slice(idx + 1, array.length);
+    array = arrayBef.concat(arrayAft);
     return array;
 }
 
@@ -270,4 +293,30 @@ function handleURL() {
 // Create independent variable (from https://www.freecodecamp.org/news/how-to-clone-an-array-in-javascript-1d3183468f6a/)
 function getIndependentValue(data) {
     return data.map((x) => x);;
+}
+
+// gets a wikipedia page's image that has the key value in its name
+function wikiMediaImageSearch(page, key = "Coa") {
+    let data;
+    let wikiXHR = new XMLHttpRequest();
+    wikiXHR.open("GET",`https://en.wikipedia.org/w/api.php?action=query&format=json&prop=images&titles=${page}`,false);
+    wikiXHR.onload = (e) => {
+        data = wikiXHR.response;
+    };
+    wikiXHR.send("");
+    console.log(data)
+    data = data.query.pages.images;
+    let img;
+    for (img of data) {
+        if (img.includes(key)) {
+            break;
+        }
+    }
+    wikiXHR = new XMLHttpRequest();
+    wikiXHR.open("GET",`https://api.wikimedia.org/core/v1/commons/file/${img}`,false);
+    wikiXHR.onload = (e) => {
+        data = wikiXHR.response;
+    };
+    wikiXHR.send("");
+    return data.original.url;
 }

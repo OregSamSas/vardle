@@ -2,14 +2,45 @@
 
 function placeMainImage() {
     if (Round === 0) {
-        guessImage = document.createElement('div');
-        guessImage.id = 'imageToGuess';
-        guessImage.className = 'flex items-center justify-center w-full';
-        document.getElementById('mainImage').appendChild(guessImage);
-        getCountyImage('imageToGuess', ((Solution != undefined) ? CountyList.indexOf(Solution) : getRandomCounty()));
+        createGuessImage('imageToGuess', (Solution != undefined) ? CountyList.indexOf(Solution) : getRandomCounty());
     } else if (Round === 1) {
-
+        let text = document.createElement('div');
+        text.id = "border-question";
+        text.className = "mt-4 font-bold";
+        let container = document.getElementById('midContent');
+        container.insertBefore(text, container.firstChild);
+        for (let neighbour of closestTerritories) {
+            if (neighbour != undefined) {
+                createGuessImage(`imageToGuess${closestTerritories.indexOf(neighbour)}`, CountyList.indexOf(neighbour.name))
+            }
+        }
+        localisation();
+    } else if (Round === 2) {
+        if (imageOrigin === "" || imageOrigin.includes('old')) {
+            let img = document.createElement('img');
+            img.setAttribute("src", wikiMediaImageSearch(getWikipediaLink(Solution, "en", true)));
+            document.getElementById('mainImage').appendChild(img);
+        }
     }
+}
+
+function createGuessImage(id = 'imageToGuess', idx = undefined) {
+    let guessImage = document.createElement('div');
+    guessImage.id = id;
+    guessImage.className = `flex items-center justify-center w-full`;
+    document.getElementById('mainImage').appendChild(guessImage);
+    if (Round === 1) {
+        guessImage.style = "height: fit-content;width: fit-content;padding: 5px;flex-direction:column";
+        guessImage.className += " border-2 rounded";
+        guessImage.parentElement.style = "";
+        guessImage.parentElement.className = "flex items-center gap-2 mb-4 flex-wrap justify-center";
+        let span = document.createElement("span");
+        span.innerHTML = guessImage.parentElement.childElementCount;
+        span.className = "ml-1";
+        span.style = "align-self:baseline";
+        guessImage.appendChild(span);
+    }
+    getCountyImage(id, idx);
 }
 
 function updateMainCountyImage(show, rotate, finished = false) {
@@ -60,7 +91,7 @@ function addShowMapButton() {
 
 function showShapeOfTerritory() {
     let image = document.getElementById('mainImage');
-    document.getElementById('imageToGuess').style.display = "";
+    try {document.getElementById('imageToGuess').style.display = "";} catch {}
     image.firstElementChild.style.transform = "";
     removeShowMapButton();
     showImageButtonRemoved = true;

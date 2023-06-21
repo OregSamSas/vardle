@@ -9,7 +9,10 @@
             "se": {"alt": "↘️", "img": "322/down-right-arrow_2198-fe0f.png"},
             "ee": {"alt": "➡️", "img": "322/right-arrow_27a1-fe0f.png"},
             "ne": {"alt": "↗️", "img": "322/up-right-arrow_2197-fe0f.png"},
-            "yo": {"alt": "🎉", "img": "322/party-popper_1f389.png"}
+            "yo": {"alt": "🎉", "img": "322/party-popper_1f389.png"},
+            "?": {"alt": "?", "img": "351/white-question-mark_2754.png"},
+            "yes": {"alt": "✅", "img": "351/check-mark-button_2705.png"},
+            "no": {"alt": "❌", "img": "351/cross-mark_274c.png"}
         },
     "wikilinks":
     {
@@ -98,7 +101,8 @@
             "text3": "#bbb",
             "border": "#e5e7eb",
             "red": "#8b0e0e",
-            "border2": "#888"
+            "border2": "#888",
+            "brightness": ".8"
         },
         {
             "main-bg": "#0f172a",
@@ -111,24 +115,26 @@
             "text3": "#aaa",
             "border": "#eee",
             "red": "#d33325",
-            "border2": "#555"
+            "border2": "#555",
+            "brightness": "2.5"
         }
     ],
     "settings":
         {
             "general":
             [
-                { "name": "distanceUnit", "type": "opt", "options": ["km", "m", "mixed", "miles"] },
+                { "name": "distanceUnit", "type": "opt", "options": ["miles", "mixed", "km", "m"] },
                 { "name": "languageSelection", "type": "opt", "options": ["en", "hu"] },
-                { "name": "themeSelection", "type": "opt", "options": ["light", "dark"] },
-                { "name": "mapColouring", "type": "opt", "options": ["mono", "colorful"] }
+                { "name": "themeSelection", "type": "opt", "options": ["system", "dark", "light"] },
+                { "name": "mapColouring", "type": "opt", "options": ["colorful", "mono"] }
             ],
             "gameplay":
             [
                 {"name": "numberOfTries", "type": "number", "range": [1, 10]},
                 {"name": "sizePercent", "type": "checkbox"},
                 {"name": "hideImage", "type": "checkbox"},
-                {"name": "rotateImage", "type": "checkbox"}
+                {"name": "rotateImage", "type": "checkbox"},
+                {"name": "distCalc", "type": "opt", "options": ["cities", "bord+cent", "borders", "centre"]}
             ]
         },
     "l10n": {
@@ -141,16 +147,23 @@
         "or":        {"en": "or", "hu": "vagy"},
         "norot":     {"en": " Cancel Rotation", "hu": " Forgasd vissza"},
         "showmap":   {"en": " Show Image", "hu": " Mutasd a képet"},
+        "giveup":    {"en": " Give Up", "hu": " Feladás"},
+        "bord":      {"en": "borders", "hu": "határos"},
         "anal1.0":   {"en": "You guessed correctly at first out of", "hu": "Elsőre helyesen megtippelted"},
         "anal1.1":   {"en": "You guessed correctly in", "hu": "Sikeresen kitaláltad"},
         "anal1.2":   {"en": "guesses out of", "hu": "próbálkozás során"},
         "anal1.3":   {"en": "tries", "hu": "próbálkozási lehetőségből"},
-        "anal2.1":   {"en": "You didn't get it this time. It was", "hu": "Ez alkalommal most nem sikerült kitalálni."},
-        "anal2.2":   {"en": "", "hu": "&nbsp;volt"},
+        "anal2.1":   {"en": "You didn't get it this time.", "hu": "Ez alkalommal most nem sikerült kitalálni."},
+        "anal2.2":   {"en": " It was", "hu": ""},
+        "anal2.3":   {"en": "", "hu": "&nbsp;volt"},
         "win":       {"en": "win!!!", "hu": "nyertél!!!"},
         "lose":      {"en": "&nbsp;Oh, no!", "hu": "&nbsp;Ó, Jaj, hoppá!"},
         "already":   {"en": "Already guessed.", "hu": "Már tippelted."},
         "unknown":   {"en": "Unknown territory.", "hu": "Várd le az időt, hogy bekerüljön az adattárunkba ez a terület, mert egyelőre még ISMERETLEN."},
+        "borders1":  {"en": "Can you guess the", "hu": "Meg tudod tippelni a"},
+        "borders2":  {"en": "bordering territories of", "hu": "határos területét neki:"},
+        "goodansw":  {"en": "The correct answers are:", "hu": "A helyes válaszok a következők:"},
+        "geography": {"en": "Geography", "hu": "Földrajz"},
         "settings":  {"en": "Settings", "hu": "Beállítások"},
         "close":     {"en": "Close (Esc)", "hu": "Bezárás (Esc)"},
         "settings1": {"en": "Difficulty modifiers", "hu": "Nehézségi beállítások"},
@@ -166,19 +179,27 @@
         "setting-themeSelection": {"en": "Theme", "hu": "Téma"},
         "dark":      {"en": "Dark", "hu": "Sötét"},
         "light":     {"en": "Light", "hu": "Világos"},
+        "system":    {"en": "System's default", "hu": "Böngésző alapértelmezettje"},
         "setting-mapColouring": {"en": "Primary colour schemes of map", "hu": "Térkép elsődleges színezete"},
         "mono":      {"en": "Monochromatic", "hu": "Egyszínű"},
         "colorful":  {"en": "Colourful", "hu": "Színes"},
+        "setting-distCalc": {"en": "Method of direction and distance computing", "hu": "A távolság- és irányszámítás módszere"},
+        "centre":    {"en": "From territories' centre", "hu": "Területek középpontjától mérve"},
+        "borders":   {"en": "From closest borders", "hu": "Legközelebbi határ szerint"},
+        "bord+cent": {"en": "Distance from borders, direction from centres", "hu": "A távolság határoktól, az irány középpontoktól mérve"},
+        "cities":    {"en": "From the most prominent cities' location", "hu": "Legkiemelkedőbb városok helyét nézve"},
         "setting-numberOfTries": {"en": "Number of allowed tries", "hu": "Megengedett próbálkozások száma"},
         "setting-hideImage": {"en": "Hide county image for more of a challenge", "hu": "Vármegye képének elrejtése a nehézség fokozása érdekében"},
         "setting-rotateImage": {"en": "Randomly rotate county image", "hu": "Vármegye képének véletlenszerű elforgatása"},
         "setting-sizePercent": {"en": "Replace proximity percent with size percent", "hu": "A távolságbeli közelségi százalék lecserélése méretbelire"},
         "setting-arabicNums": {"en": "Replace roman numbers with arabic ones for representing districts", "hu": "Kerületek számához arab számok használata rómaiak helyett"},
+        "default":   {"en": "Reset settings to default", "hu": "Beállítások visszaálltása alapértelmezettre"},
+        "clearinfo": {"en": "Clears local storage and refreshes page", "hu": "Kitörli a helyi adattárat és frissíti az oldalt"},
         "about":     {"en": "How to play", "hu": "Hogyan játssz"},
         "srccode":   {"en": "Source Code on GitHub", "hu": "Forráskód GitHub-on"},
         "variants":  {"en": "Variants with other maps:", "hu": "Változatok más térképpel:"},
         "modern":    {"en": "Counties of the modern Hungarian (Undemocratic) Republic", "hu": "A mai Magyar (Demokratikustalan) Köztársoság vármegyéi"},
-        "districts": {"en": "Districts of Budapest", "hu": "Budpest kerületei"},
+        "districts": {"en": "Districts of Budapest", "hu": "Budapest kerületei"},
         "germany":   {"en": "German states", "hu": "Német tartományok"},
         "france":    {"en": "French regions", "hu": "Francia tartományok"},
         "romania":   {"en": "Romanian counties", "hu": "Román megyék"},

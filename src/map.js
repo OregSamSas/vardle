@@ -9,9 +9,17 @@ function placeMapOnpage(showMap) {
         mapTemplate.id = "helpMap";
         let em = parseFloat(getComputedStyle(document.getElementById('midContent')).fontSize);
         let scale = 31 * em / mapTemplate.width.baseVal.value;
+        
+            // Animation
+            mapTemplate.style.visibility = "hidden";
+            setTimeout(() => {
+                mapTemplate.style.visibility = "visible";
+                mapTemplate.className = "";
+            }, 75);
+            
+        mapTemplate.style.transform = `scale(${scale})`;
         insertTo.style.height = `${(mapTemplate.height.baseVal.value + 20) * scale}px`;
         insertTo.style.maxWidth = `98vw`;
-        mapTemplate.style.transform = `scale(${scale})`;
         insertTo.appendChild(mapTemplate);
         let solutionCounty = document.querySelector(`#helpMap > g > #${Solution}`);
         solutionCounty.setAttribute('style', 'fill: var(--red) !important');
