@@ -45,7 +45,7 @@ let finishedRounds = [false];
 let Solution;
 let imageOrigin = "";
 let Round = 0;
-let numberOfRounds = 3;
+let numberOfRounds = 2;
 let arabicInSuggestions = false;
 let closestTerritories = Array(20).fill('');
 let computingMethod = "centre";
