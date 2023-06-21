@@ -18,7 +18,9 @@ function placeMainImage() {
     } else if (Round === 2) {
         if (imageOrigin === "" || imageOrigin.includes('old')) {
             let img = document.createElement('img');
-            img.setAttribute("src", wikiMediaImageSearch(getWikipediaLink(Solution, "en", true)));
+            let src = wikiMediaImageSearch(getWikipediaLink(Solution, "en", true));
+            console.log(src)
+            img.setAttribute("src", src);
             document.getElementById('mainImage').appendChild(img);
         }
     }
