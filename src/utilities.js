@@ -172,7 +172,23 @@ function unicodeToChar(text) {
            function (match) {
                 return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
            });
- }
+}
+
+function replaceAbbreviations(txt = "") {
+    return txt.replace(/fr\./gi, 'French')
+                .replace(/rep\. /gi, 'Republic of ')
+                .replace(/rep\./gi, 'Republic')
+                .replace(/dem\./gi, 'Democratic')
+                .replace(/ pdr/gi, " People's Democratic Republic")
+                .replace(/is\./gi, 'Islands')
+                .replace(/st\./gi, 'Saint')
+                .replace(/eq\./gi, 'Equatorial')
+                .replace(/herz\./gi, 'Herzegovina')
+                .replace(/vin\./gi, 'Vincent')
+                .replace(/gren\./gi, 'the Grenadines')
+                .replace(/barb\./gi, 'Barbuda')
+                .replace(/u\.s\./gi, 'United States');
+}
 
 // *Calculations*
 
@@ -222,7 +238,7 @@ function compressNum(num, depth = 0) {
 // *Data utilities*
 
 function getWikipediaLink(forCounty, lang = Language, onlyArticleName = false) {
-    forCounty = replaceSpecialCharacters(forCounty, true)
+    forCounty = replaceAbbreviations(replaceSpecialCharacters(forCounty, true));
     let articleName = wikiLinks[forCounty];
     if (articleName == undefined) {
         articleName = forCounty;
@@ -244,6 +260,7 @@ function getWikipediaLink(forCounty, lang = Language, onlyArticleName = false) {
     if (onlyArticleName) {
         return articleName;
     } else {
+        articleName = articleName.replace(/ /gi, '_');
         return `https://${lang}.wikipedia.org/wiki/${articleName}${(Round === 1) ? `#${translationPiece('geography')}` : ""}`;
     }
 }

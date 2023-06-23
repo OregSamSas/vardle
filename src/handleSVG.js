@@ -145,8 +145,12 @@ function getCountyImage(id = '', num) {
 function handleDesiredShape(thisPath, imgRatio = 1) {
     if (Round === 0) {
         Solution = thisPath.id;
+        solutionText = replaceSpecialCharacters(Solution, true);
     }
     thisPath.setAttribute("d", absToRel(thisPath.getAttribute("d")));
+    if (Round === 0) {
+        solutionPath = thisPath.getAttribute('d');
+    }
     metaData = trackPath(thisPath.getAttribute("d"));
     metaData = adjustMetaData(metaData, imgRatio);
     if(metaData.height === 0) {
@@ -448,17 +452,22 @@ function getFurthest() {
     let AllCountyNames = document.querySelectorAll('#mapTemplate > svg > g > path');
     let tempDist;
     let tempData;
+    /* Legacy
     if (CountyList.length < closestTerritories.length) {
         closestTerritories = Array(CountyList.length);
-    }
-    let tempClosests = Array(closestTerritories.length);
+    }*/
+    let tempClosests = new Array();
     for (let examinedCounty of AllCountyNames) {
-        tempData = trackPath(absToRel(examinedCounty.getAttribute('d')));
+        tempData = trackPath(absToRel(examinedCounty.getAttribute('d')), {}, solutionPath, true);
         tempDist = distanceOf(metaData.midx, metaData.midy, tempData.midx, tempData.midy);
+        if (tempData["closest-border"] < 1 && examinedCounty.id != Solution) {
+            tempClosests.push({"name": examinedCounty.id, "dist": tempDist});
+        }
         if (tempDist > furthestDist) {
             furthestDist = tempDist;
             furthestCounty = examinedCounty.id;
         }
+        /*Legacy
         for (let i = 0; i < tempClosests.length;i++) {
             if (tempClosests[i] == null || tempClosests[i] === NaN || tempClosests[i] === '' || tempClosests[i].dist > tempDist) {
                 tempClosests = insertToArray(tempClosests, {"name": examinedCounty.id, "dist": tempDist}, i);
@@ -467,15 +476,15 @@ function getFurthest() {
                 }
                 break;
             }
-        }
+        }*/
     }
     closestTerritories = tempClosests;
     return {"name": furthestCounty, "dist": furthestDist};
 }
 
-function getNeighbours() {
+function getNeighbours() { // Legacy
     let path1, pathdata = {};
-    let path0 = absToRel(document.querySelector(`#mapTemplate > svg > g > #${Solution}`).getAttribute('d'));
+    let path0 = solutionPath;
     for (let territory = 0; territory < closestTerritories.length;) {
         if (Solution !== closestTerritories[territory].name) {
             path1 = absToRel(document.querySelector(`#mapTemplate > svg > g > #${closestTerritories[territory].name}`).getAttribute('d'));

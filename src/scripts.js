@@ -51,6 +51,8 @@ let closestTerritories = Array(20).fill('');
 let computingMethod = "centre";
 let guesslinesCount = 0;
 let coaImages = Array(6).fill('');
+let solutionPath = "";
+let solutionText = "";
 
 // Get URL params
 handleURL();
@@ -122,10 +124,15 @@ function updateRounds(oldr, newr) {
             finishedBottom(finishTemplate, finishedRounds[Round] === "lost", true);
             buttonEventListeners('show-map');
         } else if(Round === 1) {
-            placeGuessInput();
-            let giveupbutton = document.getElementById('tmpl-giveup').content.cloneNode(true);
-            document.querySelector('#guessInput > .my-2').appendChild(giveupbutton);
-            inputEventListeners();
+            if (closestTerritories.length === 0) {
+                finishedRounds[1] = "won";
+                finishedBottom(finishTemplate);
+            } else {
+                placeGuessInput();
+                let giveupbutton = document.getElementById('tmpl-giveup').content.cloneNode(true);
+                document.querySelector('#guessInput > .my-2').appendChild(giveupbutton);
+                inputEventListeners();
+            }
         } else if (Round === 2) {
             finishedBottom(finishTemplate)
         }
@@ -151,7 +158,6 @@ inputEventListeners();
 window.onload = function () {
     // getCoaImages(); (Not yet)
     Furthest = getFurthest();
-    getNeighbours();
     // Header buttons
     buttonEventListeners('about-button');
     buttonEventListeners('stats-button');
@@ -161,3 +167,4 @@ window.onload = function () {
     // Global events
     docEvents();
 }
+

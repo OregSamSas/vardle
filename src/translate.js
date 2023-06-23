@@ -60,7 +60,7 @@ function localisation() {
                 }
             }
         } else {
-            let formattedSolution = ((imageOrigin.includes("Budapest")) ? ((arabicInSuggestions) ? romanToArabic(replaceSpecialCharacters(Solution, true).toUpperCase().slice(0, Solution.length - 1)) + '.' : replaceSpecialCharacters(Solution, true).toUpperCase()) : replaceSpecialCharacters(Solution, true));
+            let formattedSolution = ((imageOrigin.includes("Budapest")) ? ((arabicInSuggestions) ? romanToArabic(solutionText.toUpperCase().slice(0, Solution.length - 1)) + '.' : solutionText.toUpperCase()) : solutionText);
             if (Round === 0) {
                 finishAreatext = `${translationPiece('anal2.1')}&nbsp;${translationPiece('anal2.2')}&nbsp;<i>${formattedSolution}</i>${translationPiece('anal2.3')}.`;
             } else {
@@ -80,7 +80,7 @@ function localisation() {
     // Questions for further rounds
     let quest = document.getElementById('border-question');
     if (quest != null) {
-        quest.innerHTML = `${translationPiece('borders1')} ${closestTerritories.length} ${translationPiece('borders2')} <i>${Solution}</i> ?`
+        quest.innerHTML = `${translationPiece('borders1')} ${closestTerritories.length} ${translationPiece('borders2')} <i>${solutionText}</i> ?`
     }
 
     // Translate wikipedia link

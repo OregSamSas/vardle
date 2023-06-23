@@ -10,7 +10,6 @@ function handleGuess() {
         guess = arabicToRoman(guess) + ".";
     }
     guess = replaceSpecialCharacters(guess);
-    console.log(guess)
     if(guess != '') {
         if (Round === 0) {
             if (Guesses.includes(guess)) {
@@ -193,7 +192,7 @@ function finishedBottom(template, lose = false, guessLine = undefined) {
         let listitem;
         for (terr of closestTerritories) {
             listitem = document.createElement('div');
-            listitem.innerHTML = terr.name;
+            listitem.innerHTML = replaceSpecialCharacters(terr.name, true);
             listitem.className = "font-bold uppercase rounded border-2 px-3 pt-1 pb-1 rounded-md";
             if (OtherGuesses[0].includes(terr.name)) {
                 listitem.className += " back-green-600";

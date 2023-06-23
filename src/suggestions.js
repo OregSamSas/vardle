@@ -26,9 +26,14 @@ function insertAutoList(inputPlace) {
     for (let county=0; county<CountyListOrdered.length; county++) {
         searchIn = removeAccents(CountyListOrdered[county].toLowerCase());
         searchAlternative = CountyListOrdered[county].toLowerCase();
-        if (searchIn.includes(searchKey) || searchAlternative.includes(searchKey)) { // Fullfills search keyword (important to have the same letter case)
-            if (!SuggestionList.includes(CountyListOrdered[county])) {
-                addSuggestion(CountyListOrdered[county], countiesElement, inputPlace.id, CountyListOrdered[county], completeList.id)
+        if (!SuggestionList.includes(CountyListOrdered[county])) {
+            if (searchIn.includes(searchKey) || searchAlternative.includes(searchKey)) { // Fullfills search keyword (important to have the same letter case)
+                    addSuggestion(CountyListOrdered[county], countiesElement, inputPlace.id, CountyListOrdered[county], completeList.id)
+            } else {
+                searchIn = replaceSpecialCharacters(replaceAbbreviations(replaceSpecialCharacters(searchIn, true))).toLocaleLowerCase(); // Check if the search key is without abbreviations
+                if (searchIn.includes(searchKey)) {
+                    addSuggestion(CountyListOrdered[county], countiesElement, inputPlace.id, CountyListOrdered[county], completeList.id)
+                }
             }
         }
     }
