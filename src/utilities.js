@@ -149,7 +149,11 @@ function titleCase(str = "") {
             if (str[i][j].toLowerCase() === "és" || str[i][j].toLocaleLowerCase() === "and") { // Do not capitalise conjunctive words (és = and)
                 str[i][j] = str[i][j].toLowerCase();
             } else {
-                str[i][j] = str[i][j].charAt(0).toUpperCase() + str[i][j].slice(1);
+                if (str[i][j].charAt(1) === "'") { // if the case is d'Aosta or smg
+                    str[i][j] = str[i][j].slice(0, 2) + str[i][j][2].toUpperCase() + str[i][j].slice(3);
+                } else {
+                    str[i][j] = str[i][j].charAt(0).toUpperCase() + str[i][j].slice(1);
+                }
             }
         }
         if (emdash) {
@@ -201,7 +205,7 @@ function normalModulus(a, b) {
 // Calculating the territory to be guessed
 function getRandomCounty() {
     let randomCounty = randomElement(); // Balaton cannot be the solution, but can be guessed
-    while (CountyList[randomCounty] === "Balaton") {
+    while (CountyList[randomCounty] === "Balaton" || CountyList[randomCounty] === Solution) {
         randomCounty = randomElement();
     }
     return randomCounty;
@@ -281,6 +285,8 @@ function handleURL() {
         imageOrigin = "img/Budapest_Districts.svg";
     } else if (urlParams.get('map') === 'szeiman') {
         imageOrigin = "img/Szeiman_Városok.svg";
+    } else if (urlParams.get('map') === 'pizzapasta' || urlParams.get('map') === 'italy') {
+        imageOrigin = "img/Flag_map_of_Italy_with_regions.svg";
     } else if (urlParams.has('map')) {
         imageOrigin = urlParams.get('map');
     }
@@ -292,31 +298,35 @@ function handleURL() {
 
 // Create independent variable (from https://www.freecodecamp.org/news/how-to-clone-an-array-in-javascript-1d3183468f6a/)
 function getIndependentValue(data) {
-    return data.map((x) => x);;
+    return data.map((x) => x);
 }
 
 // gets a wikipedia page's image that has the key value in its name
-function wikiMediaImageSearch(page, key = "Coa") {
-    let data;
-    let wikiXHR = new XMLHttpRequest();
-    wikiXHR.open("GET",`https://en.wikipedia.org/w/api.php?action=query&format=json&prop=images&titles=${page}`,false);
-    wikiXHR.onload = (e) => {
-        data = wikiXHR.response;
-    };
-    wikiXHR.send("");
-    console.log(data)
-    data = data.query.pages.images;
-    let img;
-    for (img of data) {
-        if (img.includes(key)) {
-            break;
+function wikiMediaImageSearch(page, key = "Coa", key2 = "CoA") {
+    try {
+        let data;
+        let wikiXHR = new XMLHttpRequest();
+        wikiXHR.open("GET",`https://en.wikipedia.org/w/api.php?action=query&origin=*&format=json&prop=images&titles=${page}`,false);
+        wikiXHR.onload = (e) => {
+            data = JSON.parse(wikiXHR.response);
+        };
+        wikiXHR.send("");
+        data = Object.values(data.query.pages)[0].images;
+        console.log(data)
+        let img;
+        for (img of data) {
+            if (img.title.includes(key) || img.title.includes(key2) || img.title.includes(key.toLowerCase()) ||  img.title.includes(key.toLowerCase())) {
+                break;
+            }
         }
+        wikiXHR = new XMLHttpRequest();
+        wikiXHR.open("GET",`https://api.wikimedia.org/core/v1/commons/file/${img.title}`,false);
+        wikiXHR.onload = (e) => {
+            data = JSON.parse(wikiXHR.response);
+        };
+        wikiXHR.send("");
+        return data.thumbnail.url;
+    } catch (err) {
+        console.error(err);
     }
-    wikiXHR = new XMLHttpRequest();
-    wikiXHR.open("GET",`https://api.wikimedia.org/core/v1/commons/file/${img}`,false);
-    wikiXHR.onload = (e) => {
-        data = wikiXHR.response;
-    };
-    wikiXHR.send("");
-    return data.original.url;
 }

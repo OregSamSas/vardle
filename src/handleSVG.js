@@ -19,8 +19,8 @@ function titleToId(imageId) {
         } else {
             newId = path.id;
         }
-        path.id = newId
-        path.id = replaceSpecialCharacters(path.id);
+        path.id = newId;
+        path.id = replaceSpecialCharacters(path.id, false, false);
     }
 }
 
@@ -475,7 +475,6 @@ function getFurthest() {
 
 function getNeighbours() {
     let path1, pathdata = {};
-    console.log(closestTerritories)
     let path0 = absToRel(document.querySelector(`#mapTemplate > svg > g > #${Solution}`).getAttribute('d'));
     for (let territory = 0; territory < closestTerritories.length;) {
         if (Solution !== closestTerritories[territory].name) {

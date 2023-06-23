@@ -203,6 +203,7 @@
         "germany":   {"en": "German states", "hu": "Német tartományok"},
         "france":    {"en": "French regions", "hu": "Francia tartományok"},
         "romania":   {"en": "Romanian counties", "hu": "Román megyék"},
+        "italy":     {"en": "Regions of Italy", "hu": "Olaszország régiói"},
         "world":     {"en": "Countries and territories of the World", "hu": "Világ országai, jelentősebb területei"},
         "stats":     {"en": "Statistics", "hu": "Statisztikák"},
         "nostats":   {"en": "No statistics yet.", "hu": "Még nincsenek statisztikák."},

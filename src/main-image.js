@@ -16,12 +16,37 @@ function placeMainImage() {
         }
         localisation();
     } else if (Round === 2) {
-        if (imageOrigin === "" || imageOrigin.includes('old')) {
-            let img = document.createElement('img');
-            let src = wikiMediaImageSearch(getWikipediaLink(Solution, "en", true));
-            console.log(src)
-            img.setAttribute("src", src);
-            document.getElementById('mainImage').appendChild(img);
+        if (imageOrigin === "") {
+            let img, src, name;
+            coaImages.forEach(element => {
+                img = document.createElement('img');
+                src = element.src;
+                name = element.name;
+                console.log(src)
+                img.setAttribute("src", src);
+                img.setAttribute("name", name);
+                document.getElementById('mainImage').appendChild(img);
+            });
+        }
+    }
+}
+
+function promiseCoaImage(territoryName) {
+    return new Promise((resolve, reject) => {
+        resolve(wikiMediaImageSearch(getWikipediaLink(territoryName, "en", true)))
+    })
+}
+
+async function getCoaImages() {
+    if (('Kingdom_of_Hungary_counties (Plain).svg').includes(imageOrigin)) {
+        let first = true;
+        let name;
+        for (let i in coaImages) {
+            if (coaImages[i] == '') {
+                name = (first) ? Solution : CountyList[getRandomCounty()];
+                coaImages[i] = {name: name, src: await promiseCoaImage(name)};
+            }
+            first = false;
         }
     }
 }

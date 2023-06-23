@@ -50,6 +50,7 @@ let arabicInSuggestions = false;
 let closestTerritories = Array(20).fill('');
 let computingMethod = "centre";
 let guesslinesCount = 0;
+let coaImages = Array(6).fill('');
 
 // Get URL params
 handleURL();
@@ -88,12 +89,14 @@ function initialWork() {
 }
 
 function updateRounds(oldr, newr) {
-    guesslinesCount = ((newr === 1) ? closestTerritories.length + parseInt(numberOfTries*0.5) : numberOfTries);
+    guesslinesCount = (((newr === 2) ? 0 : (newr === 1) ? closestTerritories.length + parseInt(numberOfTries*0.5) : numberOfTries));
 
-    if (oldr === 0) {
-        let test = document.querySelector("#mainImage > #imageToGuess");
-        if (test != null) {
-            test.remove();
+    if (oldr === 0 || oldr === 2) {
+        let test = document.querySelectorAll("#mainImage > *");
+        for (let lmnt of test) {
+            if (lmnt != null) {
+                lmnt.remove();
+            }
         }
     }
 
@@ -146,15 +149,15 @@ placeGuessLines(numberOfTries);
 inputEventListeners();
 
 window.onload = function () {
+    // getCoaImages(); (Not yet)
     Furthest = getFurthest();
     getNeighbours();
+    // Header buttons
+    buttonEventListeners('about-button');
+    buttonEventListeners('stats-button');
+    buttonEventListeners('settings-button');
+    
+    
+    // Global events
+    docEvents();
 }
-
-// Header buttons
-buttonEventListeners('about-button');
-buttonEventListeners('stats-button');
-buttonEventListeners('settings-button');
-
-
-// Global events
-docEvents();

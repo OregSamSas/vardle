@@ -10,6 +10,7 @@ function handleGuess() {
         guess = arabicToRoman(guess) + ".";
     }
     guess = replaceSpecialCharacters(guess);
+    console.log(guess)
     if(guess != '') {
         if (Round === 0) {
             if (Guesses.includes(guess)) {
