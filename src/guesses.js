@@ -222,7 +222,7 @@ function redesignCoaButtons(finished = false) {
     let button;
     for (let img = 0; img < imgButtons.length; img++) {
         button = imgButtons[img];
-        if (finished) button.role = "";
+        if (finished) button.setAttribute('role', "");
         let n = button.firstElementChild.getAttribute('name')
         if (n === Solution && finished) {
             button.style.border = "solid var(--main-green) 4px";

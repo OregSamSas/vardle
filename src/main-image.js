@@ -26,7 +26,7 @@ function placeMainImage() {
             main = document.getElementById('mainImage');
             coaImages.forEach(element => {
                 div = document.createElement('div');
-                div.role = "button";
+                div.setAttribute('role', "button");
                 img = document.createElement('img');
                 src = element.src;
                 name = element.name;
@@ -115,11 +115,11 @@ async function getCoaImages(all = false) {
 }
 
 function coaImagesContains(item) {
-    coaImages.forEach(coa => {
-        if (coa.name === item) {
+    for (let coa = 0; coa < coaImages.length; coa++) {
+        if (coaImages[coa].name === item) {
             return true;
         }
-    });
+    }
     return false;
 }
 
