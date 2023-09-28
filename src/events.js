@@ -106,7 +106,7 @@ function handleKeysForEvent(e, input) {
 function buttonEventListeners(button = "") {
     // Show Map button after finishing guessing
     if (button === "show-map") {
-        let showMap = document.querySelector('a[role="button"]');
+        let showMap = document.querySelector('a#showMap');
         if (showMap != null) {
             showMap.addEventListener('click', (e) => {
                 placeMapOnpage(showMap);

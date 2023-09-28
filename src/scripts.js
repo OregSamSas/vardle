@@ -14,7 +14,7 @@ dataXHR.send("");
 // Global variable declaration
 const CountyList = [];
 const Guesses = [];
-let OtherGuesses = [[]];
+let OtherGuesses = [[], []];
 const Directions = data.directions;
 const wikiLinks = data.wikilinks; // From https://en.wikipedia.org/wiki/Lands_of_the_Crown_of_Saint_Stephen#:~:text=Counties%20of%20the%20Lands%20of%20the%20Crown%20of%20Saint%20Stephen
 const translations = data.l10n;
@@ -45,7 +45,7 @@ let finishedRounds = [false];
 let Solution;
 let imageOrigin = "";
 let Round = 0;
-let numberOfRounds = 2;
+let numberOfRounds = 3;
 let arabicInSuggestions = false;
 let closestTerritories = Array(20).fill('');
 let computingMethod = "centre";
@@ -105,7 +105,7 @@ function updateRounds(oldr, newr) {
     Round = newr;
 
     let maincontent = document.getElementById('midContent');
-    if (oldr === 1) {
+    if (oldr === 1 || oldr === 2) {
         while (maincontent.firstElementChild.id !== "mainImage") {
             maincontent.firstElementChild.remove();
         }
@@ -123,7 +123,7 @@ function updateRounds(oldr, newr) {
         if (finishedRounds[Round]) {
             finishedBottom(finishTemplate, finishedRounds[Round] === "lost", true);
             buttonEventListeners('show-map');
-        } else if(Round === 1) {
+        } else if (Round === 1) {
             if (closestTerritories.length === 0) {
                 finishedRounds[1] = "won";
                 finishedBottom(finishTemplate);
@@ -134,7 +134,9 @@ function updateRounds(oldr, newr) {
                 inputEventListeners();
             }
         } else if (Round === 2) {
-            finishedBottom(finishTemplate)
+            if (OtherGuesses[1].length > 0) {
+                redesignCoaButtons();
+            }
         }
         localisation();
     }
@@ -156,8 +158,8 @@ placeGuessLines(numberOfTries);
 inputEventListeners();
 
 window.onload = function () {
-    // getCoaImages(); (Not yet)
     Furthest = getFurthest();
+    getCoaImages();
     // Header buttons
     buttonEventListeners('about-button');
     buttonEventListeners('stats-button');

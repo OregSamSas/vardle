@@ -51,12 +51,14 @@ function localisation() {
                     finishAreatext = `${translationPiece('anal1.1')} ${Guesses.length} ${translationPiece('anal1.2')} ${numberOfTries} ${translationPiece('anal1.3')}.`;
                 }
             } else {
-                let max = ((Round === 1) ? numberOfTries * 0.5 + closestTerritories.length : numberOfTries);
-                let numOfGuesses = OtherGuesses[Round - 1].length;
-                if (numOfGuesses === 1) {
-                    finishAreatext = `${translationPiece('anal1.0')} ${max} ${translationPiece('anal1.3')}.`;
-                } else {
-                    finishAreatext = `${translationPiece('anal1.1')} ${numOfGuesses} ${translationPiece('anal1.2')} ${max} ${translationPiece('anal1.3')}.`;
+                if (Round === 1) {
+                    let max = ((Round === 1) ? numberOfTries * 0.5 + closestTerritories.length : numberOfTries);
+                    let numOfGuesses = OtherGuesses[Round - 1].length;
+                    if (numOfGuesses === 1) {
+                        finishAreatext = `${translationPiece('anal1.0')} ${max} ${translationPiece('anal1.3')}.`;
+                    } else {
+                        finishAreatext = `${translationPiece('anal1.1')} ${numOfGuesses} ${translationPiece('anal1.2')} ${max} ${translationPiece('anal1.3')}.`;
+                    }
                 }
             }
         } else {
@@ -81,6 +83,10 @@ function localisation() {
     let quest = document.getElementById('border-question');
     if (quest != null) {
         quest.innerHTML = `${translationPiece('borders1')} ${closestTerritories.length} ${translationPiece('borders2')} <i>${solutionText}</i> ?`
+    }
+    quest = document.getElementById('img-question');
+    if (quest != null) {
+        quest.innerHTML = `${translationPiece('coa1')} <i>${solutionText}</i>?`
     }
 
     // Translate wikipedia link

@@ -171,6 +171,9 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
 
 // When finished guessing (either ran out of tries or guessed correctly), the input field is replaced with this thing
 function finishedBottom(template, lose = false, guessLine = undefined) {
+    if (template == "") {
+        template = document.getElementById('tmpl-finish').content.firstElementChild.cloneNode(true);
+    }
     let myPlace = removeGuessArea(true);
     myPlace.appendChild(template);
     if (guessLine != undefined) {
@@ -202,6 +205,9 @@ function finishedBottom(template, lose = false, guessLine = undefined) {
         solutionsDiv.appendChild(listDiv);
         myPlace.firstElementChild.firstElementChild.after(solutionsDiv);
     }
+    if (Round === 2) {
+        redesignCoaButtons(true);
+    }
 
     buttonEventListeners('rounds');
     if (Round === 0) {
@@ -211,10 +217,29 @@ function finishedBottom(template, lose = false, guessLine = undefined) {
     }
 }
 
+function redesignCoaButtons(finished = false) {
+    let imgButtons = document.querySelectorAll('#mainImage > div');
+    let button;
+    for (let img = 0; img < imgButtons.length; img++) {
+        button = imgButtons[img];
+        if (finished) button.role = "";
+        let n = button.firstElementChild.getAttribute('name')
+        if (n === Solution && finished) {
+            button.style.border = "solid var(--main-green) 4px";
+        } else  {
+        OtherGuesses[1].forEach(element => {
+            if (n === coaImages[element].name) {
+                button.style.border = "solid var(--main-red) 4px";
+            }
+        });
+        }
+    }
+}
+
 function updateWikiLinkOnPage(a = document.querySelector('a[href*="wiki"]')) {
     if (a != null) {
         let wikiname = '';
-        if (Round === 0 || Round === 1) {
+        if (Round === 0 || Round === 1 || Round === 2) {
             wikiname = Solution;
         } else if (Round === 2) {
             wikiname = undefined;

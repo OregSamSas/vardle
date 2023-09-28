@@ -6,7 +6,7 @@ function placeMainImage() {
     } else if (Round === 1) {
         let text = document.createElement('div');
         text.id = "border-question";
-        text.className = "mt-4 font-bold";
+        text.className = "question mt-4 font-bold";
         let container = document.getElementById('midContent');
         container.insertBefore(text, container.firstChild);
         for (let neighbour of closestTerritories) {
@@ -17,15 +17,52 @@ function placeMainImage() {
         localisation();
     } else if (Round === 2) {
         if (imageOrigin === "") {
-            let img, src, name;
+            let text = document.createElement('div');
+            text.id = "img-question";
+            text.className = "question mt-4 font-bold";
+            let container = document.getElementById('midContent');
+            container.insertBefore(text, container.firstChild);
+            let img, src, name, div, 
+            main = document.getElementById('mainImage');
             coaImages.forEach(element => {
+                div = document.createElement('div');
+                div.role = "button";
                 img = document.createElement('img');
                 src = element.src;
                 name = element.name;
                 console.log(src)
                 img.setAttribute("src", src);
                 img.setAttribute("name", name);
-                document.getElementById('mainImage').appendChild(img);
+                div.style.border = 'solid var(--border) 2px';
+                div.style.borderRadius = '10%';
+                div.style.padding = '4%';
+                main.style.display = "grid";
+                main.style.gridTemplateColumns = "30% 30% 30%";
+                main.appendChild(div);
+                div.appendChild(img);
+                div.addEventListener('click', (e) => {
+                    if (finishedRounds[2] == undefined) {
+                        if (OtherGuesses[1] == undefined) {
+                            OtherGuesses[1] = [];
+                        }
+                        let myname = e.target.getAttribute('name');
+                        let posInCoaImgs;
+                        for (let i = 0; i < coaImages.length; i++) {
+                            if (coaImages[i].name === myname) {
+                                posInCoaImgs = i;
+                            }
+                        }
+                        OtherGuesses[1].push(posInCoaImgs);
+                        if (myname === Solution) {
+                            finishedRounds[2] = "won";
+                        } else {
+                            if (OtherGuesses[1].length === 2) {
+                                finishedRounds[2] = "lost";
+                            }
+                        }
+                        updateRounds(2, 2);
+                    }
+                })
             });
         }
     }
@@ -37,18 +74,53 @@ function promiseCoaImage(territoryName) {
     })
 }
 
-async function getCoaImages() {
-    if (('Kingdom_of_Hungary_counties (Plain).svg').includes(imageOrigin)) {
-        let first = true;
+async function getCoaImages(all = false) {
+    if (all) {
+        for (let idx = 0; idx < CountyList.length; idx++) {
+            let lmnt = CountyList[idx];
+            if (data.imglinks[lmnt] === "") {
+                data.imglinks = promiseCoaImage(lmnt);
+            }
+        }
+    } else if (('Kingdom_of_Hungary_counties (Plain).svg').includes(imageOrigin)) {
+        let inserted = 0;
         let name;
+        let src;
         for (let i in coaImages) {
             if (coaImages[i] == '') {
-                name = (first) ? Solution : CountyList[getRandomCounty()];
-                coaImages[i] = {name: name, src: await promiseCoaImage(name)};
+                if ((inserted < 2) && ((Math.floor(Math.random() * coaImages.length * 2) === 0) || (i == coaImages.length - 1))) {
+                    inserted += 1;
+                    if (inserted === 2) {
+                        name = closestTerritories[Math.floor(Math.random() * closestTerritories.length)].name;
+                    } else {
+                        name = Solution;
+                    }
+                } else {
+                    name = CountyList[getRandomCounty()];
+                }
+                let init = coaImagesContains(name);
+                while (init) {
+                    name = CountyList[getRandomCounty()];
+                    init = coaImagesContains(name);
+                }
+                if (data.imglinks[name] !== "") {
+                    src = data.imglinks[name];
+                } else {
+                    src = await promiseCoaImage(name);
+                }
+                coaImages[i] = {name: name, src: src};
             }
-            first = false;
         }
     }
+}
+
+function coaImagesContains(item) {
+    coaImages.forEach(coa => {
+        if (coa.name === item) {
+            return true;
+        }
+    });
+    return false;
 }
 
 function createGuessImage(id = 'imageToGuess', idx = undefined) {

@@ -9,6 +9,8 @@
     --text2: ;
     --text3: ;
     --border: ;
+    --main-green: rgb(22, 163, 74);
+    --main-red: rgb(204, 0, 0);
     --toastify-color-info: #3498db;
     --toastify-color-success: #07bc0c;
     --toastify-color-warning: #f1c40f;
@@ -242,10 +244,10 @@ body {
 }
 
 .text-green-600 {
-    color: rgb(22, 163, 74)
+    color: var(--main-green);
 }
 .back-green-600 {
-    background-color: rgb(22, 163, 74)
+    background-color: var(--main-green);
 }
 
 .underline {
@@ -299,7 +301,7 @@ input {
 input[type="text"] {
     background-color: unset;
 }
-button:hover, optgroup:hover {
+button:hover, optgroup:hover,[role="button"]:hover {
     background-color: var(--hover-bg);
 }
 select, optgroup {
@@ -413,7 +415,7 @@ span#next-round > svg:hover, span#prev-round > svg:hover {
 [role="listbox"]::-webkit-scrollbar-thumb:hover {
     background-color: var(--text3);
 }
-#border-question {
+.question {
     text-align: center;
 }
 .col-span-6 {
