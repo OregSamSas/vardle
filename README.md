@@ -1,4 +1,7 @@
-# Várdle
+----
+Welcome to the game
+
+## VÁRD![L](https://github.com/OregSamSas/vardle/assets/101597941/70ff0335-6f9b-4054-b48b-8247b84ea127)E!
 
 A [Worldle](https://worldle.teuteuf.fr) based geography quiz game with the counties of the old Hungarian Kingdom.
 
@@ -11,3 +14,5 @@ There are 71 counties, but there's the lake Balaton, which can be still guessed 
 Further rounds (guessing the neighbouring, and the furthest territories, capital, flag, etc. of the territory) are currently in development.
 
 See [credits](/credits.md) for all the resources used.
+
+----
