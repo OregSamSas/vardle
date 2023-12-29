@@ -23,6 +23,10 @@ function placeMapOnpage(showMap) {
         insertTo.appendChild(mapTemplate);
         let solutionCounty = document.querySelector(`#helpMap > g > #${Solution}`);
         solutionCounty.setAttribute('style', 'fill: var(--red) !important');
+        if (Round === 2) {
+            let farthestCounty = document.querySelector(`#helpMap > g >#${Furthest.name}`);
+            farthestCounty.setAttribute('style', 'fill: var(--red) !important');
+        }
         let toggleColor = document.getElementById('tmpl-togglecolor').content.firstElementChild.cloneNode(true);
         insertTo.appendChild(toggleColor);
         buttonEventListeners("change-colour");

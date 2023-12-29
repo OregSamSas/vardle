@@ -44,26 +44,32 @@ function localisation() {
     if (finishArea != null) {
         let finishAreatext = finishArea.childNodes[1].innerHTML
         if (finishedRounds[Round] === "won") {
-            if (Round === 0) {
-                if(Guesses.length === 1) {
-                    finishAreatext = `${translationPiece('anal1.0')} ${numberOfTries} ${translationPiece('anal1.3')}.`;
-                } else {
-                    finishAreatext = `${translationPiece('anal1.1')} ${Guesses.length} ${translationPiece('anal1.2')} ${numberOfTries} ${translationPiece('anal1.3')}.`;
-                }
+            let guessescount, triescount;
+            if (Round === 3) {
+                guessescount = OtherGuesses[Round-1].length;
+                triescount = numberOfTriesForImage;
             } else {
-                if (Round === 1) {
-                    let max = ((Round === 1) ? numberOfTries * 0.5 + closestTerritories.length : numberOfTries);
-                    let numOfGuesses = OtherGuesses[Round - 1].length;
-                    if (numOfGuesses === 1) {
-                        finishAreatext = `${translationPiece('anal1.0')} ${max} ${translationPiece('anal1.3')}.`;
-                    } else {
-                        finishAreatext = `${translationPiece('anal1.1')} ${numOfGuesses} ${translationPiece('anal1.2')} ${max} ${translationPiece('anal1.3')}.`;
-                    }
+                triescount = guesslinesCount;
+                if (Round===0) {
+                    guessescount = Guesses.length;
+                } else {
+                    guessescount = OtherGuesses[Round - 1].length;
                 }
             }
+            if(guessescount === 1) {
+                finishAreatext = `${translationPiece('anal1.0')} ${triescount} ${translationPiece('anal1.3')}.`;
+            } else {
+                finishAreatext = `${translationPiece('anal1.1')} ${guessescount} ${translationPiece('anal1.2')} ${triescount} ${translationPiece('anal1.3')}.`;
+            }
         } else {
-            let formattedSolution = ((imageOrigin.includes("Budapest")) ? ((arabicInSuggestions) ? romanToArabic(solutionText.toUpperCase().slice(0, Solution.length - 1)) + '.' : solutionText.toUpperCase()) : solutionText);
-            if (Round === 0) {
+            if (Round === 0 || Round === 2) {
+                let formattedSolution;
+                if (Round === 0) {
+                    formattedSolution = ((imageOrigin.includes("Budapest")) ? ((arabicInSuggestions) ? romanToArabic(solutionText.toUpperCase().slice(0, Solution.length - 1)) + '.' : solutionText.toUpperCase()) : solutionText);
+                } else {
+                    let furthestText = replaceSpecialCharacters(Furthest.name, true);
+                    formattedSolution = ((imageOrigin.includes("Budapest")) ? ((arabicInSuggestions) ? romanToArabic(furthestText.toUpperCase().slice(0, furthestText.length - 1)) + '.' : furthestText.toUpperCase()) : furthestText);
+                }
                 finishAreatext = `${translationPiece('anal2.1')}&nbsp;${translationPiece('anal2.2')}&nbsp;<i>${formattedSolution}</i>${translationPiece('anal2.3')}.`;
             } else {
                 finishAreatext = `${translationPiece('anal2.1')}&nbsp;`;
@@ -87,6 +93,10 @@ function localisation() {
     quest = document.getElementById('img-question');
     if (quest != null) {
         quest.innerHTML = `${translationPiece('coa1')} <i>${solutionText}</i>?`
+    }
+    quest = document.getElementById('farthest-question');
+    if (quest != null) {
+        quest.innerHTML = `${translationPiece('borders1')} ${translationPiece('farthest')} <i>${solutionText}</i>?`
     }
 
     // Translate wikipedia link

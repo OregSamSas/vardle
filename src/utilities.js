@@ -251,7 +251,7 @@ function getWikipediaLink(forCounty, lang = Language, onlyArticleName = false) {
         articleName = articleName[lang];
         if (articleName == undefined) {
             let endings = {en: "", hu: ""};
-            if (Round < 3) {
+            if (Round < 4) {
                 endings = {en: "County", hu: "vármegye"};
             }
             articleName = `${forCounty}_${endings[lang]}`;

@@ -4,7 +4,7 @@
 
 Idea: from Worldle (<https://worldle.teuteuf.fr>)
 Original SVG file showing the counties of the Hungarian Kingdom, used as the core map of the project, is from Wikipedia (<https://commons.wikimedia.org/wiki/File:Kingdom_of_Hungary_counties-2.svg>)
-InkScape was used to modify the image.
+InkScape and GIMP was used to modify images.
 Visual Studio Code was used to edit the files.
 The site is published using GitHub.
 

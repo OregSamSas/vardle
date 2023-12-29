@@ -14,7 +14,6 @@ dataXHR.send("");
 // Global variable declaration
 const CountyList = [];
 const Guesses = [];
-let OtherGuesses = [[], []];
 const Directions = data.directions;
 const wikiLinks = data.wikilinks; // From https://en.wikipedia.org/wiki/Lands_of_the_Crown_of_Saint_Stephen#:~:text=Counties%20of%20the%20Lands%20of%20the%20Crown%20of%20Saint%20Stephen
 const translations = data.l10n;
@@ -29,6 +28,7 @@ let Scale = undefined;
 let Rotation = 1 - Math.random() * 2;
 let sizePercent = false;
 let numberOfTries = 6;
+let numberOfTriesForImage = 2;
 let hideShape = false;
 let rotateShape = false;
 let sysTheme;
@@ -54,14 +54,23 @@ let coaImages = Array(6).fill('');
 let solutionPath = "";
 let solutionText = "";
 
+let OtherGuesses = [];
+for (let i = 0; i < numberOfRounds; i++) {
+    OtherGuesses.push([]);
+}
+
 // Get URL params
 handleURL();
+if (imageOrigin === "") {
+    numberOfRounds = 4;
+}
 
 // FUNCTION DEFINITIONS
 
 // Get all of the county names and place the SVG image
 function initialWork() {
     loadFromLocal();
+    getGuesslinesCount(Round);
     // Theme Setup
     initialThemeSetup();
     setThemeTo(mainTheme);
@@ -87,13 +96,13 @@ function initialWork() {
     }
     
     languageSetup();
-    updateMainCountyImage(!hideShape, rotateShape, finishedRounds[Round]);
+    updateMainCountyImage(!hideShape, rotateShape, !!finishedRounds[Round]);
 }
 
 function updateRounds(oldr, newr) {
-    guesslinesCount = (((newr === 2) ? 0 : (newr === 1) ? closestTerritories.length + parseInt(numberOfTries*0.5) : numberOfTries));
+    getGuesslinesCount(newr);
 
-    if (oldr === 0 || oldr === 2) {
+    if (oldr === 0 || oldr === 3) {
         let test = document.querySelectorAll("#mainImage > *");
         for (let lmnt of test) {
             if (lmnt != null) {
@@ -105,47 +114,63 @@ function updateRounds(oldr, newr) {
     Round = newr;
 
     let maincontent = document.getElementById('midContent');
-    if (oldr === 1 || oldr === 2) {
+    if (oldr === 1 || oldr === 3 || oldr === 2) {
         while (maincontent.firstElementChild.id !== "mainImage") {
             maincontent.firstElementChild.remove();
         }
         maincontent.firstElementChild.innerHTML = "";
     }
-    if (newr === 0) {
+    if (newr === 0 || newr === 2) {
         maincontent.firstElementChild.style = "height:210px";
         maincontent.firstElementChild.className = "flex justify-center";
+    }
+    if (newr === 1 || newr === 3) {
+        // make the main img container fit to the whole grid
+        let imgarea = document.getElementById('mainImage');
+        imgarea.className = "flex items-center gap-2 mb-4 flex-wrap justify-center";
+        imgarea.style = "";
     }
 
     removeGuessArea();
     placeMainImage();
-    if (newr > 0) {
-        let finishTemplate = document.getElementById('tmpl-finish').content.firstElementChild.cloneNode(true);
-        if (finishedRounds[Round]) {
-            finishedBottom(finishTemplate, finishedRounds[Round] === "lost", true);
-            buttonEventListeners('show-map');
-        } else if (Round === 1) {
-            if (closestTerritories.length === 0) {
-                finishedRounds[1] = "won";
-                finishedBottom(finishTemplate);
-            } else {
-                placeGuessInput();
-                let giveupbutton = document.getElementById('tmpl-giveup').content.cloneNode(true);
-                document.querySelector('#guessInput > .my-2').appendChild(giveupbutton);
-                inputEventListeners();
-            }
-        } else if (Round === 2) {
-            if (OtherGuesses[1].length > 0) {
-                redesignCoaButtons();
-            }
+    updateMainCountyImage(!hideShape, rotateShape, !!finishedRounds[Round], oldr !== newr);
+    let finishTemplate = document.getElementById('tmpl-finish').content.firstElementChild.cloneNode(true);
+    if (finishedRounds[Round]) {
+        finishedBottom(finishTemplate, finishedRounds[Round] === "lost", true);
+        buttonEventListeners('show-map');
+    } else if (Round === 1) {
+        if (closestTerritories.length === 0) {
+            finishedRounds[1] = "won";
+            finishedBottom(finishTemplate);
+        } else {
+            placeGuessInput();
+            let giveupbutton = document.getElementById('tmpl-giveup').content.cloneNode(true);
+            document.querySelector('#guessInput > .my-2').appendChild(giveupbutton);
+            inputEventListeners();
         }
-        localisation();
+    } else if (Round === 2) {
+        if (Furthest.length === 0) {
+            finishedRounds[2] = "won";
+            finishedBottom(finishTemplate);
+        } else {
+            placeGuessInput();
+            let giveupbutton = document.getElementById('tmpl-giveup').content.cloneNode(true);
+            document.querySelector('#guessInput > .my-2').appendChild(giveupbutton);
+            inputEventListeners();
+        }
+    } else if (Round === 3) {
+        if (OtherGuesses[Round-1].length > 0) {
+            redesignCoaButtons(false);
+        }
     }
+    localisation();
     updateGuessLines(guesslinesCount);
 }
 
 // END OF DEFINITIONS
 
-guesslinesCount = ((Round === 1) ? closestTerritories.length + parseInt(numberOfTries*0.5) : numberOfTries);
+
+// MAIN CODE
 initialWork();
 let CountyListOrdered = CountyList.slice(0, CountyList.length);
 CountyListOrdered = advancedSort(CountyListOrdered);
@@ -160,11 +185,11 @@ inputEventListeners();
 window.onload = function () {
     Furthest = getFurthest();
     getCoaImages();
+    loadCoaImages();
     // Header buttons
     buttonEventListeners('about-button');
     buttonEventListeners('stats-button');
     buttonEventListeners('settings-button');
-    
     
     // Global events
     docEvents();

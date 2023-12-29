@@ -24,7 +24,7 @@ function handleGuess() {
         } else {
             if (OtherGuesses[Round - 1].includes(guess)) {
                 window.alert(translationPiece('already'));
-            } else if (Round < 2 && CountyList.includes(guess)) {
+            } else if (Round < 3 && CountyList.includes(guess)) {
                 OtherGuesses[Round - 1].push(guess);
                 guessInput.value = "";
                 guessAnalisys(guess);
@@ -50,7 +50,13 @@ function placeGuessLines(num) {
     for (let i = 0; i < num; i++) {
         insertTo.appendChild(document.getElementById('tmpl-guessline').content.firstElementChild.cloneNode(true));
     }
+}
 
+function getGuesslinesCount(forRound = new Number()) {
+    guesslinesCount = (((forRound === 3) ? 0 :
+                        ((forRound === 2) ? numberOfTries :
+                        (forRound === 1) ? closestTerritories.length + parseInt(numberOfTries*0.5) :
+                        numberOfTries)));
 }
 
 function updateGuessLines(num) {
@@ -105,7 +111,7 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
         newLine.children[0].childNodes[1].innerHTML = ((imageOrigin.includes("Budapest") && arabicInSuggestions) 
                                                         ? romanToArabic(replaceSpecialCharacters(name, true).toUpperCase().slice(0, name.length-1)) + '.'
                                                         : replaceSpecialCharacters(name, true));
-        if (Round !== 1) newLine.children[1].innerHTML = ((computingMethod.includes("bord") && dist === 0 && name !== Solution) ? translationPiece("bord") : ((Scale == undefined) ? '?' : insertSpacesToNum(dist)) + " " + distUnit);
+        if (Round !== 1) newLine.children[1].innerHTML = ((computingMethod.includes("bord") && dist === 0 && dir !== 'yo') ? translationPiece("bord") : ((Scale == undefined) ? '?' : insertSpacesToNum(dist)) + " " + distUnit);
         partyEmoji.setAttribute('alt', Directions[dir].alt);
         partyEmoji.setAttribute('src', 'https://em-content.zobj.net/thumbs/240/twitter/' + Directions[dir].img)
         if (Round !== 1) newLine.children[3].innerHTML = (compressNum(percent, (percent > 90) ? 1 : 0)).toString() + '%';
@@ -118,49 +124,56 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
     }
 
     // Both needed on wining and on losing as well
-    let finishArea = document.getElementById('tmpl-finish').content.firstElementChild.cloneNode(true);
     let finished = false;
     
     // Write out win text
     if (dir === 'yo') {
         finished = true;
-        finishedBottom(finishArea, false, guessLine);
         let partyEmojiPos = partyEmoji.getBoundingClientRect();
         try {
             // Confetti Animation
-            if(!Won) confetti({
-                particeCount: 150,
-                startVelocity: 30,
-                spread: 80,
-                origin: {
-                    x: partyEmojiPos.x / window.innerWidth,
-                    y: partyEmojiPos.y / window.innerHeight
-                }
-            });
-        } catch {}
+            if(!finishedRounds[Round]) { // Display confetti animation only at first
+                confetti({
+                    particeCount: 150,
+                    startVelocity: 31,
+                    spread: 70,
+                    origin: {
+                        x: partyEmojiPos.x / window.innerWidth,
+                        y: partyEmojiPos.y / window.innerHeight
+                    }
+                });
+            }
+        } catch (err) {console.error(err);}
         Won = true;
     }
     // Write out lose text
     else if (count + 1 === guesslinesCount) {
-        finished = true;
-        finishedBottom(finishArea, true, guessLine);
         Won = false;
+        finished = true;
     }
 
     if (finished) {
-        // Cancel rotation when no tries left too
-        removeRotation();
-
-        // Show image, if hidden
-        showShapeOfTerritory();
-
-        // Buttons for proceeding to later rounds
-        if (finishedRounds.length - 1 < Round) {
-            finishedRounds.push((Won) ? "won" : "lost");
-        } else {
-            finishedRounds[Round] = ((Won) ? "won" : "lost");
-        }
+        endOfGuessing(Won, guessLine)
+    } else {
+        localisation();
     }
+}
+
+function endOfGuessing(win = new Boolean(), guessLine) {
+    let finishArea = document.getElementById('tmpl-finish').content.firstElementChild.cloneNode(true);
+    finishedBottom(finishArea, !win, guessLine);
+    // Cancel rotation when no tries left too
+    removeRotation();
+
+    // Buttons for proceeding to later rounds
+    if (finishedRounds.length - 1 < Round) {
+        finishedRounds.push((win) ? "won" : "lost");
+    } else {
+        finishedRounds[Round] = ((win) ? "won" : "lost");
+    }
+
+    // Show image, if hidden
+    showShapeOfTerritory();
 
     // Translate newly placed elements
     localisation();
@@ -181,7 +194,7 @@ function finishedBottom(template, lose = false, guessLine = undefined) {
     }
     if (lose) {
         let finishImage = template.childNodes[3].childNodes[3].firstElementChild;
-        finishImage.setAttribute('src', 'img/loseMeme.jpg');
+        finishImage.setAttribute('src', 'img/loseMeme.png');
         finishImage.setAttribute('alt', '😒');
     }
     if (Round === 1) {
@@ -205,7 +218,7 @@ function finishedBottom(template, lose = false, guessLine = undefined) {
         solutionsDiv.appendChild(listDiv);
         myPlace.firstElementChild.firstElementChild.after(solutionsDiv);
     }
-    if (Round === 2) {
+    if (Round === 3) {
         redesignCoaButtons(true);
     }
 
@@ -223,15 +236,18 @@ function redesignCoaButtons(finished = false) {
     for (let img = 0; img < imgButtons.length; img++) {
         button = imgButtons[img];
         if (finished) button.setAttribute('role', "");
-        let n = button.firstElementChild.getAttribute('name')
+        let n = button.firstElementChild.getAttribute('name');
         if (n === Solution && finished) {
-            button.style.border = "solid var(--main-green) 4px";
+            button.className += " good-img";
         } else  {
-        OtherGuesses[1].forEach(element => {
-            if (n === coaImages[element].name) {
-                button.style.border = "solid var(--main-red) 4px";
-            }
-        });
+            OtherGuesses[Round-1].forEach(element => {
+                if (n === coaImages[element].name) {
+                    button.className = "wrong-img";
+                    if (OtherGuesses[Round-1].indexOf(element) == OtherGuesses[Round-1].length-1) {
+                        button.className += " shake";
+                    }
+                }
+            });
         }
     }
 }
@@ -239,9 +255,9 @@ function redesignCoaButtons(finished = false) {
 function updateWikiLinkOnPage(a = document.querySelector('a[href*="wiki"]')) {
     if (a != null) {
         let wikiname = '';
-        if (Round === 0 || Round === 1 || Round === 2) {
+        if (Round < 4) {
             wikiname = Solution;
-        } else if (Round === 2) {
+        } else if (Round === 5) {
             wikiname = undefined;
         }
         a.setAttribute('href', getWikipediaLink(wikiname, Language));
@@ -289,11 +305,13 @@ function guessAnalisys(myGuess, specialplace) {
                 placeAnalisys(place, myGuess, 0, '', 'no', 0);
             }
         } else {
-            if (myGuess === Solution) {
-                placeAnalisys(Guesses.length-1, Solution, 0, 'm', 'yo', 100);
+            let solution = (Round === 0) ? Solution : ((Round === 2) ? Furthest.name : "");
+            let numofguesses = (Round === 0) ? Guesses.length-1 : OtherGuesses[Round-1].length-1;
+            if (myGuess === solution) {
+                placeAnalisys(numofguesses, solution, 0, 'm', 'yo', 100);
             } else {
                 let guessPath = document.querySelector("#mapTemplate > svg > g > #" + myGuess);
-                let mainPath = absToRel(document.querySelector("#mapTemplate > svg > g > #" + Solution).getAttribute('d'));
+                let mainPath = absToRel(document.querySelector("#mapTemplate > svg > g > #" + solution).getAttribute('d'));
                 if (guessPath != undefined) {
                     otherMetaData[myGuess] = trackPath(absToRel(guessPath.getAttribute('d')), {}, mainPath, true);
                     console.log(otherMetaData[myGuess])
@@ -348,8 +366,8 @@ function guessAnalisys(myGuess, specialplace) {
                         dir = Math.round(dir / 45) % 8; // It can be (e.g. 7.6) rounded up to 8 which does not included in the following list => %8 is needed
                     }
                 }
-                let place = ((specialplace == undefined) ? Guesses.length - 1 : specialplace);
-                placeAnalisys(place, Guesses[place], distance, unit, dirs[dir], accuracy);
+                let place = ((specialplace == undefined) ? numofguesses : specialplace);
+                placeAnalisys(place, (Round === 0) ? Guesses[place] : OtherGuesses[Round-1][place], distance, unit, dirs[dir], accuracy);
             }
         }
     }

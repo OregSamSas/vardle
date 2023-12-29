@@ -55,7 +55,8 @@
         </div>
       </div>
     </body>
-
+    
+    <template id="loaded-coatofarms"></template>
     <template id="tmpl-county-suggestions">
       <ul role="listbox"></ul>
     </template>
@@ -89,7 +90,7 @@
       </div>
     </template>
     <template id="tmpl-giveup">
-      <button id="giveup-button" class="font-bold border-2 p-1 rounded mt-4 uppercase my-2" type="button" style="align-self: center;" onclick="finishedRounds[Round] = 'lost';updateRounds(Round, Round)">
+      <button id="giveup-button" class="font-bold border-2 p-1 rounded mt-4 uppercase my-2" type="button" style="align-self: center;" onclick="finishedRounds[Round] = 'lost';updateRounds(Round, Round);endOfGuessing(false)">
         <span ln="giveup"><img alt="🤷‍♂️" src="https://em-content.zobj.net/thumbs/240/twitter/351/person-shrugging_1f937.png" class="inline-block generalImg"></span>
       </button>
     </template>

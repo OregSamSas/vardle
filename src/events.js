@@ -11,6 +11,11 @@ function docEvents() {
                 closeUppermostWindow(true);
         }
     });
+    window.addEventListener("keyup", (keyupE) => {
+        if (finishedRounds[Round] === "won" || finishedRounds[Round] === "lost") {
+            handleKeysForEvent(keyupE, "green arrows");
+        }
+    });
     window.addEventListener('resize', (e) => {
         let canvas = document.querySelector("#page > canvas");
         let minheight = document.getElementById('mainContent').getBoundingClientRect().height;
@@ -63,20 +68,22 @@ function handleKeysForEvent(e, input) {
     if (e.isComposing || e.keyCode === 229) {
         return;
     }
-    switch(e.key) {
-        case "Escape":
-            input.blur();
-            break;
-        case "Enter":
-            let selected = null;
-            try { selected = findSelectedCountyItem(input).firstChild.innerHTML; } catch{}
-            if (selected != null) {
-                listItemClicked(input.id, selected);
-                removeAllCountyElement(input);
-            } else {
-                handleGuess();
-            }
-            break;
+    if (input !== "green arrows") {
+        switch(e.key) {
+            case "Escape":
+                input.blur();
+                break;
+            case "Enter":
+                let selected = null;
+                try { selected = findSelectedCountyItem(input).firstChild.innerHTML; } catch{}
+                if (selected != null) {
+                    listItemClicked(input.id, selected);
+                    removeAllCountyElement(input);
+                } else {
+                    handleGuess();
+                }
+                break;
+        }
     }
     if (e.keyCode === 38 || e.keyCode === 40) { // Up-down arrow navigation in list
         e.preventDefault();
@@ -99,6 +106,22 @@ function handleKeysForEvent(e, input) {
         let neededElement = selectCountyItem(input, newSelected);
         neededElement.scrollIntoView();
         listItemHovered(neededElement, input.getAttribute('aria-controls'));
+    }
+    if ((e.keyCode === 37 || e.keyCode === 39) && input == "green arrows") {
+        if (document.activeElement == document.body) {
+            switch (e.keyCode) {
+                case 37:
+                    if (Round > 0) {
+                        updateRounds(Round, Round - 1)
+                    }
+                    break;
+                case 39:
+                    if (Round < numberOfRounds -1) {
+                        updateRounds(Round, Round + 1)
+                    }
+                    break;
+            }
+        }
     }
 }
 

@@ -65,7 +65,7 @@ function adjustMetaData(data, withRatio) {
 
 
 // function for insert a county to guess
-function getCountyImage(id = '', num) {
+function getCountyImage(id = '', num, forceNoRotating=false) {
     let ratio;
     let placeToInsert = document.getElementById(id);
     let desiredshape = document.querySelector(`#mapTemplate > svg > g > #${CountyList[num]}`);
@@ -133,7 +133,7 @@ function getCountyImage(id = '', num) {
         makeSpaceInSVG(svgImage);
 
         // Rotate image if desired
-        if (rotateShape) {
+        if (rotateShape && !forceNoRotating) {
             rotateSVG(svgImage, Rotation, placeToInsert);
         }
 

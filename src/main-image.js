@@ -4,11 +4,7 @@ function placeMainImage() {
     if (Round === 0) {
         createGuessImage('imageToGuess', (Solution != undefined) ? CountyList.indexOf(Solution) : getRandomCounty());
     } else if (Round === 1) {
-        let text = document.createElement('div');
-        text.id = "border-question";
-        text.className = "question mt-4 font-bold";
-        let container = document.getElementById('midContent');
-        container.insertBefore(text, container.firstChild);
+        placeQuestion('border');
         for (let neighbour of closestTerritories) {
             if (neighbour != undefined) {
                 createGuessImage(`imageToGuess${closestTerritories.indexOf(neighbour)}`, CountyList.indexOf(neighbour.name))
@@ -16,23 +12,19 @@ function placeMainImage() {
         }
         localisation();
     } else if (Round === 2) {
+        placeQuestion('farthest');
+        createGuessImage("imageToGuess", CountyList.indexOf(Furthest.name));
+    } else if (Round === 3) {
         if (imageOrigin === "") {
-            let text = document.createElement('div');
-            text.id = "img-question";
-            text.className = "question mt-4 font-bold";
-            let container = document.getElementById('midContent');
-            container.insertBefore(text, container.firstChild);
-            let img, src, name, div, 
+            placeQuestion('img');
+            let img, lmnt, div, 
             main = document.getElementById('mainImage');
-            coaImages.forEach(element => {
+            let cachedImgs = document.getElementById('loaded-coatofarms').children;
+            try {for (let i = 0; i < cachedImgs.length; i++) {
+                lmnt = cachedImgs[i];
                 div = document.createElement('div');
                 div.setAttribute('role', "button");
-                img = document.createElement('img');
-                src = element.src;
-                name = element.name;
-                console.log(src)
-                img.setAttribute("src", src);
-                img.setAttribute("name", name);
+                img = lmnt.cloneNode(false);
                 div.style.border = 'solid var(--border) 2px';
                 div.style.borderRadius = '10%';
                 div.style.padding = '4%';
@@ -41,9 +33,9 @@ function placeMainImage() {
                 main.appendChild(div);
                 div.appendChild(img);
                 div.addEventListener('click', (e) => {
-                    if (finishedRounds[2] == undefined) {
-                        if (OtherGuesses[1] == undefined) {
-                            OtherGuesses[1] = [];
+                    if (finishedRounds[Round] == undefined) {
+                        if (OtherGuesses[Round-1] == undefined) {
+                            OtherGuesses[Round-1] = [];
                         }
                         let myname = e.target.getAttribute('name');
                         let posInCoaImgs;
@@ -52,20 +44,38 @@ function placeMainImage() {
                                 posInCoaImgs = i;
                             }
                         }
-                        OtherGuesses[1].push(posInCoaImgs);
+                        OtherGuesses[Round-1].push(posInCoaImgs);
                         if (myname === Solution) {
-                            finishedRounds[2] = "won";
+                            try {finishedRounds[Round] = "won";
+                            let imgPos = e.target.getBoundingClientRect();
+                            confetti({
+                                particeCount: 150,
+                                startVelocity: 35,
+                                spread: 70,
+                                origin: {
+                                    x: (imgPos.x + imgPos.width / 2) / window.innerWidth,
+                                    y: (imgPos.y + imgPos.height / 2) / window.innerHeight
+                                }
+                            });}catch{};
                         } else {
-                            if (OtherGuesses[1].length === 2) {
-                                finishedRounds[2] = "lost";
+                            if (OtherGuesses[Round-1].length === numberOfTriesForImage) {
+                                finishedRounds[Round] = "lost";
                             }
                         }
-                        updateRounds(2, 2);
+                        updateRounds(Round, Round);
                     }
                 })
-            });
+            };} catch (error) {console.error(error)}
         }
     }
+}
+
+function placeQuestion(id = new String()) {
+    let text = document.createElement('div');
+    text.id = id + "-question";
+    text.className = "question mt-4 font-bold";
+    let container = document.getElementById('midContent');
+    container.insertBefore(text, container.firstChild);
 }
 
 function promiseCoaImage(territoryName) {
@@ -114,6 +124,17 @@ async function getCoaImages(all = false) {
     }
 }
 
+function loadCoaImages() {
+    let parent = document.getElementById('loaded-coatofarms');
+    let imagechild;
+    for (let img = 0; img < coaImages.length; img++) {
+        imagechild = document.createElement('img');
+        imagechild.setAttribute('name', coaImages[img].name);
+        imagechild.src = coaImages[img].src;
+        parent.appendChild(imagechild);
+    }
+}
+
 function coaImagesContains(item) {
     for (let coa = 0; coa < coaImages.length; coa++) {
         if (coaImages[coa].name === item) {
@@ -131,37 +152,35 @@ function createGuessImage(id = 'imageToGuess', idx = undefined) {
     if (Round === 1) {
         guessImage.style = "height: fit-content;width: fit-content;padding: 5px;flex-direction:column";
         guessImage.className += " border-2 rounded";
-        guessImage.parentElement.style = "";
-        guessImage.parentElement.className = "flex items-center gap-2 mb-4 flex-wrap justify-center";
         let span = document.createElement("span");
         span.innerHTML = guessImage.parentElement.childElementCount;
         span.className = "ml-1";
         span.style = "align-self:baseline";
         guessImage.appendChild(span);
     }
-    getCountyImage(id, idx);
+    getCountyImage(id, idx, Round === 1);
 }
 
-function updateMainCountyImage(show, rotate, finished = false) {
-    if (rotate && !finished) {
-        let rotationButton = document.getElementById('cancel-rot')
-        if (rotationButton == undefined) {
-            rotateSVG(
-                document.querySelector('#imageToGuess > svg'),
-                Rotation,
-                document.getElementById('imageToGuess')
-            );
-            localisation();
+function updateMainCountyImage(show, rotate, finished = false, removeforall = false) {
+    if (Round === 0 || Round === 2) {
+        if (rotate && !finished) {
+            let rotationButton = document.getElementById('cancel-rot');
+            if (rotationButton == undefined) {
+                rotateSVG(
+                    document.querySelector('#imageToGuess > svg'),
+                    Rotation,
+                    document.getElementById('imageToGuess')
+                );
+                localisation();
+            } else {
+                rotationButton.style.display = "";
+            }
         } else {
-            rotationButton.style.display = "";
-        }
-    } else {
-        if (!finished) {
-            removeRotation()
+            removeRotation(!removeforall);
         }
     }
     if (show) {
-        if (Round === 0) {
+        if (Round === 0 || Round === 2) {
             document.getElementById('imageToGuess').style.display = "";
             document.getElementById('imageToGuess').style.transform = "";
         }
@@ -169,7 +188,7 @@ function updateMainCountyImage(show, rotate, finished = false) {
     } else {
         if (!showImageButtonRemoved) {
             removeRotation(true);
-            if(Round === 0) {
+            if(Round === 0 || Round === 2) {
                 document.getElementById('imageToGuess').style.display = "none";
             }
             addShowMapButton();
@@ -194,6 +213,7 @@ function showShapeOfTerritory() {
     image.firstElementChild.style.transform = "";
     removeShowMapButton();
     showImageButtonRemoved = true;
+    updateMainCountyImage(true, rotateShape, !!finishedRounds[Round]);
 }
 
 function removeShowMapButton() {
