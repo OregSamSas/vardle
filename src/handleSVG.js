@@ -463,7 +463,7 @@ function getFurthest() {
         if (tempData["closest-border"] < 1 && examinedCounty.id != Solution) {
             tempClosests.push({"name": examinedCounty.id, "dist": tempDist});
         }
-        if (tempDist > furthestDist) {
+        if (tempDist > furthestDist && examinedCounty.id != Solution) {
             furthestDist = tempDist;
             furthestCounty = examinedCounty.id;
         }

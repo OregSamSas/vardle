@@ -9,23 +9,27 @@ function placeMapOnpage(showMap) {
         mapTemplate.id = "helpMap";
         let em = parseFloat(getComputedStyle(document.getElementById('midContent')).fontSize);
         let scale = 31 * em / mapTemplate.width.baseVal.value;
-        
+
+        if(imageOrigin.includes("world")) {
+            mapTemplate.style.margin = "-400px";
+        }
+
             // Animation
             mapTemplate.style.visibility = "hidden";
             setTimeout(() => {
                 mapTemplate.style.visibility = "visible";
                 mapTemplate.className = "";
             }, 75);
-            
+
         mapTemplate.style.transform = `scale(${scale})`;
         insertTo.style.height = `${(mapTemplate.height.baseVal.value + 20) * scale}px`;
         insertTo.style.maxWidth = `98vw`;
         insertTo.appendChild(mapTemplate);
         let solutionCounty = document.querySelector(`#helpMap > g > #${Solution}`);
-        solutionCounty.setAttribute('style', 'fill: var(--red) !important');
+        solutionCounty.setAttribute('style', 'fill: var(--main-red) !important');
         if (Round === 2) {
             let farthestCounty = document.querySelector(`#helpMap > g >#${Furthest.name}`);
-            farthestCounty.setAttribute('style', 'fill: var(--red) !important');
+            farthestCounty.setAttribute('style', 'fill: var(--main-red) !important');
         }
         let toggleColor = document.getElementById('tmpl-togglecolor').content.firstElementChild.cloneNode(true);
         insertTo.appendChild(toggleColor);
