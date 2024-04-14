@@ -356,7 +356,7 @@ footer {
     font-size: 150%
 }
 #textgroup {
-    fill: var(--main-bg); 
+    fill: #000; 
     font-family: Helvetica 
 }
 svg > g > path {
@@ -366,6 +366,12 @@ svg > g > path {
     stroke-linecap:round !important;
     stroke-linejoin:round !important;
     fill-rule: nonzero !important
+}
+#helpMap > g > path {
+    fill: #fff !important;
+}
+#mapArea {
+    overflow: clip;
 }
 #helpMap > g > path { 
     stroke: var(--border2) !important;
