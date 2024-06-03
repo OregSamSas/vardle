@@ -307,46 +307,47 @@ function absToRel(path = new String()) {
 }
 
 // Function to follow through a path and collect its data
-function trackPath(path = new String(), compare = new Object(), path0 = new String(), stillGetSizeData = false) {
+function trackPath(path = new String(), compare = new Object(), path0 = new String(), stillGetSizeData = false, debug=false) {
     let minx=0, miny=0, maxx=0, maxy=0, x=0, y=0, x0=0, y0=0, x1=0, y1=0, x2=0, y2=0, x3=0, y3=0, i=0, char=0, t = 0, dist=0, mindist=-1, dir=0;
     let command = "";
     let origCoordinates = Array(8).fill('');
     while (char < path.length) {
-        command = path[char];
+        command = path[char]; // There are commands with parameters following in the SVG path
+        if(debug) console.log(command)
         char += 2;
-        if (command === 'z' && path[char] != undefined) {
+        if (command === 'z' && path[char] != undefined) { // If the path does not end, only jumps to a non-adjacent path part
             if (path[char].toLowerCase() === 'm') {
                 if (path[char] === 'M') {
                     command = 'L';
                 } else {
-                    command = 'l';
+                    command = 'l'; // For tracking the path jumping to an other place is equivalent to drawing a line there
                 }
-                char += 2;
+                char += 2; // Skip from the unnecessary z command to the next (recently replaced) L/l command
             }
         }
         if (command === 'M' || command === 'm') {
-            x0 = 0;
-            y0 = 0;
-            if (command === 'm') {
+            if (command === 'm') { // if it's a relative move, we should add the last position's coordinates to the parameters in order to get the target coordinates
                 x0 = origCoordinates[0];
                 y0 = origCoordinates[1];
             }
-            for (let coo = 0; coo < 2; coo++) {
+            for (let coo = 0; coo < 2; coo++) { // get the command parameters, the two coordinates with which we jump to the path's starting position
                 while (path[char] !== " " && path[char] !== ",") {
                     origCoordinates[coo] += path[char];
                     char ++;
                 }
                 char ++;
             }
-            origCoordinates[0] = (x0 + parseFloat(origCoordinates[0])).toString();
-            origCoordinates[1] = (y0 + parseFloat(origCoordinates[1])).toString();
+            if (command === 'm') { // We add last position's coordinates here
+                origCoordinates[0] = (x0 + parseFloat(origCoordinates[0])).toString();
+                origCoordinates[1] = (y0 + parseFloat(origCoordinates[1])).toString();
+            }
         }
-        if ("cqlvh".includes(command)) {
+        if ("cqlvh".includes(command)) { // That means, a curve comes
             origCoordinates[2] = '0';
             origCoordinates[3] = '0';
-            let type = ((command === 'c') ? "cubic" : ((command === 'q') ? "quadratic" : "linear"));
+            let type = ((command === 'c') ? "cubic" : ((command === 'q') ? "quadratic" : "linear")); // Here are the different types of curves to be used
             let startPos = ((command === 'v') ? 3 : 2);
-            let endPos = ((command === 'c') ? 8 : ((command === 'q') ? 6 : ((command === 'h') ? 3 : 4)));
+            let endPos = ((command === 'c') ? 8 : ((command === 'q') ? 6 : ((command === 'h') ? 3 : 4))); // v is a vertical segment and h is a horizontal one
             for (let coo = startPos; coo < endPos; coo++) {
                 origCoordinates[coo] = '';
                 while (path[char] !== " " && path[char] !== "," && char < path.length) {
@@ -372,13 +373,12 @@ function trackPath(path = new String(), compare = new Object(), path0 = new Stri
             }
             t = 0;
             if (path0 != "") {
-                dist = trackPath(path0, {"x": x0,"y": y0}, "");
-                if (mindist === -1 || dist["closest-point"] < mindist) {
-                    mindist = dist["closest-point"];
-                    dir = dist["dir-of-borderpoints"];
-                }
-                if (mindist === 0) { // minimum distance found for sure (neighbouring territories), no need to check other points
-                    break;
+                if (mindist !== 0) { // If minimum distance found for sure (neighbouring territories), no need to check other points, only to get the dimensions of the examined territory
+                    dist = trackPath(path0, {"x": x0,"y": y0}, "");
+                    if (mindist === -1 || dist["closest-point"] < mindist) {
+                        mindist = dist["closest-point"];
+                        dir = dist["dir-of-borderpoints"];
+                    }
                 }
             }
             if (path0 == "" || stillGetSizeData) {
@@ -430,6 +430,7 @@ function trackPath(path = new String(), compare = new Object(), path0 = new Stri
         }
         i++;
     }
+    if(debug) console.log(i);
     let returnWith = new Object();
     if (compare.x != undefined) {
         returnWith = {"closest-point": compressNum(mindist, 1), "dir-of-borderpoints": dir}
@@ -445,7 +446,7 @@ function trackPath(path = new String(), compare = new Object(), path0 = new Stri
     return returnWith;
 }
 
-// For accuracy calculations
+// For accuracy calculations, and for two rounds (it also calculates the neighbouring territories)
 function getFurthest() {
     let furthestCounty = "";
     let furthestDist = 0;
@@ -459,14 +460,19 @@ function getFurthest() {
     let tempClosests = new Array();
     for (let examinedCounty of AllCountyNames) {
         tempData = trackPath(absToRel(examinedCounty.getAttribute('d')), {}, solutionPath, true);
-        tempDist = distanceOf(metaData.midx, metaData.midy, tempData.midx, tempData.midy);
-        if (tempData["closest-border"] < 1 && examinedCounty.id != Solution) {
-            tempClosests.push({"name": examinedCounty.id, "dist": tempDist});
+        if (examinedCounty.id == Solution) {
+            tempDist = 0;
+        } else {
+            tempDist = distanceOf(metaData.midx, metaData.midy, tempData.midx, tempData.midy);
+            if (tempData["closest-border"] < 1) {
+                tempClosests.push({"name": examinedCounty.id, "dist": tempDist});
+            }
+            if (tempDist > furthestDist) {
+                furthestDist = tempDist;
+                furthestCounty = examinedCounty.id;
+            }
         }
-        if (tempDist > furthestDist && examinedCounty.id != Solution) {
-            furthestDist = tempDist;
-            furthestCounty = examinedCounty.id;
-        }
+        console.log({[examinedCounty.id]: tempData})
         /*Legacy
         for (let i = 0; i < tempClosests.length;i++) {
             if (tempClosests[i] == null || tempClosests[i] === NaN || tempClosests[i] === '' || tempClosests[i].dist > tempDist) {

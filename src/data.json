@@ -176,7 +176,9 @@
             "border": "#e5e7eb",
             "red": "#8b0e0e",
             "border2": "#888",
-            "brightness": ".8"
+            "brightness": ".8",
+            "hover-brightness": ".92",
+            "main-green": "rgb(24, 217, 96)"
         },
         {
             "main-bg": "#0f172a",
@@ -190,7 +192,9 @@
             "border": "#eee",
             "red": "#d33325",
             "border2": "#555",
-            "brightness": "2.5"
+            "brightness": "2.5",
+            "hover-brightness": "1.2",
+            "main-green": "rgb(22, 163, 74)"
         }
     ],
     "settings":

@@ -9,13 +9,14 @@
     --text2: ;
     --text3: ;
     --border: ;
-    --main-green: rgb(22, 163, 74);
+    --main-green: ;
     --main-red: rgb(204, 0, 0);
     --toastify-color-info: #3498db;
     --toastify-color-success: #07bc0c;
     --toastify-color-warning: #f1c40f;
     --toastify-color-error: #e74c3c;
     --brightness: ;
+    --hover-brightness: ;
 }
 
 *,
@@ -249,6 +250,9 @@ body {
 .back-green-600 {
     background-color: var(--main-green);
 }
+.fill-green-600 {
+    fill: var(--main-green);
+}
 
 .underline {
     text-decoration-line: underline
@@ -409,7 +413,7 @@ html {
     background-color: var(--main-bg)
 }
 span#next-round > svg:hover, span#prev-round > svg:hover {
-    filter: brightness(1.2);
+    filter: brightness(var(--hover-brightness));
 }
 [role="listbox"]::-webkit-scrollbar {
     background-color: var(--button-bg);
