@@ -95,7 +95,7 @@
 	<text
    transform="matrix(1 0 0 1 164.5166 658.8557)"
    class="label"
-   id="text2162"><tspan
+   id="BADEN-WÜRTEMBERG-txt"><tspan
      x="0"
      y="0"
      class="label"
@@ -107,7 +107,7 @@
 	<text
    transform="matrix(1 0 0 1 360.085 136.8601)"
    class="label"
-   id="text2168"><tspan
+   id="MECKLENBURG-VORPOMERN-txt"><tspan
      x="0"
      y="0"
      class="label"
@@ -119,35 +119,35 @@
 	<text
    transform="matrix(1 0 0 1 166.8481 466.4338)"
    class="label"
-   id="text2170">Hessen</text>
+   id="HESSEN-txt">Hessen</text>
 	<text
    transform="matrix(1 0 0 1 217.9985 157.8606)"
    class="label"
-   id="text2172">Hamburg</text>
+   id="HAMBURG-txt">Hamburg</text>
 	<text
    transform="matrix(1 0 0 1 159.4775 202.8606)"
    class="label"
-   id="text2174">Bremen</text>
+   id="BREMEN-txt">Bremen</text>
 	<text
    transform="matrix(1 0 0 1 432.376 297.7883)"
    class="label"
-   id="text2176">Brandenburg</text>
+   id="BRANDENBURG-txt">Brandenburg</text>
 	<text
    transform="matrix(1 0 0 1 342.6416 630.9006)"
    class="label"
-   id="text2178">Bayern</text>
+   id="BAYERN-txt">Bayern</text>
 	<text
    transform="matrix(1 0 0 1 452.8574 263.5735)"
    class="label"
-   id="text2180">Berlin</text>
+   id="BERLIN-txt">Berlin</text>
 	<text
    transform="matrix(1 0 0 1 171.9282 242.8601)"
    class="label"
-   id="text2182">Niedersachsen</text>
+   id="NIEDERSACHSEN-txt">Niedersachsen</text>
 	<text
    transform="matrix(1 0 0 1 53.6963 361.4675)"
    class="label"
-   id="text2188"><tspan
+   id="NORDRHEIN-WESTFALEN-txt"><tspan
      x="0"
      y="0"
      class="label"
@@ -159,7 +159,7 @@
 	<text
    transform="matrix(1 0 0 1 25.3623 509.8586)"
    class="label"
-   id="text2194"><tspan
+   id="RHEINLAND-PFALZ-txt"><tspan
      x="0"
      y="0"
      class="label"
@@ -171,15 +171,15 @@
 	<text
    transform="matrix(1 0 0 1 45.3198 583.8596)"
    class="label"
-   id="text2196">Saarland</text>
+   id="SAARLAND-txt">Saarland</text>
 	<text
    transform="matrix(1 0 0 1 451.0889 409.4329)"
    class="label"
-   id="text2198">Sachsen</text>
+   id="SACHSEN-txt">Sachsen</text>
 	<text
    transform="matrix(1 0 0 1 331.9688 325.5725)"
    class="label"
-   id="text2204"><tspan
+   id="SACHSEN-ANHALT-txt"><tspan
      x="0"
      y="0"
      class="label"
@@ -191,7 +191,7 @@
 	<text
    transform="matrix(1 0 0 1 212.8223 90.8601)"
    class="label"
-   id="text2210"><tspan
+   id="SCHLESWIG-HOLSTEIN-txt"><tspan
      x="0"
      y="0"
      class="label"
@@ -203,6 +203,6 @@
 	<text
    transform="matrix(1 0 0 1 291.8359 433.4348)"
    class="label"
-   id="text2212">Thüringen</text>
+   id="THÜRINGEN-txt">Thüringen</text>
 </g>
 </svg>

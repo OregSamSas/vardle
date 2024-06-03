@@ -376,6 +376,7 @@ svg > g > path {
 }
 #mapArea {
     overflow: clip;
+    align-content: space-around;
 }
 #helpMap > g > path { 
     stroke: var(--border2) !important;

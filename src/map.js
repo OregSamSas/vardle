@@ -27,9 +27,13 @@ function placeMapOnpage(showMap) {
         insertTo.appendChild(mapTemplate);
         let solutionCounty = document.querySelector(`#helpMap > g > #${Solution}`);
         solutionCounty.setAttribute('style', 'fill: var(--main-red) !important');
+        let solutionCountyText = document.querySelector(`#helpMap > g > #${Solution.toUpperCase()}-txt`);
+        emphasizeMapText(solutionCountyText);
         if (Round === 2) {
             let farthestCounty = document.querySelector(`#helpMap > g >#${Furthest.name}`);
             farthestCounty.setAttribute('style', 'fill: var(--main-red) !important');
+            let farthestCountyText = document.querySelector(`#helpMap > g > #${Furthest.name.toUpperCase()}-txt`);
+            emphasizeMapText(farthestCountyText);
         }
         let toggleColor = document.getElementById('tmpl-togglecolor').content.firstElementChild.cloneNode(true);
         insertTo.appendChild(toggleColor);
@@ -47,6 +51,14 @@ function placeMapOnpage(showMap) {
     }
 }
 
+function emphasizeMapText(txtlmnt) {
+    try { 
+        if (txtlmnt.childElementCount > 0) {
+            txtlmnt.children[0].setAttribute('style', 'color: var(--text); font-weight: bolder; font-size: 130%;');
+        } else if (txtlmnt != null) txtlmnt.setAttribute('style', 'color: var(--text); font-weight: bolder; font-size: 130%;');
+    } catch {console.error("Something went wrong.")}
+}
+
 function swapMapColour(paletteIcon, forcetrue=false) {
     let modifiedStyles = document.getElementById('style-modification')
     if (forcetrue || modifiedStyles == null) {
@@ -61,8 +73,8 @@ function swapMapColour(paletteIcon, forcetrue=false) {
             #helpMap > g > path.county_r  { fill: #FFC0C0 !important; }
             #helpMap > g > path.county_b  { fill: #C0C0FF !important; }
             #helpMap > g > path.county_g  { fill: #C0FFC0 !important; }
-            #helpMap > g > path.water     { fill: #0080FF !important; }
-            #helpMap > g > text           { fill: #000}
+            #helpMap path.water           { fill: #0080FF !important; }
+            #helpMap > g > text           { fill: #000 }
             `;
         try {document.querySelector('#helpMap > g > path[style*="var(--red)"]').setAttribute('style', 'fill:var(--toastify-color-error) !important')} catch {}
         document.head.appendChild(modifiedStyles);

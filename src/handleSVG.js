@@ -216,37 +216,50 @@ function movePath(path, dx, dy, newx, newy) {
 
 // Function to replace absolute (mostly bézier curve, but the majority of) commands with relative ones
 function absToRel(path = new String()) {
+
+    // SETUP
     let char = 0;
     let command = "";
     let pathCommands = [];
     let pathCoordinates = [];
-    let coordinates = Array(8).fill(''); //x0:last x, y0:last y, x1, y1, x2, y2, x3, y3
-    let lastCommand = ((path[0] === 'M') ? 'L' : 'l');
-    let initialmove = true; // to determine if the the given "M" command is the first or not
+    let coordinates = Array(8).fill(''); //x0: last x, y0: last y, x1, y1, x2, y2, x3, y3 (coordinates to use later on)
+    // We assume that if nt signed otherwised commands will meant to be interpreted as linear movements - so we set our command as l/L
+    let lastCommand = ((path[0] === 'M') ? 'L' : 'l'); // if first command is in upper case: we assume the unmarked commands will be absolute, and if lower case then relative
+    let initialmove = true; // to determine if the given "M" command is the first or not
+
+    // GET DATA FROM ORIGINAL PATH DESCRIPTION
     while (char < path.length) {
         command = path[char];
         if ("chtqlmvz".includes(command.toLowerCase())) {
             char += 2;
-        } else {
+        } else { // in case of there's no signed command: we assume, the last is still valid
             command = lastCommand;
         }
-        if (command.toLocaleLowerCase() === 'z') {
+        if (command.toLocaleLowerCase() === 'z') { // end of path
             pathCoordinates.push(['']);
-        } else {
+        } else { // store path chunk for the construction of new easy-to-process path description
             coordinates[0] = coordinates[6];
-            coordinates[1] = coordinates[7];
+            coordinates[1] = coordinates[7]; // last position advances into the "origo" coordinates pair (first two pos. of array)
             let originalx;
             let originaly;
+
+            // Let's determine, how many coordinates we need for the command with the index of the first coordinate to change (startPos), and with the one of the last+1 (endPos, here: coordinatesNum = # of coordinates to use)
             let startPos = (('mhql'.includes(command.toLocaleLowerCase())) ? 6 : ((command.toLocaleLowerCase() === 'v') ? 7 : 2));
             let coordinatesNum = ((command.toLocaleLowerCase() === 'h') ? 7 : 8);
+
+            // Then: extract coordinates into our array from raw text (in path variable)
             for (let coo = startPos; coo < coordinatesNum; coo ++) {
                 coordinates[coo] = '';
                 while (path[char] !== " " && path[char] !== "," && char < path.length) {
                     coordinates[coo] += path[char];
                     char ++;
                 }
-                char ++;
+                while(path[char] === " " || path[char] === "," && char < path.length) {
+                    char ++; // get to the next coordinate by skipping the divider spaces
+                }
             }
+
+            // Fill up target x, and y position, if it's the same as last
             if (command.toLocaleLowerCase() === 'h') {
                 if (command === 'H') {
                     coordinates[7] = coordinates[1];
@@ -261,14 +274,28 @@ function absToRel(path = new String()) {
                     coordinates[0] = '0';
                 }
             }
+
+            // Storeoriginal pos for later use
             originalx = parseFloat(coordinates[6]);
             originaly = parseFloat(coordinates[7]);
+
+            // Replace absolute coordinates (only if the commands in upper case) to relative ones
             if(command === 'C' || command === 'L' || command === 'H' || command === 'V' || (command === 'M' && !initialmove)) {
+                let a;
                 for(let i = startPos; i < coordinatesNum; i++) {
                     coordinates[i] = (Math.round((parseFloat(coordinates[i]) - parseFloat(coordinates[i % 2])) * 1000) / 1000).toString();
                 }
             }
+
+            // if (coordinates.toString().includes("NaN")) {
+            //     console.log(coordinates)
+            // }
+            // store command's parameters
             pathCoordinates.push(coordinates.slice(startPos, coordinatesNum));
+
+            // Update last pos
+            if (coordinates[0] == '') coordinates[0] = "0";
+            if (coordinates[1] == '') coordinates[1] = "0"; // In case, thre wer no numbers at [0] and [1] (the last position on canvas)
             if (command === command.toLocaleLowerCase()) {
                 coordinates[6] = (parseFloat(coordinates[0]) + originalx).toString();
                 coordinates[7] = (parseFloat(coordinates[1]) + originaly).toString();
@@ -276,13 +303,17 @@ function absToRel(path = new String()) {
                 coordinates[6] = originalx;
                 coordinates[7] = originaly;
             }
-            if (command.toLowerCase() !== 'm') {
+            if (command.toLowerCase() !== 'm') { // m doesn't overwrite the command in force
                 lastCommand = command;
             }
         }
+
+        // store command (if the first M is not relative, we don't turn into that, becuse it's better to have the first character as absolute)
         pathCommands.push((command === 'M' && initialmove) ? 'M' : command.toLocaleLowerCase());
         initialmove = false;
     }
+
+    // CONSTRUCTION OF NEW PATH DESCRIPTION
     let newpath = '';
     let i = 0;
     while (i < pathCoordinates.length) {
@@ -472,7 +503,6 @@ function getFurthest() {
                 furthestCounty = examinedCounty.id;
             }
         }
-        console.log({[examinedCounty.id]: tempData})
         /*Legacy
         for (let i = 0; i < tempClosests.length;i++) {
             if (tempClosests[i] == null || tempClosests[i] === NaN || tempClosests[i] === '' || tempClosests[i].dist > tempDist) {

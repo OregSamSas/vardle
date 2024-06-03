@@ -239,20 +239,22 @@ function compressNum(num, depth = 0) {
 
 function getWikipediaLink(forCounty, lang = Language, onlyArticleName = false) {
     forCounty = replaceAbbreviations(replaceSpecialCharacters(forCounty, true));
+    if (imageOrigin.includes("Budapest")) {
+        forCounty = forCounty.toUpperCase();
+    }
     let articleName = wikiLinks[forCounty];
     if (articleName == undefined) {
         articleName = forCounty;
-        if (imageOrigin.includes("Budapest")) {
-            articleName = articleName.toUpperCase();
-            let endings = {en: "", hu: " kerület"};
-            articleName += endings[lang];
-        }
     } else {
         articleName = articleName[lang];
         if (articleName == undefined) {
             let endings = {en: "", hu: ""};
-            if (Round < 4) {
-                endings = {en: "County", hu: "vármegye"};
+            if (imageOrigin.includes("Budapest")) {
+                endings = {en: "", hu: "kerület"};
+            } else {
+                if (Round < 4) {
+                    endings = {en: "County", hu: "vármegye"};
+                }
             }
             articleName = `${forCounty}_${endings[lang]}`;
         }
@@ -292,7 +294,7 @@ function handleURL() {
         imageOrigin = "img/Karte_Deutsche_Bundesländer_(Plain).svg";
     } else if (urlParams.get('map') === 'modern') {
         imageOrigin = "img/Hungary_counties_(Plain).svg";
-    } else if (urlParams.get('map') === 'romania') {
+    } else if (urlParams.get('map') === 'romania' || urlParams.get('map') === 'taleland') {
         imageOrigin = "img/Romania_Counties_(Plain).svg";
     } else if (urlParams.get('map') === 'map' || urlParams.get('map') === 'world') {
         imageOrigin = "img/world-map.svg";
@@ -304,6 +306,8 @@ function handleURL() {
         imageOrigin = "img/Szeiman_Városok.svg";
     } else if (urlParams.get('map') === 'pizzapasta' || urlParams.get('map') === 'italy') {
         imageOrigin = "img/Flag_map_of_Italy_with_regions.svg";
+    } else if (urlParams.get('map') === 'poland' || urlParams.get('map') === 'polishedmap') {
+        imageOrigin = "img/Regions_of_Poland.svg";
     } else if (urlParams.has('map')) {
         imageOrigin = urlParams.get('map');
     }

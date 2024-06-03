@@ -32,3 +32,19 @@ The site is published using GitHub.
 ## Emojis from
 
 * Emojipedia (<https://emojipedia.org>)
+
+## Maps from
+
+* Hungarian Kingdom: <https://commons.wikimedia.org/wiki/File:Kingdom_of_Hungary_counties-2.svg>
+* Italy: <https://commons.wikimedia.org/wiki/File:Flag_map_of_Italy_with_regions.svg>
+* Germany: <https://commons.wikimedia.org/wiki/File:Karte_Deutsche_Bundesl%C3%A4nder_(Bezeichner).svg> ([License here](https://creativecommons.org/licenses/by-sa/2.0/de/deed.en))
+* Hungary: <https://mapsvg.com/maps/hungary> ([License here](https://creativecommons.org/licenses/by/4.0/))
+* Romania: <https://commons.wikimedia.org/wiki/File:Romania_counties_blank_big.png>
+* Budapest: <https://en.wikipedia.org/wiki/File:Budapest_districts_map.svg>
+* France: <https://upload.wikimedia.org/wikipedia/commons/f/fa/France_all_regions.svg>
+* World map: <https://simplemaps.com/resources/svg-world> ([License here](https://simplemaps.com/resources/svg-license))
+* Poland: <https://simplemaps.com/svg/country/pl>
+
+### Changes on images
+
+I deleted unnecessary datas from the SVG files, and added titles for the territories for some of the images where it was missing. I also applied special classes for the territories in order to colourise it easily.
