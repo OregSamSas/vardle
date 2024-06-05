@@ -243,14 +243,16 @@ function getWikipediaLink(forCounty, lang = Language, onlyArticleName = false) {
         forCounty = forCounty.toUpperCase();
     }
     let articleName = wikiLinks[forCounty];
-    if (articleName == undefined) {
+    if (articleName == undefined && !imageOrigin.includes("Poland")) {
         articleName = forCounty;
     } else {
-        articleName = articleName[lang];
+        try{ articleName = articleName[lang]; } catch {}
         if (articleName == undefined) {
             let endings = {en: "", hu: ""};
             if (imageOrigin.includes("Budapest")) {
                 endings = {en: "", hu: "kerület"};
+            } else if (imageOrigin.includes("Poland")) {
+                endings = {en: "Voivodeship", hu: "vajdaság"}
             } else {
                 if (Round < 4) {
                     endings = {en: "County", hu: "vármegye"};
