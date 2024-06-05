@@ -241,6 +241,7 @@
     "l10n": {
         "ph1":       {"en": "County or the lake Balaton...", "hu": "Vármegye vagy a Balaton..."},
         "ph2":       {"en": "Territory name...", "hu": "Terület neve..."},
+        "ph3":       {"en": "District number...", "hu": "Kerület száma..."},
         "g":         {"en": "Guess", "hu": "Megtippelés"},
         "try":       {"en": "Try Worldle 🌎", "hu": "Próbáld ki a Worldle-t is! 🌎"},
         "map":       {"en": "show on Map", "hu": "mutasd Térképen"},

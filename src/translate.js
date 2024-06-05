@@ -109,7 +109,7 @@ function translationPiece(key, lang) {
     try {
         returnWith = translations[key][lang];
     } catch (error) {
-        console.log(`Couldn't find translation for "${key}" in language "${lang}".`)
+        console.log(`Couldn't find translation for "${key}" in language "${lang}".`);
     }
     return returnWith;
 }

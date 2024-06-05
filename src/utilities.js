@@ -18,7 +18,7 @@ function forceNumIntoRange(num, min, max) {
 // *Search utilities*
 
 const arabicNums = [5000, 4000, 1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
-const romanNums = ['V&#773;', 'MV&#773;','M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I'];
+const romanNums = ['MMMMM', 'MMMM','M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I'];
 
 function advancedSort(list, forceToSortAsRomanNumerals) {
     let isRoman = true;
@@ -71,8 +71,13 @@ function romanToArabic(romanNum) {
     return allvalue;
 }
 
+// Converts an arabic numeral (up to 10000) into a roman one
 function arabicToRoman(num) {
     num = num.toString();
+    if (num > 10000) {
+        console.error(`The roman number generator only works up to 10K, ${num} is invalid input.`)
+        return "⚠";
+    }
     let digit = 0, value = 0;
     let newnum = '', addition = '';
     for (let i = num.length - 1; i > -1; i --) {
@@ -85,13 +90,13 @@ function arabicToRoman(num) {
                 if (digit < 5) {
                     addition = Array(digit).fill(romanNums[arabicNums.indexOf(value / digit)]).join('');
                 } else {
-                    addition = romanNums[arabicNums.indexOf(5 * (10 ** (num.length - i - 1)))] + Array(digit - 5).fill(romanNums[arabicNums.indexOf(value / digit)]).join('')
+                    addition = romanNums[arabicNums.indexOf(5 * (10 ** (num.length - i - 1)))] + Array(digit - 5).fill(romanNums[arabicNums.indexOf(value / digit)]).join('');
                 }
             }
             newnum = addition + newnum;
         } else {
             if (digit !== 0 ) {
-                num = removeLetter(i, num)
+                num = removeLetter(i, num);
             }
         }
     }
