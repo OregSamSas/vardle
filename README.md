@@ -1,7 +1,7 @@
 ----
-Welcome to the game
+Welcome to the game (available [here](https://oregsamsas.github.io/vardle/))
 
-## VÁRD![L](https://github.com/OregSamSas/vardle/assets/101597941/70ff0335-6f9b-4054-b48b-8247b84ea127)E!
+## <img alt="♜" src="https://em-content.zobj.net/thumbs/320/twitter/322/castle_1f3f0.png" style="height:1em"/> VÁRD![L](https://github.com/OregSamSas/vardle/assets/101597941/70ff0335-6f9b-4054-b48b-8247b84ea127)E!
 
 A [Worldle](https://worldle.teuteuf.fr) based geography quiz game with the counties of the old Hungarian Kingdom.
 
@@ -16,3 +16,8 @@ Further rounds (guessing the neighbouring, and the furthest territories, capital
 See [credits](/credits.md) for all the resources used.
 
 ----
+<pre>
+                        ENGLISH                                                             HUNGARIAN
+</pre>
+
+&nbsp;&nbsp;&nbsp;&nbsp;<img alt="screenshot-EN" src="https://github.com/OregSamSas/vardle/assets/101597941/04340a58-5cef-44cc-bf05-9a14e29b465f" width="48%"/> <img alt="screenshot-HU" src="https://github.com/OregSamSas/vardle/assets/101597941/d175b4a6-2c28-47d7-b7ed-271a380207fd" width="48%"/>
