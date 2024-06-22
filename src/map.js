@@ -28,12 +28,16 @@ function placeMapOnpage(showMap) {
         let solutionCounty = document.querySelector(`#helpMap > g > #${Solution}`);
         solutionCounty.setAttribute('style', 'fill: var(--main-red) !important');
         let solutionCountyText = document.querySelector(`#helpMap > g > #${Solution.toUpperCase()}-txt`);
-        emphasizeMapText(solutionCountyText);
+        if (solutionCountyText !== null) {
+            emphasizeMapText(solutionCountyText); 
+        }
         if (Round === 2) {
             let farthestCounty = document.querySelector(`#helpMap > g >#${Furthest.name}`);
             farthestCounty.setAttribute('style', 'fill: var(--main-red) !important');
             let farthestCountyText = document.querySelector(`#helpMap > g > #${Furthest.name.toUpperCase()}-txt`);
-            emphasizeMapText(farthestCountyText);
+            if (farthestCountyText !== null) {
+                emphasizeMapText(farthestCountyText);
+            }
         }
         let toggleColor = document.getElementById('tmpl-togglecolor').content.firstElementChild.cloneNode(true);
         insertTo.appendChild(toggleColor);
@@ -43,10 +47,24 @@ function placeMapOnpage(showMap) {
         }
         window.dispatchEvent(new Event('resize'));
     } else {
-        map.remove();
+        removeHelpMap();
+    }
+}
+
+function removeHelpMap(withTransition = true) {
+    let showMap = document.querySelector('a#showMap');
+    if (showMap !== null) {
+        let map = document.getElementById('helpMap');
+        if (map !== null) map.remove();
         let toggleColor = document.getElementById('toggleColoured');
-        toggleColor.remove();
-        insertTo.style.height = '0';
+        if (toggleColor !== null) toggleColor.remove();
+        let placeWhereMapIsInserted = document.getElementById(showMap.getAttribute('maparea-id'));
+        if (!withTransition) {
+            placeWhereMapIsInserted.className = "grid justify-center border-gray-200 border-2 mb-4 mt-4";
+        } else if (!placeWhereMapIsInserted.className.includes('transition-all')) {
+            placeWhereMapIsInserted.className += " transition-all";
+        }
+        placeWhereMapIsInserted.style.height = '0';
         try {document.getElementById('style-modification').remove();} catch {}
     }
 }
@@ -56,7 +74,7 @@ function emphasizeMapText(txtlmnt) {
         if (txtlmnt.childElementCount > 0) {
             txtlmnt.children[0].setAttribute('style', 'color: var(--text); font-weight: bolder; font-size: 130%;');
         } else if (txtlmnt != null) txtlmnt.setAttribute('style', 'color: var(--text); font-weight: bolder; font-size: 130%;');
-    } catch {console.error("Something went wrong.")}
+    } catch (err) {console.error(`Something went wrong: ${err}`)}
 }
 
 function swapMapColour(paletteIcon, forcetrue=false) {

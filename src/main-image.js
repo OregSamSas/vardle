@@ -196,6 +196,7 @@ function updateMainCountyImage(show, rotate, finished = false, removeforall = fa
     }
 }
 
+// adds a button that shows the shape of the territory when clicked
 function addShowMapButton() {
     let button = document.getElementById('tmpl-showmap').content.firstElementChild.cloneNode(true);
     let image = document.getElementById('mainImage');
@@ -207,6 +208,7 @@ function addShowMapButton() {
     });
 }
 
+// on clicking the showmap-button it shows the shape of the territory
 function showShapeOfTerritory() {
     let image = document.getElementById('mainImage');
     try {document.getElementById('imageToGuess').style.display = "";} catch {}
@@ -216,6 +218,7 @@ function showShapeOfTerritory() {
     updateMainCountyImage(true, rotateShape, !!finishedRounds[Round]);
 }
 
+// removes the the button from the main image area (not to be confused with the one in bottom of the page which shows the help map)
 function removeShowMapButton() {
     try {document.getElementById('showmap-button').remove();} catch {};
 }

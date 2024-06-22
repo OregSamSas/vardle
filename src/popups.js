@@ -3,6 +3,7 @@
 
 function addForeGroundPage(pageName) {
     removeShowMapButton();
+    removeHelpMap(false); // remove help map if present for getting an accurate page height
     let canvas = document.createElement('canvas');
     let newPage = document.getElementById(`tmpl-${pageName}`).content.firstElementChild.cloneNode(true);
     let header = document.getElementById('tmpl-header').content.firstElementChild.cloneNode(true);
