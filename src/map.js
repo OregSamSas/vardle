@@ -22,6 +22,7 @@ function placeMapOnpage(showMap) {
             }, 75);
 
         mapTemplate.style.transform = `scale(${scale * mapZoom})`;
+        mapTemplate.style.translate = `${mapTranslate[0]}px ${mapTranslate[1]}px`;
         insertTo.style.height = `${(mapTemplate.height.baseVal.value * 1.1) * scale}px`;
         insertTo.style.maxWidth = `98vw`;
         let solutionCounty = document.querySelector(`#helpMap > g > #${Solution}`);
@@ -90,6 +91,7 @@ function placeMapOnpage(showMap) {
                 deltaX += parseFloat(mapTranslate[0]);
                 deltaY += parseFloat(mapTranslate[1]);
                 mapTemplate.style.translate = `${deltaX}px ${deltaY}px`;
+                updateMapPositionData(mapTemplate);
             }
 
             function stopDrag() {
@@ -145,6 +147,8 @@ function removeHelpMap(withTransition = true) {
         if (zoomInButton !== null) zoomInButton.remove();
         let zoomOutButton = document.getElementById('button-zoom-out');
         if (zoomOutButton !== null) zoomOutButton.remove();
+        let resetZoomButton = document.getElementById('button-zoom-reset');
+        if (resetZoomButton !== null) resetZoomButton.remove();
         let placeWhereMapIsInserted = document.getElementById(showMap.getAttribute('maparea-id'));
         if (!withTransition) {
             placeWhereMapIsInserted.className = "grid justify-center border-gray-200 border-2 mb-4 mt-4";

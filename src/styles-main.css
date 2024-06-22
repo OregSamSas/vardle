@@ -386,7 +386,7 @@ svg > g > path {
     fill: #fff !important;
 }
 #mapArea {
-    overflow: clip;
+    overflow: hidden;
     align-content: space-around;
 }
 #helpMap > g > path { 
