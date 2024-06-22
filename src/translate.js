@@ -5,6 +5,8 @@ function languageSetup() {
     if (Language == undefined) {
         if ((navigator.language || navigator.userLanguage) === "hu") {
             Language = "hu";
+        } else if ((navigator.language || navigator.userLanguage) === "de") {
+            Language = "de";
         } else {
             Language = "en";
         }

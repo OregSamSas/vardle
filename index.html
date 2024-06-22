@@ -181,9 +181,48 @@
     </template>
     <template id="tmpl-stats">
       <div id="statsPage" class="flex w-full h-full max-w-lg relative">
-        <div class="flex flex-col gap-2 text-justify border-b-2 border-gray-200 mb-3 my-2 p-1">
-          <div id="stats1" class="ml-3" ln="nostats"></div>
+        <div id="nostats-cont" class="flex flex-col gap-2 text-justify border-b-2 border-gray-200 mb-3 my-2 p-1">
+          <div id="nostats" class="ml-3 my-2" ln="nostats"></div>
         </div>
+        <div id="overall-stats" class="my-2 flex flex-col gap-2">
+          <div id="" class="">
+            <h2 class="text-center font bold my-2" ln="overall"></h2>
+            <div class="my-1 flex justify-center">
+              <span ln="played" class="text-xl">
+                <img alt="🎮" src="https://em-content.zobj.net/source/facebook/355/video-game_1f3ae.png" class="inline-block stat-img pr-1" style="vertical-align: middle;">
+                <span class="font-bold mx-2 text-4xl">0</span>
+              </span>
+            </div>
+            <div class="my-1 flex justify-center">
+              <span ln="won" class="text-xl">
+                <img alt="🏆" src="https://em-content.zobj.net/source/huawei/375/trophy_1f3c6.png" class="inline-block stat-img pr-1" style="vertical-align: middle;">
+                <span class="font-bold mx-2 text-4xl">0</span>
+              </span>
+            </div>
+            <div class="my-1 flex justify-center">
+              <span ln="rating" class="text-xl">
+                <img alt="📊" src="https://em-content.zobj.net/source/twitter/376/bar-chart_1f4ca.png" class="inline-block stat-img pr-1" style="vertical-align: middle;">
+                <span class="font-bold mx-2 text-4xl">0%</span>
+              </span>
+            </div>
+            <div class="my-1 flex justify-center">
+              <span ln="totalguess" class="text-xl">
+                <img alt="🎲" src="https://em-content.zobj.net/source/whatsapp/396/game-die_1f3b2.png" class="inline-block stat-img pr-1" style="vertical-align: middle;">
+                <span class="font-bold mx-2 text-4xl">0</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div id="guess-dist" style="flex-grow: 1;">
+          <h2 class="font-bold text-center my-2" ln="guess-dist"></h2>
+          <div ln="untilwon" class="italic text-center text-sm text-gray-500"></div>
+          <ul class="mx-2 mr-8"></ul>
+        </div>
+        <footer class="flex justify-center w-full pb-3">
+          <a class="flex items-center gap-1" ln="clearstats" onclick="deleteStats()" href="">
+            <img alt="🔄" src="https://em-content.zobj.net/thumbs/240/htc/37/anticlockwise-downwards-and-upwards-open-circle-arrows_1f504.png" class="generalImg" style="filter: brightness(var(--brightness));"></span>
+          </a>
+        </footer>
       </div>
     </template>
     <template id="tmpl-settings">

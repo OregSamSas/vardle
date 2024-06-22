@@ -56,6 +56,14 @@ img {
 .border-gray-200 {
     border-color: var(--border)
 }
+.px-1 {
+    padding-left: .25rem;
+    padding-right: .25rem
+}
+.px-2 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem
+}
 .px-3 {
     padding-left: 0.75rem;
     padding-right: 0.75rem
@@ -202,6 +210,9 @@ body {
 
 .mr-3 {
     margin-right: .75rem
+}
+.mr-8 {
+    margin-right: 2rem
 }
 
 .ml-3 {
@@ -465,4 +476,9 @@ span#next-round > svg:hover, span#prev-round > svg:hover {
 
 .good-img {
     border: solid var(--main-green) 4px !important
+}
+
+.stat-img {
+    width: auto;
+    height: 3rem;
 }

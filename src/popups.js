@@ -79,23 +79,113 @@ function displayAbout() {
 
 // **Statistics**
 
+function reworkStatsPage() {
+    // acquire the stats from the cookies, then process them
+    let guessDistribution = new Array();
+    let areThereStats = false;
+    let lastGuessNum = numberOfTries;
+    let allGuessNum = 0;
+    let allGamesNum = 0;
+    let maxGuessValue = 0;
+    for (let i = 0; i < 10; i++) {
+        if (loadFromCookie(i + 1)) {
+            guessDistribution.push(loadFromCookie(i + 1));
+            areThereStats = true;
+            if (i + 1 > lastGuessNum) {
+                lastGuessNum = i + 1;
+            }
+            if (guessDistribution[i] > maxGuessValue) {
+                maxGuessValue = guessDistribution[i];
+            }
+            allGamesNum += guessDistribution[i];
+            allGuessNum += guessDistribution[i] * (i + 1);
+        } else {
+            guessDistribution.push(0);
+        }
+        if (loadFromCookie(`lost-${i + 1}`)) {
+            allGuessNum += loadFromCookie(`lost-${i + 1}`) * (i + 1);
+        }
+    }
+
+    let lostGames = loadFromCookie(0);
+    allGamesNum += lostGames;
+
+    // Display overall stats
+    document.querySelector('[ln="played"] > span').innerHTML = allGamesNum;
+    document.querySelector('[ln="won"] > span').innerHTML = allGamesNum - lostGames;
+    document.querySelector('[ln="rating"] > span').innerHTML = `${Math.round((allGamesNum - lostGames) / allGamesNum * 100)}%`;
+    document.querySelector('[ln="totalguess"] > span').innerHTML = allGuessNum;
+
+    // Display guess distributions
+    let guessDistElement = document.getElementById('guess-dist');
+    if (areThereStats) {
+        let noStats = document.getElementById('nostats-cont');
+        if (noStats != null) noStats.remove();
+
+        // Fill up the guess distribution table
+        let guessDistTable = findFirstChildOfType(guessDistElement, 'ul');
+        let newGuessDistRow;
+        let guessDistNumber;
+        let guessDistBar;
+        let guessDistValue;
+        for (let i = 0; i < lastGuessNum; i++) {
+            newGuessDistRow = document.createElement('li');
+            newGuessDistRow.className = "flex my-2";
+
+            // Creates a number element that represents the number of guesses.
+            guessDistNumber = document.createElement('div');
+            guessDistNumber.className = "mr-1 font-bold";
+            guessDistNumber.innerHTML = i + 1;
+            newGuessDistRow.appendChild(guessDistNumber);
+
+            // Creates a bar element that represents the relative distribution of guesses.
+            guessDistBar = document.createElement('div');
+            guessDistBar.className = "bg-gray-200";
+            guessDistBar.style = `flex: 0 1 ${guessDistribution[i] * 100 / maxGuessValue}%;`;
+            newGuessDistRow.appendChild(guessDistBar);
+
+            // Creates a text element that shows the absolute distribution of guesses as a number.
+            guessDistValue = document.createElement('div');
+            guessDistValue.innerHTML = guessDistribution[i];
+            guessDistValue.className = "bg-gray-200 px-1";
+            newGuessDistRow.appendChild(guessDistValue);
+
+            guessDistTable.appendChild(newGuessDistRow);
+        }
+    } else {
+        guessDistElement.remove();
+        document.getElementById('overall-stats').remove();
+        document.querySelector('#statsPage > footer').remove();
+    }
+}
+
+function deleteStats() {
+    for (let i = -1; i < 10; i++) {
+        deleteCookie(i + 1);
+        if (i > -1) {
+            deleteCookie(`lost-${i + 1}`);
+        }
+    }
+}
+
 function displayStats() {
     addForeGroundPage('stats');
+    reworkStatsPage();
 }
 
 // **Settings**
 
 function saveSettings() {
-    localStorage.setItem("lang", Language);
-    localStorage.setItem("theme", mainTheme);
-    localStorage.setItem("tries", numberOfTries);
-    localStorage.setItem("unit", distanceUnit);
-    localStorage.setItem("map", mapTheme);
-    localStorage.setItem("hide", hideShape);
-    localStorage.setItem("rotate", rotateShape);
-    localStorage.setItem("size", sizePercent);
-    localStorage.setItem("usearabicnums", arabicInSuggestions);
-    localStorage.setItem("borders", computingMethod);
+    saveToLoc("lang", Language);
+    saveToLoc("theme", mainTheme);
+    saveToLoc("tries", numberOfTries);
+    saveToLoc("unit", distanceUnit);
+    saveToLoc("map", mapTheme);
+    saveToLoc("hide", hideShape);
+    saveToLoc("rotate", rotateShape);
+    saveToLoc("size", sizePercent);
+    saveToLoc("usearabicnums", arabicInSuggestions);
+    saveToLoc("borders", computingMethod);
 }
 
 function displaySettings() {

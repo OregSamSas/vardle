@@ -3,10 +3,14 @@
 // Creates the Suggestion List
 function insertAutoList(inputPlace) {
     SuggestionList = [];
+
+    // making the UI
     let completeList = document.getElementById(inputPlace.getAttribute('aria-controls'));
     let countiesElement = createCountiesElement();
     completeList.appendChild(countiesElement);
     let inputValue = inputPlace.value;
+
+    // Selecting relevant names
     let searchIn, searchKey, searchAlternative;
 
     if (imageOrigin.includes("Budapest")) {

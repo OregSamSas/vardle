@@ -15,6 +15,18 @@ function forceNumIntoRange(num, min, max) {
     return num;
 }
 
+// *DOM utilities*
+
+function findFirstChildOfType(element, type) {
+    for (let i = 0; i < element.childNodes.length; i++) {
+        const child = element.childNodes[i];
+        if (child.nodeName === type.toUpperCase()) {
+            return child;
+        }
+    }
+    return null;
+}
+
 // *Search utilities*
 
 const arabicNums = [5000, 4000, 1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];

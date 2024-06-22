@@ -1,6 +1,6 @@
-// **UI scripts for guesses**
+// **UI scripts for displaying guesses**
 // (mostly functions for the gray stripes evaluating the guesses (called "guesslines"))
-
+// ** And for handling and saving them **
 
 // When the form is submitted
 function handleGuess() {
@@ -131,8 +131,8 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
         finished = true;
         let partyEmojiPos = partyEmoji.getBoundingClientRect();
         try {
-            // Confetti Animation
-            if(!finishedRounds[Round]) { // Display confetti animation only at first
+            // Confetti Animation & Result saving to stats
+            if(!finishedRounds[Round]) { // Display animation and save result only at first
                 confetti({
                     particeCount: 150,
                     startVelocity: 31,
@@ -142,6 +142,16 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
                         y: partyEmojiPos.y / window.innerHeight
                     }
                 });
+
+                // Save result into a cookie
+                let statCount = new Number();
+                if (loadFromCookie(Guesses.length) === null) {
+                    statCount = 0;
+                } else {
+                    statCount = loadFromCookie(Guesses.length);
+                }
+                statCount += 1;
+                saveToCookie({[Guesses.length]: statCount});
             }
         } catch (err) {console.error(err);}
         Won = true;
@@ -150,6 +160,26 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
     else if (count + 1 === guesslinesCount) {
         Won = false;
         finished = true;
+
+        // Save loss into a cookie
+        if(!finishedRounds[Round]) {
+            let statCount = new Number();
+            if (loadFromCookie(0) === null) {
+                statCount = 0;
+            } else {
+                statCount = loadFromCookie(0);
+            }
+            statCount += 1;
+            saveToCookie({0: statCount});
+
+            if (loadFromCookie('lost-' + Guesses.length) === null) {
+                statCount = 0;
+            } else {
+                statCount = loadFromCookie('lost-' + Guesses.length);
+            }
+            statCount += 1;
+            saveToCookie({['lost-' + Guesses.length]: statCount});
+        }
     }
 
     if (finished) {
