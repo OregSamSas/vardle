@@ -28,14 +28,20 @@ function docEvents() {
         let insertTo = document.getElementById('mapArea');
         if (insertTo != null) {
             let map = insertTo.firstElementChild;
-                if (map != null) {
+            if (map != null) {
                 let em = parseFloat(getComputedStyle(document.getElementById('midContent')).fontSize);
-                let scale = 31 * em;
-                if (scale > window.innerWidth * 0.9) {
-                    scale = window.innerWidth * 0.9;
+                let widthToFitInto = 31 * em;
+                if (widthToFitInto > window.innerWidth * 0.9) {
+                    widthToFitInto = window.innerWidth * 0.9;
                 }
-                map.style.transform = `scale(${scale / map.width.baseVal.value})`;
-                insertTo.style.height = `${map.getBoundingClientRect().height * 1.1}px`;
+                let scale = widthToFitInto / map.width.baseVal.value;
+                map.style.transform = `scale(${scale * mapZoom})`;
+                insertTo.style.height = `${(map.height.baseVal.value * 1.1) * scale}px`;
+
+                // Move the zoom controls to the bottom right corner
+                insertTo.children[2].style.transform = `translate(${widthToFitInto * 0.96}px, ${map.height.baseVal.value * 0.96 * scale - 28}px)`;
+                insertTo.children[3].style.transform = `translate(${widthToFitInto * 0.96}px, ${map.height.baseVal.value * 0.96 * scale}px)`;
+                insertTo.children[4].style.transform = `translate(${widthToFitInto * 0.96}px, ${map.height.baseVal.value * 0.96 * scale - 2*28}px)`;
             }
         }
     });
@@ -143,6 +149,20 @@ function buttonEventListeners(button = "") {
         if (paletteIcon != null) {
             paletteIcon.addEventListener('click', (e) => {
                 swapMapColour(paletteIcon.firstElementChild);
+            });
+        }
+    }
+
+    // Zoom in and out buttons
+    if (button.includes("button-zoom")) {
+        let zoomButton = document.getElementById(button);
+        if (zoomButton != null) {
+            zoomButton.addEventListener('click', (e) => {
+                if (button.includes('reset')) {
+                    resetMapPosition();
+                } else {
+                    changeZoomOfMap((button.includes('in')) ? 1.25 : 0.8);
+                }
             });
         }
     }

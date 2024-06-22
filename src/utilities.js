@@ -209,6 +209,34 @@ function replaceAbbreviations(txt = "") {
 
 // *Calculations*
 
+function mergeNumberArrays(arr1, arr2) {
+    // Fill up the arrays with 0s if they are not the same length
+    if (arr1.length !== arr2.length) {
+        const maxLength = Math.max(arr1.length, arr2.length);
+        const minLength = Math.min(arr1.length, arr2.length);
+        const diff = maxLength - minLength;
+        
+        if (arr1.length < arr2.length) {
+            for (let i = 0; i < diff; i++) {
+                arr1.push(0);
+            }
+        } else {
+            for (let i = 0; i < diff; i++) {
+                arr2.push(0);
+            }
+        }
+    }
+
+    // Merge the arrays (fills up with floats)
+    const mergedArray = [];
+    
+    for (let i = 0; i < arr1.length; i++) {
+        mergedArray.push(parseFloat(arr1[i]) + parseFloat(arr2[i])); // works even if they are strings
+    }
+    
+    return mergedArray;
+}
+
 function distanceOf(x1, y1, x2, y2) {
     return Math.sqrt((x1-x2)**2 + (y1-y2)**2)
 }

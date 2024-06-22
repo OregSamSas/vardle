@@ -7,8 +7,8 @@ function placeMapOnpage(showMap) {
         let mapTemplate = document.querySelector('#mapTemplate > svg').cloneNode(true);
         makeSpaceInSVG(mapTemplate);
         mapTemplate.id = "helpMap";
-        let em = parseFloat(getComputedStyle(document.getElementById('midContent')).fontSize);
-        let scale = 31 * em / mapTemplate.width.baseVal.value;
+        insertTo.appendChild(mapTemplate);
+        let scale = calculateOriginalSizeOfMap();
 
         if(imageOrigin.includes("world")) {
             mapTemplate.style.margin = "-400px";
@@ -21,10 +21,9 @@ function placeMapOnpage(showMap) {
                 mapTemplate.className = "";
             }, 75);
 
-        mapTemplate.style.transform = `scale(${scale})`;
-        insertTo.style.height = `${(mapTemplate.height.baseVal.value + 20) * scale}px`;
+        mapTemplate.style.transform = `scale(${scale * mapZoom})`;
+        insertTo.style.height = `${(mapTemplate.height.baseVal.value * 1.1) * scale}px`;
         insertTo.style.maxWidth = `98vw`;
-        insertTo.appendChild(mapTemplate);
         let solutionCounty = document.querySelector(`#helpMap > g > #${Solution}`);
         solutionCounty.setAttribute('style', 'fill: var(--main-red) !important');
         let solutionCountyText = document.querySelector(`#helpMap > g > #${Solution.toUpperCase()}-txt`);
@@ -39,16 +38,100 @@ function placeMapOnpage(showMap) {
                 emphasizeMapText(farthestCountyText);
             }
         }
+
+        // Toggle colour button
         let toggleColor = document.getElementById('tmpl-togglecolor').content.firstElementChild.cloneNode(true);
         insertTo.appendChild(toggleColor);
         buttonEventListeners("change-colour");
         if (mapTheme === "colorful") {
             swapMapColour(toggleColor.firstElementChild.firstElementChild, true);
         }
+
+        // Zoom buttons
+        let zoomInButton = document.getElementById('tmpl-zoom-button').content.firstElementChild.cloneNode(true);
+        let zoomOutButton = document.getElementById('tmpl-zoom-button').content.firstElementChild.cloneNode(true);
+        let resetZoomButton = document.getElementById('tmpl-zoom-button').content.firstElementChild.cloneNode(true);
+        zoomInButton.id = "button-zoom-in";
+        zoomOutButton.id = "button-zoom-out";
+        resetZoomButton.id = "button-zoom-reset";
+        zoomInButton.firstElementChild.firstElementChild.innerHTML = "+";
+        zoomOutButton.firstElementChild.firstElementChild.innerHTML = "–";
+        resetZoomButton.firstElementChild.firstElementChild.innerHTML = "⨁";
+        insertTo.appendChild(zoomInButton);
+        insertTo.appendChild(zoomOutButton);
+        insertTo.appendChild(resetZoomButton);
+        buttonEventListeners("button-zoom-in");
+        buttonEventListeners("button-zoom-out");
+        buttonEventListeners("button-zoom-reset");
+
+        // Make the map draggable
+        mapTemplate.addEventListener('mousedown', startDrag);
+        mapTemplate.addEventListener('touchstart', startDrag);
+
+        function startDrag(event) {
+            event.preventDefault();
+            let initialX = event.clientX || event.touches[0].clientX;
+            let initialY = event.clientY || event.touches[0].clientY;
+
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag);
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('touchend', stopDrag);
+
+            function drag(event) {
+                event.preventDefault();
+                let currentX = event.clientX || event.touches[0].clientX;
+                let currentY = event.clientY || event.touches[0].clientY;
+                let deltaX = currentX - initialX;
+                let deltaY = currentY - initialY;
+                initialX = currentX;
+                initialY = currentY;
+                updateMapPositionData(mapTemplate);
+                deltaX += parseFloat(mapTranslate[0]);
+                deltaY += parseFloat(mapTranslate[1]);
+                mapTemplate.style.translate = `${deltaX}px ${deltaY}px`;
+            }
+
+            function stopDrag() {
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('mouseup', stopDrag);
+                document.removeEventListener('touchend', stopDrag);
+            }
+        }
+
+        // Update size of the map to fit into the screen
         window.dispatchEvent(new Event('resize'));
     } else {
         removeHelpMap();
     }
+}
+
+function getTranslateValues(transform = false, translateString, transformString) {
+    if (transform) {
+        let translateXY = transformString.match(/translate\(([^,]+)px, ([^,]+)px\)/);
+        if (translateXY == null) {
+            return [0, 0, 0];
+        } else {
+            return translateXY;
+        }
+    } else {
+        let translateXY = translateString.match(/([^,]+)px ([^,]+)px/);
+        if (translateXY == null) {
+            return [0, 0, 0];
+        } else {
+            return translateXY;
+        }
+    }
+}
+
+function resetMapPosition() {
+    let map = document.getElementById('helpMap');
+    mapZoom = 1;
+    mapTranslate = [0, 0];
+    map.style.transform = `scale(${calculateOriginalSizeOfMap() * mapZoom})`;
+    map.style.translate = `0px 0px`;
+    changeZoomOfMap(1);
 }
 
 function removeHelpMap(withTransition = true) {
@@ -58,6 +141,10 @@ function removeHelpMap(withTransition = true) {
         if (map !== null) map.remove();
         let toggleColor = document.getElementById('toggleColoured');
         if (toggleColor !== null) toggleColor.remove();
+        let zoomInButton = document.getElementById('button-zoom-in');
+        if (zoomInButton !== null) zoomInButton.remove();
+        let zoomOutButton = document.getElementById('button-zoom-out');
+        if (zoomOutButton !== null) zoomOutButton.remove();
         let placeWhereMapIsInserted = document.getElementById(showMap.getAttribute('maparea-id'));
         if (!withTransition) {
             placeWhereMapIsInserted.className = "grid justify-center border-gray-200 border-2 mb-4 mt-4";
@@ -102,5 +189,41 @@ function swapMapColour(paletteIcon, forcetrue=false) {
             paletteIcon.style.filter = '';
             try {document.querySelector('#helpMap > g > path[style*="var(--toastify-color-error)"]').setAttribute('style', 'fill:var(--red) !important')} catch {}
         }
+    }
+}
+
+function calculateOriginalSizeOfMap() {
+    let em = parseFloat(getComputedStyle(document.getElementById('midContent')).fontSize);
+    let helpMap = document.getElementById('helpMap');
+    helpMap.style.transform = 'scale(1)';
+    return 31 * em / helpMap.width.baseVal.value;
+}
+
+// It takes into account the translation defined in the transform attribute as well, though that method to translate is abandoned
+function updateMapPositionData(maplmnt = document.getElementById('helpMap')) {
+    mapTranslate = mergeNumberArrays(getTranslateValues(false, maplmnt.style.translate).slice(1), getTranslateValues(true, "", maplmnt.style.transform).slice(1));
+    maplmnt.style.transform = `translate(0px, 0px) scale(${maplmnt.style.transform.match(/scale\(([^)]+)\)/)[1]})`;
+}
+
+// Changes the zoom of the map by the given ratio and position it to be zoomed into the center of the screen
+function changeZoomOfMap(ratio) {
+    let zoomInButton = document.getElementById('button-zoom-in');
+    if (mapZoom * ratio * ratio > 6) {
+        zoomInButton.style.opacity = "0.5";
+    } else if (zoomInButton.style.opacity === "0.5") {
+        zoomInButton.style.opacity = "1";
+    }
+    let zoomOutButton = document.getElementById('button-zoom-out');
+    if (mapZoom * ratio * ratio < 0.5) {
+        zoomOutButton.style.opacity = "0.5";
+    } else if (zoomOutButton.style.opacity === "0.5") {
+        zoomOutButton.style.opacity = "1";
+    }
+    let map = document.getElementById('helpMap');
+    if (mapZoom * ratio <= 6 && mapZoom * ratio >= 0.5) {
+        updateMapPositionData(map);
+        mapZoom *= ratio;
+        map.style.transform = `scale(${calculateOriginalSizeOfMap() * mapZoom})`;
+        map.style.translate = `${mapTranslate[0] * ratio}px ${mapTranslate[1] * ratio}px`;
     }
 }

@@ -54,6 +54,10 @@ let coaImages = Array(6).fill('');
 let solutionPath = "";
 let solutionText = "";
 
+// Help map variables
+let mapZoom = 1;
+let mapTranslate = [0, 0];
+
 let OtherGuesses = [];
 for (let i = 0; i < numberOfRounds; i++) {
     OtherGuesses.push([]);
@@ -195,3 +199,4 @@ window.onload = function () {
     docEvents();
 }
 
+// END OF MAIN CODE
