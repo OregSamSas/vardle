@@ -3,7 +3,7 @@
 function placeMapOnpage(showMap) {
     let map = document.getElementById('helpMap');
     let insertTo = document.getElementById(showMap.getAttribute('maparea-id'));
-    if (map == null) { // Check if it's already toggled, and the mp is displayed => then it hides it
+    if (map == null) { // Check if it's already toggled, and the map is displayed => then it hides it
         let mapTemplate = document.querySelector('#mapTemplate > svg').cloneNode(true);
         makeSpaceInSVG(mapTemplate);
         mapTemplate.id = "helpMap";

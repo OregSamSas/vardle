@@ -159,66 +159,109 @@ function createGuessImage(id = 'imageToGuess', idx = undefined) {
         guessImage.appendChild(span);
     }
     getCountyImage(id, idx, Round === 1);
+    if (hideShape && Round === 1) {
+        findFirstChildOfType(document.getElementById(id), 'svg').style.display = "none";
+    }
 }
 
 function updateMainCountyImage(show, rotate, finished = false, removeforall = false) {
-    if (Round === 0 || Round === 2) {
-        if (rotate && !finished) {
-            let rotationButton = document.getElementById('cancel-rot');
-            if (rotationButton == undefined) {
-                rotateSVG(
-                    document.querySelector('#imageToGuess > svg'),
-                    Rotation,
-                    document.getElementById('imageToGuess')
-                );
-                localisation();
+    if (Round !== 3) {
+        if (Round === 0 || Round === 2) {
+            if (rotate && !finished) {
+                let rotationButton = document.getElementById('cancel-rot');
+                if (rotationButton == undefined) {
+                    rotateSVG(
+                        document.querySelector('#imageToGuess > svg'),
+                        Rotation,
+                        document.getElementById('imageToGuess')
+                    );
+                    localisation();
+                } else {
+                    rotationButton.style.display = "";
+                }
             } else {
-                rotationButton.style.display = "";
+                removeRotation(!removeforall);
+            }
+        }
+        if (show || (Round === 1 && finished)) {
+            if (Round === 0 || Round === 2) {
+                document.getElementById('imageToGuess').style.display = "";
+                document.getElementById('imageToGuess').style.transform = "";
+            } else if (Round === 1) {
+                for (let i = 0; i < closestTerritories.length; i++) {
+                    findFirstChildOfType(document.getElementById(`imageToGuess${i}`), 'svg').style.display = "";
+                }
+                showImageButtonsRemoved = Array(showImageButtonsRemoved.length).fill(false);
+            }
+            if (Round === 1) {
+                for (let i = 0; i < closestTerritories.length; i++) {
+                    removeShowMapButton(`imageToGuess${i}`);
+                }
+            } else {
+                removeShowMapButton();
             }
         } else {
-            removeRotation(!removeforall);
-        }
-    }
-    if (show) {
-        if (Round === 0 || Round === 2) {
-            document.getElementById('imageToGuess').style.display = "";
-            document.getElementById('imageToGuess').style.transform = "";
-        }
-        removeShowMapButton();
-    } else {
-        if (!showImageButtonRemoved) {
-            removeRotation(true);
-            if(Round === 0 || Round === 2) {
-                document.getElementById('imageToGuess').style.display = "none";
+            if (Round === 1) {
+                for (let i = 0; i < closestTerritories.length; i++) {
+                    if (!showImageButtonsRemoved[i] && !finished) {
+                        addShowMapButton(true, `imageToGuess${i}`);
+                    }
+                }
+            } else {
+                if (!showImageButtonRemoved[Round]) {
+                    removeRotation(true);
+                    if(Round === 0 || Round === 2) {
+                        document.getElementById('imageToGuess').style.display = "none";
+                    }
+                    addShowMapButton();
+                }
             }
-            addShowMapButton();
         }
     }
 }
 
 // adds a button that shows the shape of the territory when clicked
-function addShowMapButton() {
+function addShowMapButton(wrapped = false, id = 'imageToGuess') {
     let button = document.getElementById('tmpl-showmap').content.firstElementChild.cloneNode(true);
-    let image = document.getElementById('mainImage');
-    image.appendChild(button);
-    image.firstElementChild.style.transform = "scale(0)";
-    localisation();
-    button.addEventListener('click', (e) => {
-        showShapeOfTerritory();
-    });
+    let image;
+    if (wrapped) {
+        button.classList.remove('absolute');
+        image = document.getElementById(id);
+        try {findFirstChildOfType(image, 'svg').style.display = "none";} catch {}
+    } else {
+        image = document.getElementById('mainImage');
+        image.firstElementChild.style.transform = "scale(0)";
+    }
+    if (getIndexByProperty(image.childNodes, undefined, "button") < 0) { // if the button is not already there
+        image.appendChild(button);
+        localisation();
+        button.addEventListener('click', (e) => {
+            showShapeOfTerritory(id);
+        });
+    }
 }
 
 // on clicking the showmap-button it shows the shape of the territory
-function showShapeOfTerritory() {
+function showShapeOfTerritory(shapeId = 'imageToGuess') {
     let image = document.getElementById('mainImage');
-    try {document.getElementById('imageToGuess').style.display = "";} catch {}
     image.firstElementChild.style.transform = "";
-    removeShowMapButton();
-    showImageButtonRemoved = true;
-    updateMainCountyImage(true, rotateShape, !!finishedRounds[Round]);
+    shapeElement = document.getElementById(shapeId);
+    try {shapeElement.style.display = "";} catch {}
+    removeShowMapButton(shapeId);
+    if (shapeId === 'imageToGuess') {
+        showImageButtonRemoved[Round] = true;
+    } else {
+        showImageButtonsRemoved[shapeId.match(/imageToGuess([0-9])/)[1]] = true;
+    }
+    if (Round === 1) {
+        // show the shape of the territory
+        findFirstChildOfType(shapeElement, 'svg').style.display = "";
+    } else {
+        updateMainCountyImage(true, rotateShape, !!finishedRounds[Round]);
+    }
 }
 
 // removes the the button from the main image area (not to be confused with the one in bottom of the page which shows the help map)
-function removeShowMapButton() {
-    try {document.getElementById('showmap-button').remove();} catch {};
+function removeShowMapButton(parentID = 'mainImage') {
+    try {document.querySelector(`#${parentID} > #showmap-button`).remove();} catch {};
 }

@@ -203,7 +203,13 @@ function endOfGuessing(win = new Boolean(), guessLine) {
     }
 
     // Show image, if hidden
-    showShapeOfTerritory();
+    if (Round === 1) {
+        for (let terrNum in closestTerritories) {
+            showShapeOfTerritory(`imageToGuess${terrNum}`);
+        }
+    } else {
+        showShapeOfTerritory();
+    }
 
     // Translate newly placed elements
     localisation();

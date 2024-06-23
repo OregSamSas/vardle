@@ -17,10 +17,11 @@ function forceNumIntoRange(num, min, max) {
 
 // *DOM utilities*
 
+// Function to find the first child of a specific type of an element
 function findFirstChildOfType(element, type) {
     for (let i = 0; i < element.childNodes.length; i++) {
         const child = element.childNodes[i];
-        if (child.nodeName === type.toUpperCase()) {
+        if (child.nodeName.toUpperCase() === type.toUpperCase()) {
             return child;
         }
     }
@@ -282,6 +283,30 @@ function compressNum(num, depth = 0) {
 
 // *Data utilities*
 
+// The getIndexByProperty function is used to find the index of an item in an array based on a specific property name and value. 
+// If either of them is not provided, it still returns with the idx of the object which has the provided key among its propertys or given value among its values resp.
+function getIndexByProperty(array, propertyName, propertyValue = undefined) {
+    for (let i = 0; i < array.length; i++) {
+        if (propertyName !== undefined) {
+            if (
+                (array[i][propertyName] === propertyValue && array[i][propertyName] !== undefined) 
+                ||
+                (propertyValue === undefined && array[i][propertyName] !== undefined)
+            ) {
+                return i;
+            }
+        } else {
+            for (let key in array[i]) {
+                if (array[i][key] === propertyValue) {
+                    return i;
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+// The getWikipediaLink function is used to get the Wikipedia link of a specific county based on the provided county name and language.
 function getWikipediaLink(forCounty, lang = Language, onlyArticleName = false) {
     forCounty = replaceAbbreviations(replaceSpecialCharacters(forCounty, true));
     if (imageOrigin.includes("Budapest")) {

@@ -22,7 +22,6 @@ const translations = data.l10n;
 const lightThemeArray = data.themes[0];
 const darkThemeArray = data.themes[1];
 
-let showImageButtonRemoved = false;
 let rotationRemoved = false;
 let Scale = undefined;
 let Rotation = 1 - Math.random() * 2;
@@ -53,6 +52,8 @@ let guesslinesCount = 0;
 let coaImages = Array(6).fill('');
 let solutionPath = "";
 let solutionText = "";
+let showImageButtonRemoved = Array(numberOfRounds).fill(false);
+let showImageButtonsRemoved = [];
 
 // Help map variables
 let mapZoom = 1;
@@ -126,7 +127,7 @@ function updateRounds(oldr, newr) {
     }
     if (newr === 0 || newr === 2) {
         maincontent.firstElementChild.style = "height:210px";
-        maincontent.firstElementChild.className = "flex justify-center";
+        maincontent.firstElementChild.className = "flex justify-center items-center";
     }
     if (newr === 1 || newr === 3) {
         // make the main img container fit to the whole grid
@@ -199,4 +200,4 @@ window.onload = function () {
     docEvents();
 }
 
-// END OF MAIN CODE
+// END OF MAIN 

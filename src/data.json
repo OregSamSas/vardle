@@ -261,7 +261,7 @@
         "anal2.2":   {"en": " It was", "hu": "", "de": " Es war"},
         "anal2.3":   {"en": "", "hu": "&nbsp;volt", "de": ""},
         "win":       {"en": "win!!!", "hu": "nyertél!!!", "de": "gewonnen!!!"},
-        "lose":      {"en": "&nbsp;Oh, no!", "hu": "&nbsp;Ó, Jaj, hoppá!", "de": "&nbsp;Hoppla! Wie schade!"},
+        "lose":      {"en": "&nbsp;Oh, no!", "hu": "&nbsp;Ó, Jaj, hoppá!", "de": "&nbsp;Wie schade!"},
         "already":   {"en": "Already guessed.", "hu": "Már tippelted.", "de": "Bereits geraten."},
         "unknown":   {"en": "Unknown territory.", "hu": "Várd le az időt, hogy bekerüljön az adattárunkba ez a terület, mert egyelőre még ISMERETLEN.", "de": "Unbekanntes Gebiet."},
         "borders1":  {"en": "Can you guess the", "hu": "Ki tudod találni a", "de": "Können Sie erraten das"},

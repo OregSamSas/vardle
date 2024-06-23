@@ -49,7 +49,7 @@ function closeUppermostWindow(deleteCanvas) {
         rotationRemoved = false;
     }
     if (!hideShape) {
-        showImageButtonRemoved = false;
+        showImageButtonRemoved[Round] = false;
     }
 }
 
