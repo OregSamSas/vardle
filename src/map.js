@@ -215,21 +215,23 @@ function updateMapPositionData(maplmnt = document.getElementById('helpMap')) {
 
 // Changes the zoom of the map by the given ratio and position it to be zoomed into the center of the screen
 function changeZoomOfMap(ratio) {
-    let zoomInButton = document.getElementById('button-zoom-in');
-    if (mapZoom * ratio * ratio > 6) { // If the map is already zoomed in to the maximum
-        zoomInButton.style.opacity = "0.5";
-        zoomInButton.firstElementChild.classList.add('inactive-button');
-    } else if (zoomInButton.style.opacity === "0.5") {
-        zoomInButton.style.opacity = "1";
-        zoomInButton.firstElementChild.classList.remove('inactive-button');
-    }
-    let zoomOutButton = document.getElementById('button-zoom-out');
-    if (mapZoom * ratio * ratio < 0.5) { // If the map is already zoomed out to the maximum
-        zoomOutButton.style.opacity = "0.5";
-        zoomOutButton.firstElementChild.classList.add('inactive-button');
-    } else if (zoomOutButton.style.opacity === "0.5") {
-        zoomOutButton.style.opacity = "1";
-        zoomOutButton.firstElementChild.classList.remove('inactive-button');
+    if (ratio !== 1) {
+        let zoomInButton = document.getElementById('button-zoom-in');
+        if (mapZoom * ratio * ratio > 6) { // If the map is already zoomed in to the maximum
+            zoomInButton.style.opacity = "0.5";
+            zoomInButton.firstElementChild.classList.add('inactive-button');
+        } else if (zoomInButton.style.opacity === "0.5") {
+            zoomInButton.style.opacity = "1";
+            zoomInButton.firstElementChild.classList.remove('inactive-button');
+        }
+        let zoomOutButton = document.getElementById('button-zoom-out');
+        if (mapZoom * ratio * ratio < 0.5) { // If the map is already zoomed out to the maximum
+            zoomOutButton.style.opacity = "0.5";
+            zoomOutButton.firstElementChild.classList.add('inactive-button');
+        } else if (zoomOutButton.style.opacity === "0.5") {
+            zoomOutButton.style.opacity = "1";
+            zoomOutButton.firstElementChild.classList.remove('inactive-button');
+        }
     }
     if (Math.abs(mapZoom - 1) < 0.01) {
         mapZoom = 1;
