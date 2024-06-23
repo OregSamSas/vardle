@@ -225,9 +225,10 @@ function finishedBottom(template, lose = false, guessLine = undefined) {
     }
     let myPlace = removeGuessArea(true);
     myPlace.appendChild(template);
-    if (guessLine != undefined) {
-        updateWikiLinkOnPage(template.childNodes[5].childNodes[5]);
-    }
+
+    // Always update the wikipedia link
+    updateWikiLinkOnPage(template.childNodes[5].childNodes[5]);
+
     if (lose) {
         let finishImage = template.childNodes[3].childNodes[3].firstElementChild;
         finishImage.setAttribute('src', 'img/loseMeme.png');

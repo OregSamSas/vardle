@@ -318,17 +318,19 @@ function getWikipediaLink(forCounty, lang = Language, onlyArticleName = false) {
     } else {
         try{ articleName = articleName[lang]; } catch {}
         if (articleName == undefined) {
-            let endings = {en: "", hu: ""};
+            let endings = {en: "", hu: "", de: ""};
+            let beginings = {en: "", hu: "", de: ""};
             if (imageOrigin.includes("Budapest")) {
                 endings = {en: "", hu: "kerület"};
             } else if (imageOrigin.includes("Poland")) {
                 endings = {en: "Voivodeship", hu: "vajdaság"}
             } else {
                 if (Round < 4) {
-                    endings = {en: "County", hu: "vármegye"};
+                    endings = {en: "County", hu: "vármegye", de: ""};
+                    beginings = {en: "", hu: "", de: "Komitat_"};
                 }
             }
-            articleName = `${forCounty}_${endings[lang]}`;
+            articleName = `${beginings[lang]}${forCounty}_${endings[lang]}`;
         }
     }
     if (onlyArticleName) {
