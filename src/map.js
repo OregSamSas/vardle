@@ -65,6 +65,9 @@ function placeMapOnpage(showMap) {
         buttonEventListeners("button-zoom-out");
         buttonEventListeners("button-zoom-reset");
 
+        // Make reset button transparent if the map is already in the default position
+        changeZoomOfMap(1);
+
         // Make the map draggable
         mapTemplate.addEventListener('mousedown', startDrag);
         mapTemplate.addEventListener('touchstart', startDrag);
@@ -92,6 +95,7 @@ function placeMapOnpage(showMap) {
                 deltaY += parseFloat(mapTranslate[1]);
                 mapTemplate.style.translate = `${deltaX}px ${deltaY}px`;
                 updateMapPositionData(mapTemplate);
+                changeZoomOfMap(1);
             }
 
             function stopDrag() {
@@ -212,16 +216,23 @@ function updateMapPositionData(maplmnt = document.getElementById('helpMap')) {
 // Changes the zoom of the map by the given ratio and position it to be zoomed into the center of the screen
 function changeZoomOfMap(ratio) {
     let zoomInButton = document.getElementById('button-zoom-in');
-    if (mapZoom * ratio * ratio > 6) {
+    if (mapZoom * ratio * ratio > 6) { // If the map is already zoomed in to the maximum
         zoomInButton.style.opacity = "0.5";
+        zoomInButton.firstElementChild.classList.add('inactive-button');
     } else if (zoomInButton.style.opacity === "0.5") {
         zoomInButton.style.opacity = "1";
+        zoomInButton.firstElementChild.classList.remove('inactive-button');
     }
     let zoomOutButton = document.getElementById('button-zoom-out');
-    if (mapZoom * ratio * ratio < 0.5) {
+    if (mapZoom * ratio * ratio < 0.5) { // If the map is already zoomed out to the maximum
         zoomOutButton.style.opacity = "0.5";
+        zoomOutButton.firstElementChild.classList.add('inactive-button');
     } else if (zoomOutButton.style.opacity === "0.5") {
         zoomOutButton.style.opacity = "1";
+        zoomOutButton.firstElementChild.classList.remove('inactive-button');
+    }
+    if (Math.abs(mapZoom - 1) < 0.01) {
+        mapZoom = 1;
     }
     let map = document.getElementById('helpMap');
     if (mapZoom * ratio <= 6 && mapZoom * ratio >= 0.5) {
@@ -229,5 +240,13 @@ function changeZoomOfMap(ratio) {
         mapZoom *= ratio;
         map.style.transform = `scale(${calculateOriginalSizeOfMap() * mapZoom})`;
         map.style.translate = `${mapTranslate[0] * ratio}px ${mapTranslate[1] * ratio}px`;
+    }
+    let resetZoomButton = document.getElementById('button-zoom-reset');
+    if (mapZoom === 1 && mapTranslate[0] === 0 && mapTranslate[1] === 0) { // If the map is already in the default position
+        resetZoomButton.style.opacity = "0.5";
+        resetZoomButton.firstElementChild.classList.add('inactive-button');
+    } else if (resetZoomButton.style.opacity === "0.5") {
+        resetZoomButton.style.opacity = "1";
+        resetZoomButton.firstElementChild.classList.remove('inactive-button');
     }
 }

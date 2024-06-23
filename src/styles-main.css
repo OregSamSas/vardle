@@ -15,6 +15,7 @@
     --toastify-color-success: #07bc0c;
     --toastify-color-warning: #f1c40f;
     --toastify-color-error: #e74c3c;
+    --ghost-button-bg: ;
     --brightness: ;
     --hover-brightness: ;
 }
@@ -316,7 +317,7 @@ input {
 input[type="text"] {
     background-color: unset;
 }
-button:hover, optgroup:hover, [role="button"]:hover {
+button:hover:not(.inactive-button), optgroup:hover, [role="button"]:hover:not(.inactive-button) {
     background-color: var(--hover-bg);
 }
 select, optgroup {
@@ -392,6 +393,9 @@ svg > g > path {
 #helpMap > g > path { 
     stroke: var(--border2) !important;
     stroke-width:2 !important
+}
+#helpMap:hover {
+    cursor: grab;
 }
 #toggleColoured {
     transform: translate(50%, 50%);
@@ -481,4 +485,8 @@ span#next-round > svg:hover, span#prev-round > svg:hover {
 .stat-img {
     width: auto;
     height: 3rem;
+}
+
+.ghost {
+    background: var(--ghost-button-bg); 
 }
