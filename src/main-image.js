@@ -232,7 +232,8 @@ function addShowMapButton(wrapped = false, id = 'imageToGuess') {
         image = document.getElementById('mainImage');
         image.firstElementChild.style.transform = "scale(0)";
     }
-    if (getIndexByProperty(image.childNodes, undefined, "button") < 0) { // if the button is not already there
+    let buttonPos = getIndexByProperty(image.childNodes, undefined, "button");
+    if (buttonPos < 0 || image.childNodes[buttonPos].id !== 'showmap-button') { // if the button is not already there
         image.appendChild(button);
         localisation();
         button.addEventListener('click', (e) => {
