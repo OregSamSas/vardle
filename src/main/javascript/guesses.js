@@ -133,7 +133,7 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
         try {
             // Confetti Animation & Result saving to stats
             if(!finishedRounds[Round]) { // Display animation and save result only at first
-                confetti({
+                addAnimatedConfetti({
                     particeCount: 150,
                     startVelocity: 31,
                     spread: 70,
@@ -231,7 +231,7 @@ function finishedBottom(template, lose = false, guessLine = undefined) {
 
     if (lose) {
         let finishImage = template.childNodes[3].childNodes[3].firstElementChild;
-        finishImage.setAttribute('src', 'img/loseMeme.png');
+        finishImage.setAttribute('src', 'data/img/loseMeme.png');
         finishImage.setAttribute('alt', '😒');
     }
     if (Round === 1) {
@@ -258,6 +258,8 @@ function finishedBottom(template, lose = false, guessLine = undefined) {
     if (Round === 3) {
         redesignCoaButtons(true);
     }
+
+    addCtrlZoomEventForMap();
 
     buttonEventListeners('rounds');
     if (Round === 0) {

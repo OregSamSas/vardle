@@ -1,6 +1,31 @@
 // **Helping Algorithms**
 // (Not strictly connected with the game or the UI)
 
+// *Facade patterns for third party libraries*
+
+function addAnimatedConfetti(inpObj = {
+    particeCount: 150,
+    startVelocity: 31,
+    spread: 70,
+    origin: {
+        x: 0.5,
+        y: 0.5
+    }
+}) {
+    try {
+        confetti({
+            particeCount: inpObj.particeCount,
+            startVelocity: inpObj.startVelocity,
+            spread: inpObj.spread,
+            origin: {
+                x: inpObj.origin.x,
+                y: inpObj.origin.y
+            }
+        });
+    } catch {
+        console.error("Confetti function not found. Need to include the confetti library to use this function.");
+    }
+}
 
 // *Input utilities*
 
@@ -313,7 +338,7 @@ function getWikipediaLink(forCounty, lang = Language, onlyArticleName = false) {
         forCounty = forCounty.toUpperCase();
     }
     let articleName = wikiLinks[forCounty];
-    if (articleName == undefined && !imageOrigin.includes("Poland")) {
+    if (articleName == undefined && !imageOrigin.includes("Poland") && !imageOrigin.includes("Hungary_counties_")) {
         articleName = forCounty;
     } else {
         try{ articleName = articleName[lang]; } catch {}
@@ -326,11 +351,11 @@ function getWikipediaLink(forCounty, lang = Language, onlyArticleName = false) {
                 endings = {en: "Voivodeship", hu: "vajdaság"}
             } else {
                 if (Round < 4) {
-                    endings = {en: "County", hu: "vármegye", de: ""};
+                    endings = {en: "County", hu: "_vármegye", de: ""};
                     beginings = {en: "", hu: "", de: "Komitat_"};
                 }
             }
-            articleName = `${beginings[lang]}${forCounty}_${endings[lang]}`;
+            articleName = `${beginings[lang]}${forCounty}${endings[lang]}`;
         }
     }
     if (onlyArticleName) {
@@ -364,24 +389,25 @@ function removeLetter(idx = new Number(), string = new String()) {
 const urlParams = new URLSearchParams(window.location.search);
 
 function handleURL() {
+    let imgFolder = "data/img/";
     if (urlParams.get('map') === 'bundesländer') {
-        imageOrigin = "img/Karte_Deutsche_Bundesländer_(Plain).svg";
+        imageOrigin = imgFolder + "Karte_Deutsche_Bundesländer_(Plain).svg";
     } else if (urlParams.get('map') === 'modern') {
-        imageOrigin = "img/Hungary_counties_(Plain).svg";
+        imageOrigin = imgFolder + "Hungary_counties_(Plain).svg";
     } else if (urlParams.get('map') === 'romania' || urlParams.get('map') === 'taleland') {
-        imageOrigin = "img/Romania_Counties_(Plain).svg";
+        imageOrigin = imgFolder + "Romania_Counties_(Plain).svg";
     } else if (urlParams.get('map') === 'map' || urlParams.get('map') === 'world') {
-        imageOrigin = "img/world-map.svg";
+        imageOrigin = imgFolder + "world-map.svg";
     } else if (urlParams.get('map') === 'france') {
-        imageOrigin = "img/Regions_France_(Plain).svg";
+        imageOrigin = imgFolder + "Regions_France_(Plain).svg";
     } else if (urlParams.get('map') === 'bp') {
-        imageOrigin = "img/Budapest_Districts.svg";
+        imageOrigin = imgFolder + "Budapest_Districts.svg";
     } else if (urlParams.get('map') === 'szeiman') {
-        imageOrigin = "img/Szeiman_Városok.svg";
+        imageOrigin = imgFolder + "Szeiman_Városok.svg";
     } else if (urlParams.get('map') === 'pizzapasta' || urlParams.get('map') === 'italy') {
-        imageOrigin = "img/Flag_map_of_Italy_with_regions.svg";
+        imageOrigin = imgFolder + "Flag_map_of_Italy_with_regions.svg";
     } else if (urlParams.get('map') === 'poland' || urlParams.get('map') === 'polishedmap') {
-        imageOrigin = "img/Regions_of_Poland.svg";
+        imageOrigin = imgFolder + "Regions_of_Poland.svg";
     } else if (urlParams.has('map')) {
         imageOrigin = urlParams.get('map');
     }

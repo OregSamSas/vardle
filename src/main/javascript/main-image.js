@@ -15,58 +15,56 @@ function placeMainImage() {
         placeQuestion('farthest');
         createGuessImage("imageToGuess", CountyList.indexOf(Furthest.name));
     } else if (Round === 3) {
-        if (imageOrigin === "") {
-            placeQuestion('img');
-            let img, lmnt, div, 
-            main = document.getElementById('mainImage');
-            let cachedImgs = document.getElementById('loaded-coatofarms').children;
-            try {for (let i = 0; i < cachedImgs.length; i++) {
-                lmnt = cachedImgs[i];
-                div = document.createElement('div');
-                div.setAttribute('role', "button");
-                img = lmnt.cloneNode(false);
-                div.style.border = 'solid var(--border) 2px';
-                div.style.borderRadius = '10%';
-                div.style.padding = '4%';
-                main.style.display = "grid";
-                main.style.gridTemplateColumns = "30% 30% 30%";
-                main.appendChild(div);
-                div.appendChild(img);
-                div.addEventListener('click', (e) => {
-                    if (finishedRounds[Round] == undefined) {
-                        if (OtherGuesses[Round-1] == undefined) {
-                            OtherGuesses[Round-1] = [];
-                        }
-                        let myname = e.target.getAttribute('name');
-                        let posInCoaImgs;
-                        for (let i = 0; i < coaImages.length; i++) {
-                            if (coaImages[i].name === myname) {
-                                posInCoaImgs = i;
-                            }
-                        }
-                        OtherGuesses[Round-1].push(posInCoaImgs);
-                        if (myname === Solution) {
-                            try {finishedRounds[Round] = "won";
-                            let imgPos = e.target.getBoundingClientRect();
-                            confetti({
-                                particeCount: 150,
-                                startVelocity: 35,
-                                spread: 70,
-                                origin: {
-                                    x: (imgPos.x + imgPos.width / 2) / window.innerWidth,
-                                    y: (imgPos.y + imgPos.height / 2) / window.innerHeight
-                                }
-                            });}catch{};
-                        } else {
-                            if (OtherGuesses[Round-1].length === numberOfTriesForImage) {
-                                finishedRounds[Round] = "lost";
-                            }
-                        }
-                        updateRounds(Round, Round);
+        placeQuestion('img');
+        let img, lmnt, div, 
+        main = document.getElementById('mainImage');
+        let cachedImgs = document.getElementById('loaded-coatofarms').children;
+        try {for (let i = 0; i < cachedImgs.length; i++) {
+            lmnt = cachedImgs[i];
+            div = document.createElement('div');
+            div.setAttribute('role', "button");
+            img = lmnt.cloneNode(false);
+            div.style.border = 'solid var(--border) 2px';
+            div.style.borderRadius = '10%';
+            div.style.padding = '4%';
+            main.style.display = "grid";
+            main.style.gridTemplateColumns = "30% 30% 30%";
+            main.appendChild(div);
+            div.appendChild(img);
+            div.addEventListener('click', (e) => {
+                if (finishedRounds[Round] == undefined) {
+                    if (OtherGuesses[Round-1] == undefined) {
+                        OtherGuesses[Round-1] = [];
                     }
-                })
-            };} catch (error) {console.error(error)}
-        }
+                    let myname = e.target.getAttribute('name');
+                    let posInCoaImgs;
+                    for (let i = 0; i < coaImages.length; i++) {
+                        if (coaImages[i].name === myname) {
+                            posInCoaImgs = i;
+                        }
+                    }
+                    OtherGuesses[Round-1].push(posInCoaImgs);
+                    if (myname === Solution) {
+                        try {finishedRounds[Round] = "won";
+                        let imgPos = e.target.getBoundingClientRect();
+                        addAnimatedConfetti({
+                            particeCount: 150,
+                            startVelocity: 35,
+                            spread: 70,
+                            origin: {
+                                x: (imgPos.x + imgPos.width / 2) / window.innerWidth,
+                                y: (imgPos.y + imgPos.height / 2) / window.innerHeight
+                            }
+                        });}catch{};
+                    } else {
+                        if (OtherGuesses[Round-1].length === numberOfTriesForImage) {
+                            finishedRounds[Round] = "lost";
+                        }
+                    }
+                    updateRounds(Round, Round);
+                }
+            })
+        };} catch (error) {console.error(error)}
     }
 }
 
@@ -84,15 +82,16 @@ function promiseCoaImage(territoryName) {
     })
 }
 
-async function getCoaImages(all = false) {
-    if (all) {
+async function getCoaImages(collectFromWikipedia = false) {
+    if (collectFromWikipedia) {
         for (let idx = 0; idx < CountyList.length; idx++) {
             let lmnt = CountyList[idx];
             if (data.imglinks[lmnt] === "") {
                 data.imglinks = promiseCoaImage(lmnt);
             }
         }
-    } else if (('Kingdom_of_Hungary_counties (Plain).svg').includes(imageOrigin)) {
+    } else if (numberOfRounds === 4) {
+        let subpropertyname = (imageOrigin.includes('Kingdom')) ? 'original' : 'modern';
         let inserted = 0;
         let name;
         let src;
@@ -113,8 +112,8 @@ async function getCoaImages(all = false) {
                     name = CountyList[getRandomCounty()];
                     init = coaImagesContains(name);
                 }
-                if (data.imglinks[name] !== "") {
-                    src = data.imglinks[name];
+                if (data.imglinks[subpropertyname][name] !== "") {
+                    src = data.imglinks[subpropertyname][name];
                 } else {
                     src = await promiseCoaImage(name);
                 }

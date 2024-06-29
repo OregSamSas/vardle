@@ -3,7 +3,7 @@
 // import data from './data.json';
 let data = {"directions": "0", "wikilinks": "1"};
 dataXHR = new XMLHttpRequest();
-dataXHR.open("GET","src/data.json",false);
+dataXHR.open("GET","data/data.json",false);
 // Following line is just to be on the safe side
 dataXHR.overrideMimeType("application/json");
 dataXHR.onload = (e) => {
@@ -66,7 +66,7 @@ for (let i = 0; i < numberOfRounds; i++) {
 
 // Get URL params
 handleURL();
-if (imageOrigin === "") {
+if (imageOrigin === "" || imageOrigin.includes('Hungary_counties_(Plain).svg')) {
     numberOfRounds = 4;
 }
 

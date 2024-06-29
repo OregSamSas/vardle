@@ -47,6 +47,26 @@ function docEvents() {
     });
 }
 
+// the addCtrlZoomEventForMap function adds event listeners to the map area, by wich the user can zoom in and out by scrolling while holding the "Ctrl" key
+function addCtrlZoomEventForMap() {
+    let mapArea = document.getElementById('mapArea');
+    let existingListener = mapArea.onwheel;
+    if (existingListener && existingListener.toString() === mapAreaEventListener.toString()) {
+        console.log("The same event listener is already applied to the element.");
+    } else {
+        mapArea.addEventListener('wheel', (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                if (e.deltaY < 0) {
+                    changeZoomOfMap(1.25);
+                } else {
+                    changeZoomOfMap(0.8);
+                }
+            }
+        });
+    }
+}
+
 // Bundle event listeners to the input field
 function inputEventListeners() {
     let allInputs = document.querySelectorAll('input[aria-autocomplete="list"]');

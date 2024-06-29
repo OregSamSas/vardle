@@ -86,7 +86,7 @@ function getCountyImage(id = '', num, forceNoRotating=false) {
             try {
                 placeToInsert.appendChild(allCounties.responseXML.documentElement);
             } catch {
-                allCounties.open("GET", "img/Kingdom_of_Hungary_counties_(Plain).svg", false);
+                allCounties.open("GET", "data/img/Kingdom_of_Hungary_counties_(Plain).svg", false);
                 allCounties.onload = (e) => {
                     placeToInsert.appendChild(allCounties.responseXML.documentElement);
                 }
