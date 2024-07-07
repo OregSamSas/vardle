@@ -2,69 +2,125 @@
 
 function placeMainImage() {
     if (Round === 0) {
-        createGuessImage('imageToGuess', (Solution != undefined) ? CountyList.indexOf(Solution) : getRandomCounty());
+        createGuessImage('imageToGuess', CountyList.indexOf(Solution));
+        if (swapCoasAndShapes) {
+            let main = document.getElementById('imageToGuess');
+            main.firstElementChild.remove();
+            createCoaImg(main, Solution);
+        }
     } else if (Round === 1) {
         placeQuestion('border');
         for (let neighbour of closestTerritories) {
             if (neighbour != undefined) {
-                createGuessImage(`imageToGuess${closestTerritories.indexOf(neighbour)}`, CountyList.indexOf(neighbour.name))
+                if (swapCoasAndShapes) {
+                    let appendTo = document.createElement('div');
+                    appendTo.id = `imageToGuess${closestTerritories.indexOf(neighbour)}`;
+                    let main = document.getElementById('mainImage');
+                    main.appendChild(appendTo);
+                    main.style.display = "grid";
+                    main.style.gridTemplateColumns = "30% 30% 30%";
+                    createCoaImg(appendTo, neighbour.name);
+                    appendTo.firstElementChild.style.height = "auto";
+                } else {
+                    createGuessImage(`imageToGuess${closestTerritories.indexOf(neighbour)}`, CountyList.indexOf(neighbour.name))
+                }
             }
         }
         localisation();
     } else if (Round === 2) {
         placeQuestion('farthest');
-        createGuessImage("imageToGuess", CountyList.indexOf(Furthest.name));
+        if (swapCoasAndShapes) {
+            createGuessImage('imageToGuess', undefined, true);
+            let main = document.getElementById('imageToGuess');
+            createCoaImg(main, Furthest.name);
+        } else {
+            createGuessImage("imageToGuess", CountyList.indexOf(Furthest.name));
+        }
     } else if (Round === 3) {
-        placeQuestion('img');
+        if (swapCoasAndShapes) {
+            placeQuestion('shape');
+        } else {
+            placeQuestion('img');
+        }
         let img, lmnt, div, 
         main = document.getElementById('mainImage');
         let cachedImgs = document.getElementById('loaded-coatofarms').children;
-        try {for (let i = 0; i < cachedImgs.length; i++) {
-            lmnt = cachedImgs[i];
-            div = document.createElement('div');
-            div.setAttribute('role', "button");
-            img = lmnt.cloneNode(false);
-            div.style.border = 'solid var(--border) 2px';
-            div.style.borderRadius = '10%';
-            div.style.padding = '4%';
-            main.style.display = "grid";
-            main.style.gridTemplateColumns = "30% 30% 30%";
-            main.appendChild(div);
-            div.appendChild(img);
-            div.addEventListener('click', (e) => {
-                if (finishedRounds[Round] == undefined) {
-                    if (OtherGuesses[Round-1] == undefined) {
-                        OtherGuesses[Round-1] = [];
-                    }
-                    let myname = e.target.getAttribute('name');
-                    let posInCoaImgs;
-                    for (let i = 0; i < coaImages.length; i++) {
-                        if (coaImages[i].name === myname) {
-                            posInCoaImgs = i;
-                        }
-                    }
-                    OtherGuesses[Round-1].push(posInCoaImgs);
-                    if (myname === Solution) {
-                        try {finishedRounds[Round] = "won";
-                        let imgPos = e.target.getBoundingClientRect();
-                        addAnimatedConfetti({
-                            particeCount: 150,
-                            startVelocity: 35,
-                            spread: 70,
-                            origin: {
-                                x: (imgPos.x + imgPos.width / 2) / window.innerWidth,
-                                y: (imgPos.y + imgPos.height / 2) / window.innerHeight
-                            }
-                        });}catch{};
-                    } else {
-                        if (OtherGuesses[Round-1].length === numberOfTriesForImage) {
-                            finishedRounds[Round] = "lost";
-                        }
-                    }
-                    updateRounds(Round, Round);
+        try {
+            for (let i = 0; i < cachedImgs.length; i++) {
+                lmnt = cachedImgs[i];
+                if (swapCoasAndShapes) {
+                    createGuessImage(`imageToGuess${i}`, CountyList.indexOf(lmnt.name));
+                    div = document.getElementById(`imageToGuess${i}`);
+                    div.setAttribute('name', lmnt.name);
+                } else {
+                    div = document.createElement('div');
+                    img = lmnt.cloneNode(false);
+                    main.style.display = "grid";
+                    main.style.gridTemplateColumns = "30% 30% 30%";
+                    main.appendChild(div);
+                    createCoaImg(div, undefined);
+                    div.appendChild(img);
                 }
-            })
-        };} catch (error) {console.error(error)}
+                div.setAttribute('role', "button");
+                div.addEventListener('click', (e) => {
+                    if (finishedRounds[Round] == undefined) {
+                        if (OtherGuesses[Round - 1] == undefined) {
+                            OtherGuesses[Round - 1] = [];
+                        }
+                        let myname = e.target
+                        if (myname.nodeName.toLowerCase() === "path") {
+                            myname = e.target.parentElement.parentElement.parentElement.getAttribute('name');
+                        } else if (myname.nodeName.toLowerCase() === "svg") {
+                            myname = e.target.parentElement.getAttribute('name');
+                        } else {
+                            myname = myname.getAttribute('name');
+                        }
+                        let posInCoaImgs;
+                        for (let i = 0; i < coaImages.length; i++) {
+                            if (coaImages[i].name === myname) {
+                                posInCoaImgs = i;
+                            }
+                        }
+                        console.log(e.target, myname, posInCoaImgs);
+                        OtherGuesses[Round - 1].push(posInCoaImgs);
+                        if (myname === Solution) {
+                            try {
+                                finishedRounds[Round] = "won";
+                                let imgPos = e.target.getBoundingClientRect();
+                                addAnimatedConfetti({
+                                    particeCount: 150,
+                                    startVelocity: 35,
+                                    spread: 70,
+                                    origin: {
+                                        x: (imgPos.x + imgPos.width / 2) / window.innerWidth,
+                                        y: (imgPos.y + imgPos.height / 2) / window.innerHeight
+                                    }
+                                });
+                            } catch {};
+                        } else {
+                            if (OtherGuesses[Round - 1].length === numberOfTriesForImage) {
+                                finishedRounds[Round] = "lost";
+                            }
+                        }
+                        updateRounds(Round, Round);
+                    }
+                });
+            }
+        } catch (error) {console.error(error)}
+    }
+}
+
+function createCoaImg(div, name) {
+    div.style.padding = '1%';
+    div.style.border = 'solid var(--border) 2px';
+    div.style.borderRadius = '10%';
+    div.classList.remove('w-full');
+    if (name != undefined) {
+            img = document.createElement('img');
+            img.src = data.imglinks.original[name];
+            img.style = "width:auto;height:180px;";
+            img.setAttribute('name', name);
+            div.appendChild(img);
     }
 }
 
@@ -143,12 +199,12 @@ function coaImagesContains(item) {
     return false;
 }
 
-function createGuessImage(id = 'imageToGuess', idx = undefined) {
+function createGuessImage(id = 'imageToGuess', idx = undefined, onlywrapper = false) {
     let guessImage = document.createElement('div');
     guessImage.id = id;
     guessImage.className = `flex items-center justify-center w-full`;
     document.getElementById('mainImage').appendChild(guessImage);
-    if (Round === 1) {
+    if (Round === 1 || (Round === 3 && swapCoasAndShapes)) {
         guessImage.style = "height: fit-content;width: fit-content;padding: 5px;flex-direction:column";
         guessImage.className += " border-2 rounded";
         let span = document.createElement("span");
@@ -157,14 +213,16 @@ function createGuessImage(id = 'imageToGuess', idx = undefined) {
         span.style = "align-self:baseline";
         guessImage.appendChild(span);
     }
-    getCountyImage(id, idx, Round === 1);
-    if (hideShape && Round === 1) {
-        findFirstChildOfType(document.getElementById(id), 'svg').style.display = "none";
+    if (!onlywrapper) {
+        getCountyImage(id, idx, (Round === 1 || (Round === 3 && swapCoasAndShapes)));
+        if (hideShape && (Round === 1 || (Round === 3 && swapCoasAndShapes))) {
+            findFirstChildOfType(document.getElementById(id), 'svg').style.display = "none";
+        }
     }
 }
 
 function updateMainCountyImage(show, rotate, finished = false, removeforall = false) {
-    if (Round !== 3) {
+    if ((Round !== 3 && !swapCoasAndShapes) && (Round === 0 && swapCoasAndShapes)) {
         if (Round === 0 || Round === 2) {
             if (rotate && !finished) {
                 let rotationButton = document.getElementById('cancel-rot');

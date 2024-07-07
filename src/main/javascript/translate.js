@@ -96,6 +96,10 @@ function localisation() {
     if (quest != null) {
         quest.innerHTML = `${translationPiece('coa1')} <i>${solutionText}</i>?`
     }
+    quest = document.getElementById('shape-question');
+    if (quest != null) {
+        quest.innerHTML = `${translationPiece('shape-q1')} <i>${solutionText}</i> ${translationPiece('shape-q2')}?`
+    }
     quest = document.getElementById('farthest-question');
     if (quest != null) {
         quest.innerHTML = `${translationPiece('borders1')} ${translationPiece('farthest')} <i>${solutionText}</i>?`

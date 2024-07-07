@@ -13,6 +13,7 @@ function loadFromLocal() {
         if (loadLoc("size")) sizePercent = (loadLoc("size") === 'true');
         if (loadLoc("usearabicnums")) arabicInSuggestions = (loadLoc("usearabicnums") === 'true');
         if (loadLoc("borders")) computingMethod = loadLoc("borders");
+        if (loadLoc("coasinstead")) swapCoasAndShapes = (loadLoc("coasinstead") === 'true');
     }
 }
 

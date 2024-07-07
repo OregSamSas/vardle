@@ -89,8 +89,14 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
 
     if (Round === 1) {
         if (dir === 'yes' || dir === 'yo') {
-            let correspondingImge = document.querySelector(`#mainImage > div > svg > g > #${name}`);
-            correspondingImge.parentElement.parentElement.parentElement.className += " back-green-600"
+            let correspondingImge;
+            if (swapCoasAndShapes) {
+                correspondingImge = document.querySelector(`#mainImage > div > img[name="${name}"]`);
+                correspondingImge.parentElement.className += " back-green-600";
+            } else {
+                correspondingImge = document.querySelector(`#mainImage > div > svg > g > #${name}`);
+                correspondingImge.parentElement.parentElement.parentElement.className += " back-green-600"
+            }
         }
         newLine.firstElementChild.className += " col-span-6";
         newLine.children[1].remove();
@@ -203,12 +209,14 @@ function endOfGuessing(win = new Boolean(), guessLine) {
     }
 
     // Show image, if hidden
-    if (Round === 1) {
-        for (let terrNum in closestTerritories) {
-            showShapeOfTerritory(`imageToGuess${terrNum}`);
+    if (!swapCoasAndShapes) {
+        if (Round === 1) {
+            for (let terrNum in closestTerritories) {
+                showShapeOfTerritory(`imageToGuess${terrNum}`);
+            }
+        } else {
+            showShapeOfTerritory();
         }
-    } else {
-        showShapeOfTerritory();
     }
 
     // Translate newly placed elements
@@ -274,14 +282,19 @@ function redesignCoaButtons(finished = false) {
     let button;
     for (let img = 0; img < imgButtons.length; img++) {
         button = imgButtons[img];
-        if (finished) button.setAttribute('role', "");
-        let n = button.firstElementChild.getAttribute('name');
+        if (finished) {
+            button.setAttribute('role', "");
+        }
+        let n = button.getAttribute('name');
+        if (n == undefined || n == null) {
+            n = button.firstElementChild.getAttribute('name');
+        }
         if (n === Solution && finished) {
             button.className += " good-img";
         } else  {
             OtherGuesses[Round-1].forEach(element => {
                 if (n === coaImages[element].name) {
-                    button.className = "wrong-img";
+                    button.classList.add("wrong-img");
                     if (OtherGuesses[Round-1].indexOf(element) == OtherGuesses[Round-1].length-1) {
                         button.className += " shake";
                     }

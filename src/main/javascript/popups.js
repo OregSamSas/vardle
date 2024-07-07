@@ -188,6 +188,7 @@ function saveSettings() {
     saveToLoc("size", sizePercent);
     saveToLoc("usearabicnums", arabicInSuggestions);
     saveToLoc("borders", computingMethod);
+    saveToLoc("coasinstead", swapCoasAndShapes);
 }
 
 function displaySettings() {
@@ -265,6 +266,9 @@ function addSetting(parent, type = "select", id, options) {
         if (id === "arabicNums") {
             selectArea.checked = arabicInSuggestions;
         }
+        if (id === "showCoasInstead") {
+            selectArea.checked = swapCoasAndShapes;
+        }
     }
     handleSetting(selectArea, id, type, options);
 }
@@ -319,6 +323,9 @@ function handleSetting(settingElement, variable, type, additional) {
                 break;
             case "distCalc":
                 computingMethod = selectedVal;
+                break;
+            case "showCoasInstead":
+                swapCoasAndShapes = selectedVal;
                 break;
         }
     });

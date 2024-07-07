@@ -123,7 +123,7 @@ function removeWarningDivSmoothly(div) {
         timeoutDeletion = setTimeout(() => {
             div.remove();
         }, 1000);
-    }, 2000);
+    }, 1500);
 }
 
 // Bundle event listeners to the input field

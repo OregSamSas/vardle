@@ -56,6 +56,7 @@ let solutionPath = "";
 let solutionText = "";
 let showImageButtonRemoved = Array(numberOfRounds).fill(false);
 let showImageButtonsRemoved = [];
+let swapCoasAndShapes = false;
 
 // Help map variables
 let mapZoom = 1;
@@ -92,6 +93,9 @@ function initialWork() {
         } catch {}
     }
     getURLSolution();
+    if (Solution == "" || Solution == undefined) {
+        Solution = CountyList[getRandomCounty()];
+    }
     placeGuessInput();
     getImageMetadata();
 

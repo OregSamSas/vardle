@@ -125,20 +125,23 @@ function getCountyImage(id = '', num, forceNoRotating=false) {
             } catch {}
         }
 
-        // Resize SVG
-        svgImage = document.querySelector('#' + id + ' > svg');
-        svgImage.setAttribute("width", metaData.width * parseFloat(ratio));
-        svgImage.setAttribute("height", metaData.height * parseFloat(ratio));
+        if (!(swapCoasAndShapes && Round === 0)) {
 
-        makeSpaceInSVG(svgImage);
+            // Resize SVG
+            svgImage = document.querySelector('#' + id + ' > svg');
+            svgImage.setAttribute("width", metaData.width * parseFloat(ratio));
+            svgImage.setAttribute("height", metaData.height * parseFloat(ratio));
 
-        // Rotate image if desired
-        if (rotateShape && !forceNoRotating) {
-            rotateSVG(svgImage, Rotation, placeToInsert);
+            makeSpaceInSVG(svgImage);
+
+            // Rotate image if desired
+            if (rotateShape && !forceNoRotating) {
+                rotateSVG(svgImage, Rotation, placeToInsert);
+            }
+
+            // Remove text
+            try {document.querySelector(`#${id} > svg > #textgroup`).remove();} catch {}
         }
-
-        // Remove text
-        try {document.querySelector(`#${id} > svg > #textgroup`).remove();} catch {}
     }
 }
 

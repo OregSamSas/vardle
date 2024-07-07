@@ -33,6 +33,11 @@ The site is published using GitHub.
 
 * Emojipedia (<https://emojipedia.org>)
 
+## Images from
+
+* Official Coat of Arms are from Wikipedia
+* Lake icon from [GetDrawings](https://getdrawings.com/free-icon/data-lake-icon-70.png)
+
 ## Maps from
 
 * Hungarian Kingdom: <https://commons.wikimedia.org/wiki/File:Kingdom_of_Hungary_counties-2.svg>
