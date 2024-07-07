@@ -351,7 +351,7 @@
         "setting-rotateImage": {"en": "Randomly rotate county image", "hu": "Vármegye képének véletlenszerű elforgatása", "de": "Landkreisbild zufällig drehen"},
         "setting-sizePercent": {"en": "Replace proximity percent with size percent", "hu": "A távolságbeli közelségi százalék lecserélése méretbelire", "de": "Prozentsatz der Nähe durch Prozentsatz der Größe ersetzen"},
         "setting-arabicNums": {"en": "Replace roman numbers with arabic ones for representing districts", "hu": "Kerületek számához arab számok használata rómaiak helyett", "de": "Ersetzen Sie römische Zahlen durch arabische Zahlen zur Darstellung von Bezirken"},
-        "setting-showCoasInstead": {"en": "Show Coat of Arms instead of the territory shapes and vice versa", "hu": "Címer megjelenítése a terület-körvonalak helyett és fordítva", "de": "Wappen anstelle der Formen von den Gebieten anzeigen und umgekehrt auch"},
+        "setting-showCoasInstead": {"en": "Show Coat of Arms instead of the territory shapes and vice versa", "hu": "Címer megjelenítése a terület-körvonalak helyett és fordítva", "de": "Wappen anstelle der Formen von den Gebieten anzeigen"},
         "default":   {"en": "Reset settings to default", "hu": "Beállítások visszaálltása alapértelmezettre", "de": "Einstellungen auf Standard zurücksetzen"},
         "clearinfo": {"en": "Clears local storage and refreshes page", "hu": "Kitörli a helyi adattárat és frissíti az oldalt", "de": "Löscht den lokalen Speicher und aktualisiert die Seite"},
         "about":     {"en": "How to play", "hu": "Hogyan játssz", "de": "Wie man spielt"},

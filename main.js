@@ -67,18 +67,22 @@ for (let i = 0; i < numberOfRounds; i++) {
     OtherGuesses.push([]);
 }
 
-// Which map to play with
-loadMapFromURL();
-if (gameMap === "Original" || gameMap === "Hungary") {
-    numberOfRounds = 4;
-}
-
 // FUNCTION DEFINITIONS
 
 // Get all of the county names and place the SVG image
 function initialWork() {
     loadFromLocal();
     getGuesslinesCount(Round);
+
+    // Which map to play with
+    loadMapFromURL();
+    if (gameMap === "Original" || gameMap === "Hungary") {
+        numberOfRounds = 4;
+    } else {
+        swapCoasAndShapes = false;
+        data.settings.gameplay.pop();
+    }
+
     // Theme Setup
     initialThemeSetup();
     setThemeTo(mainTheme);

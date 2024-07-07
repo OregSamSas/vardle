@@ -188,7 +188,9 @@ function saveSettings() {
     saveToLoc("size", sizePercent);
     saveToLoc("usearabicnums", arabicInSuggestions);
     saveToLoc("borders", computingMethod);
-    saveToLoc("coasinstead", swapCoasAndShapes);
+    if (gameMap === "Original" || gameMap === "Hungary") {
+        saveToLoc("coasinstead", swapCoasAndShapes);
+    }
 }
 
 function displaySettings() {

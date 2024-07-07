@@ -117,7 +117,8 @@ function createCoaImg(div, name) {
     div.classList.remove('w-full');
     if (name != undefined) {
             img = document.createElement('img');
-            img.src = data.imglinks.original[name];
+            let subpropertyname = (gameMap === "Original") ? 'original' : 'modern';
+            img.src = data.imglinks[subpropertyname][name];
             img.style = "width:auto;height:180px;";
             img.setAttribute('name', name);
             div.appendChild(img);
