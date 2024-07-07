@@ -1,5 +1,5 @@
 ----
-Welcome to the game (available [here](https://oregsamsas.github.io/vardle/))
+Welcome to the game (available [here](https://oregsamsas.github.io/vardle/)) named
 
 ## <img alt="♜" src="https://em-content.zobj.net/thumbs/320/twitter/322/castle_1f3f0.png" style="height:1em"/> VÁRD![L](https://github.com/OregSamSas/vardle/assets/101597941/70ff0335-6f9b-4054-b48b-8247b84ea127)E!
 
