@@ -160,7 +160,7 @@ function removeAccents(txt) {
 // Function to find an item in a list without minding the accent marks
 function findItemWithoutAccentmarks(list, item) {
     for (let i = 0; i < list.length; i++) {
-        if (removeAccents(list[i]) === removeAccents(item)) {
+        if (removeAccents(list[i]).toLowerCase() === removeAccents(item).toLocaleLowerCase()) {
             return i;
         }
     }
@@ -398,7 +398,7 @@ function removeLetter(idx = new Number(), string = new String()) {
 
 const urlParams = new URLSearchParams(window.location.search);
 
-function handleURL() {
+function loadMapFromURL() {
     let imgFolder = "data/img/";
     if (urlParams.get('map') === 'bundesländer' || urlParams.get('map') === 'germany' || urlParams.get('map') === 'wurstspaetzle') {
         imageOrigin = imgFolder + "Karte_Deutsche_Bundesländer_(Plain).svg";
@@ -437,10 +437,16 @@ function handleURL() {
     } else {
         gameMap = "Original";
     }
+}
 
-    // Set the solution based on the URL
+// Set the solution based on the URL
+function getURLSolution() {
     if (urlParams.has('sol')) {
-        Solution = replaceSpecialCharacters(CountyList[findItemWithoutAccentmarks(CountyList, urlParams.get('sol'))]);
+        if (CountyList.includes(replaceSpecialCharacters(urlParams.get('sol')))) {
+            Solution = replaceSpecialCharacters(urlParams.get('sol'));
+        } else {
+            Solution = replaceSpecialCharacters(CountyList[findItemWithoutAccentmarks(CountyList, urlParams.get('sol'))]);
+        }
     }
 }
 

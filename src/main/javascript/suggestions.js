@@ -18,7 +18,7 @@ function insertAutoList(inputPlace) {
             inputValue = arabicToRoman(parseInt(inputValue));
         }
     }
-    searchKey = replaceSpecialCharacters(inputValue);
+    searchKey = replaceSpecialCharacters(removeAccents(inputValue));
     for (let county=0; county<CountyListOrdered.length; county++) { // Priority
         searchIn = removeAccents(CountyListOrdered[county].slice(0, inputValue.length));
         if (searchIn.includes(searchKey)) { // First the ones that starts with it

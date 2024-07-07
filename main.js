@@ -42,7 +42,7 @@ let otherMetaData = metaData;
 let SuggestionList = [];
 let Won = false;
 let finishedRounds = [false];
-let Solution;
+let Solution = "ANANANAN";
 let imageOrigin = "";
 let gameMap = "Original";
 let Round = 0;
@@ -66,8 +66,8 @@ for (let i = 0; i < numberOfRounds; i++) {
     OtherGuesses.push([]);
 }
 
-// Get URL params
-handleURL();
+// Which map to play with
+loadMapFromURL();
 if (gameMap === "Original" || gameMap === "Hungary") {
     numberOfRounds = 4;
 }
@@ -91,6 +91,7 @@ function initialWork() {
             }
         } catch {}
     }
+    getURLSolution();
     placeGuessInput();
     getImageMetadata();
 
