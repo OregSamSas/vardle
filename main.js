@@ -15,7 +15,7 @@ dataXHR.send("");
 const CountyList = [];
 const Guesses = [];
 const Directions = data.directions;
-const wikiLinks = data.wikilinks; // From https://en.wikipedia.org/wiki/Lands_of_the_Crown_of_Saint_Stephen#:~:text=Counties%20of%20the%20Lands%20of%20the%20Crown%20of%20Saint%20Stephen
+const wikiLinks = data.wikilinks; // From https://en.wikipedia.org/wiki/Lands_of_the_Crown_of_Saint_Stephen#:~:text=Subdivisions, and above from the table: Counties of the Lands of the Crown of Saint Stephen
 const translations = data.l10n;
 
 // Theme Metadata
@@ -33,6 +33,7 @@ let rotateShape = false;
 let sysTheme;
 let mainTheme = "system";
 let mapTheme = "mono";
+let mapLabelsDefault = true;
 let distanceUnit = "mixed";
 let Language;
 let Furthest = {};
@@ -43,6 +44,7 @@ let Won = false;
 let finishedRounds = [false];
 let Solution;
 let imageOrigin = "";
+let gameMap = "Original";
 let Round = 0;
 let numberOfRounds = 3;
 let arabicInSuggestions = false;
@@ -66,7 +68,7 @@ for (let i = 0; i < numberOfRounds; i++) {
 
 // Get URL params
 handleURL();
-if (imageOrigin === "" || imageOrigin.includes('Hungary_counties_(Plain).svg')) {
+if (gameMap === "Original" || gameMap === "Hungary") {
     numberOfRounds = 4;
 }
 

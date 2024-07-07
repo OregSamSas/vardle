@@ -13,7 +13,7 @@ function insertAutoList(inputPlace) {
     // Selecting relevant names
     let searchIn, searchKey, searchAlternative;
 
-    if (imageOrigin.includes("Budapest")) {
+    if (gameMap === "Budapest") {
         if (parseInt(inputValue)) {
             inputValue = arabicToRoman(parseInt(inputValue));
         }
@@ -57,7 +57,7 @@ function createCountiesElement() {
 // Creates an item of the Counties Suggestion list
 function createCountyElement(elementIndex, MyInputId, CountyName, countySuggContId) {
     CountyName = replaceSpecialCharacters(CountyName, true);
-    if (imageOrigin.includes("Budapest") && arabicInSuggestions) {
+    if (gameMap === "Budapest" && arabicInSuggestions) {
         CountyName = romanToArabic(CountyName.toUpperCase().slice(0, CountyName.length - 1)) + '.';
     }
     let element = document.getElementById('tmpl-county-suggestion-piece').content.firstElementChild.cloneNode(true);

@@ -6,7 +6,7 @@
 function handleGuess() {
     let guessInput = document.querySelector('input[aria-autocomplete="list"]');
     let guess = guessInput.value;
-    if (imageOrigin.includes("Budapest") && arabicInSuggestions) {
+    if (gameMap === "Budapest" && arabicInSuggestions) {
         guess = arabicToRoman(guess) + ".";
     }
     guess = replaceSpecialCharacters(guess);
@@ -108,7 +108,7 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
     let partyEmoji;
     partyEmoji = newLine.children[((Round === 1) ? 1 : 2)].childNodes[1].firstChild;
     try {
-        newLine.children[0].childNodes[1].innerHTML = ((imageOrigin.includes("Budapest") && arabicInSuggestions) 
+        newLine.children[0].childNodes[1].innerHTML = ((gameMap === "Budapest" && arabicInSuggestions) 
                                                         ? romanToArabic(replaceSpecialCharacters(name, true).toUpperCase().slice(0, name.length-1)) + '.'
                                                         : replaceSpecialCharacters(name, true));
         if (Round !== 1) newLine.children[1].innerHTML = ((computingMethod.includes("bord") && dist === 0 && dir !== 'yo') ? translationPiece("bord") : ((Scale == undefined) ? '?' : insertSpacesToNum(dist)) + " " + distUnit);
@@ -259,7 +259,7 @@ function finishedBottom(template, lose = false, guessLine = undefined) {
         redesignCoaButtons(true);
     }
 
-    addCtrlZoomEventForMap();
+    addCtrlZoomEventForMap(); // It only needs to be added once in each round (not evry single time when the map is placed on the page)
 
     buttonEventListeners('rounds');
     if (Round === 0) {

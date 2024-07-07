@@ -17,7 +17,7 @@
     "wikilinks":
         {
             "Abaúj-Torna": {"en": "Aba%C3%BAj-Torna_County", "de": "Komitat_Aba%C3%BAj-Torna"},
-            "Alsó-Fehér": {"en": "Als%C3%B3-Feh%C3%A9r_County", "de": "Komitat_Unter-Wei%C3%9Fenburg"},
+            "Alsó-Fehér": {"en": "Als%C3%B3-Feh%C3%A9r_County", "de": "Komitat_Unterwei%C3%9Fenburg"},
             "Arad": {"en": "Arad_County_(former)", "de": "Komitat_Arad_(historisch)"},
             "Árva": {"en": "%C3%81rva_County", "de": "Komitat_Arwa"},
             "Bács-Bodrog": {"en": "B%C3%A1cs-Bodrog_County", "de": "Komitat_Batsch-Bodrog"},
@@ -272,7 +272,8 @@
                 { "name": "distanceUnit", "type": "opt", "options": ["miles", "mixed", "km", "m"] },
                 { "name": "languageSelection", "type": "opt", "options": ["de", "en", "hu"] },
                 { "name": "themeSelection", "type": "opt", "options": ["system", "dark", "light"] },
-                { "name": "mapColouring", "type": "opt", "options": ["colorful", "mono"] }
+                { "name": "mapColouring", "type": "opt", "options": ["colorful", "mono"] },
+                { "name": "mapLabelling", "type": "checkbox"}
             ],
             "gameplay":
             [
@@ -290,6 +291,7 @@
         "g":         {"en": "Guess", "hu": "Megtippelés", "de": "Raten"},
         "try":       {"en": "Try Worldle 🌎", "hu": "Próbáld ki a Worldle-t is! 🌎", "de": "Probieren Sie Worldle auch! 🌎"},
         "map":       {"en": "show on Map", "hu": "mutasd Térképen", "de": "auf der Karte anzeigen"},
+        "scroll":    {"en": "The map can be zoomed by using Ctrl + scroll", "hu": "A térkép a Ctrl + görgetés használatával nagyítható", "de": "Die Karte kann mit Strg + Scrollen vergrößert werden"},
         "wiki":      {"en": "on Wikipedia", "hu": "Wikipédián", "de": "auf Wikipedia"},
         "or":        {"en": "or", "hu": "vagy", "de": "oder"},
         "norot":     {"en": " Cancel Rotation", "hu": " Forgasd vissza", "de": " Drehung abbrechen"},
@@ -307,9 +309,10 @@
         "lose":      {"en": "&nbsp;Oh, no!", "hu": "&nbsp;Ó, Jaj, hoppá!", "de": "&nbsp;Wie schade!"},
         "already":   {"en": "Already guessed.", "hu": "Már tippelted.", "de": "Bereits geraten."},
         "unknown":   {"en": "Unknown territory.", "hu": "Várd le az időt, hogy bekerüljön az adattárunkba ez a terület, mert egyelőre még ISMERETLEN.", "de": "Unbekanntes Gebiet."},
-        "borders1":  {"en": "Can you guess the", "hu": "Ki tudod találni a", "de": "Können Sie erraten das"},
+        "borders1":  {"en": "Can you guess the", "hu": "Ki tudod találni a", "de": "Können Sie erraten"},
+        "borders1.5":{"en": "", "hu": "", "de": " die"},
         "borders2":  {"en": "bordering territories of", "hu": "határos területét neki:", "de": "angrenzenden Gebiete von"},
-        "farthest":  {"en": "farthest territory from", "hu": "legtávolabbi területet tőle mérve:", "de": "weiteste Gebiet von"},
+        "farthest":  {"en": "farthest territory from", "hu": "legtávolabbi területet tőle mérve:", "de": "das weiteste Gebiet von"},
         "coa1":      {"en": "Which one represents the official Coat of Arms of", "hu": "Melyik a hivatalos címere neki:", "de": "Welches repräsentiert das offizielle Wappen von"},
         "goodansw":  {"en": "The correct answers are:", "hu": "A helyes válaszok a következők:", "de": "Die richtigen Antworten sind:"},
         "geography": {"en": "Geography", "hu": "Földrajz", "de": "Geographie"},
@@ -333,6 +336,7 @@
         "setting-mapColouring": {"en": "Primary colour schemes of map", "hu": "Térkép elsődleges színezete", "de": "Primäre Farbschemata der Karte"},
         "mono":      {"en": "Monochromatic", "hu": "Egyszínű", "de": "Monochrom"},
         "colorful":  {"en": "Colourful", "hu": "Színes", "de": "Bunt"},
+        "setting-mapLabelling": {"en": "Show territory names on map by default", "hu": "Terület nevek megjelenítése a térképen alapjáratban", "de": "Gebietsnamen auf der Karte standardmäßig anzeigen"},
         "setting-distCalc": {"en": "Method of direction and distance computing", "hu": "A távolság- és irányszámítás módszere", "de": "Methode zur Berechnung von Richtung und Entfernung"},
         "centre":    {"en": "From territories' centre", "hu": "Területek középpontjától mérve", "de": "Von der Mitte der Gebiete"},
         "borders":   {"en": "From closest borders", "hu": "Legközelebbi határ szerint", "de": "Von den nächstgelegenen Grenzen"},

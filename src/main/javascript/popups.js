@@ -57,7 +57,7 @@ function closeUppermostWindow(deleteCanvas) {
 
 function displayAbout() {
     addForeGroundPage('about');
-    if (imageOrigin !==  "img/Kingdom_of_Hungary_counties_(Plain).svg" && imageOrigin !== '') {
+    if (gameMap !== "Original") {
         mainAboutContent = document.querySelectorAll('#aboutPage > div');
         for (let divToDelete of mainAboutContent) {
             divToDelete.remove();
@@ -182,6 +182,7 @@ function saveSettings() {
     saveToLoc("tries", numberOfTries);
     saveToLoc("unit", distanceUnit);
     saveToLoc("map", mapTheme);
+    saveToLoc("labels", mapLabelsDefault);
     saveToLoc("hide", hideShape);
     saveToLoc("rotate", rotateShape);
     saveToLoc("size", sizePercent);
@@ -202,7 +203,7 @@ function addGameSpecificSettings(parent) {
 
 function addGeneralSettings(toParent) {
     let generalSettings = getIndependentValue(data.settings.general);
-    if (imageOrigin.includes("Budapest")) {
+    if (gameMap === "Budapest") {
         generalSettings.push({ "name": "arabicNums", "type": "checkbox"})
     }
     for (let setting of generalSettings) {
@@ -246,6 +247,9 @@ function addSetting(parent, type = "select", id, options) {
             }
         }
     } else {
+        if (id === "mapLabelling") {
+            selectArea.checked = mapLabelsDefault;
+        }
         if (id === "numberOfTries") {
             selectArea.value = numberOfTries;
         }
@@ -294,6 +298,9 @@ function handleSetting(settingElement, variable, type, additional) {
                 break;
             case "mapColouring":
                 mapTheme = selectedVal;
+                break;
+            case "mapLabelling":
+                mapLabelsDefault = selectedVal;
                 break;
             case "numberOfTries":
                 numberOfTries = selectedVal;

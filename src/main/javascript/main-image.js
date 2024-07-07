@@ -91,7 +91,7 @@ async function getCoaImages(collectFromWikipedia = false) {
             }
         }
     } else if (numberOfRounds === 4) {
-        let subpropertyname = (imageOrigin.includes('Kingdom')) ? 'original' : 'modern';
+        let subpropertyname = (gameMap === "Original") ? 'original' : 'modern';
         let inserted = 0;
         let name;
         let src;

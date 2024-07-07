@@ -7,6 +7,7 @@ function loadFromLocal() {
         if (loadLoc("tries")) numberOfTries = parseInt(loadLoc("tries"));
         if (loadLoc("unit")) distanceUnit = loadLoc("unit");
         if (loadLoc("map")) mapTheme = loadLoc("map");
+        if (loadLoc("labels")) mapLabelsDefault = (loadLoc("labels") === 'true');
         if (loadLoc("hide")) hideShape = (loadLoc("hide") === 'true');
         if (loadLoc("rotate")) rotateShape = (loadLoc("rotate") === 'true');
         if (loadLoc("size")) sizePercent = (loadLoc("size") === 'true');

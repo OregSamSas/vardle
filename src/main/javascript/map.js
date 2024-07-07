@@ -3,14 +3,18 @@
 function placeMapOnpage(showMap) {
     let map = document.getElementById('helpMap');
     let insertTo = document.getElementById(showMap.getAttribute('maparea-id'));
-    if (map == null) { // Check if it's already toggled, and the map is displayed => then it hides it
+    if (map != null) {
+        // Check if it's already toggled, and the map is displayed => then it hides it
+        removeHelpMap();
+    } else {
+        // Add map on the page
         let mapTemplate = document.querySelector('#mapTemplate > svg').cloneNode(true);
         makeSpaceInSVG(mapTemplate);
         mapTemplate.id = "helpMap";
         insertTo.appendChild(mapTemplate);
         let scale = calculateOriginalSizeOfMap();
 
-        if(imageOrigin.includes("world")) {
+        if(gameMap === "World") {
             mapTemplate.style.margin = "-400px";
         }
 
@@ -46,6 +50,16 @@ function placeMapOnpage(showMap) {
         buttonEventListeners("change-colour");
         if (mapTheme === "colorful") {
             swapMapColour(toggleColor.firstElementChild.firstElementChild, true);
+        }
+
+        // Toggle labels button
+        let toggleLabels = document.getElementById('tmpl-togglelabels').content.firstElementChild.cloneNode(true);
+        insertTo.appendChild(toggleLabels);
+        buttonEventListeners("change-labels-visibility");
+        if (mapLabelsDefault) {
+            toggleLabels.firstElementChild.style.filter = 'grayscale(1)';
+        } else {
+            toggleMapTexts();
         }
 
         // Zoom buttons
@@ -108,8 +122,6 @@ function placeMapOnpage(showMap) {
 
         // Update size of the map to fit into the screen
         window.dispatchEvent(new Event('resize'));
-    } else {
-        removeHelpMap();
     }
 }
 
@@ -147,12 +159,16 @@ function removeHelpMap(withTransition = true) {
         if (map !== null) map.remove();
         let toggleColor = document.getElementById('toggleColoured');
         if (toggleColor !== null) toggleColor.remove();
+        let toggleLabels = document.getElementById('toggleLabels');
+        if (toggleLabels !== null) toggleLabels.remove();
         let zoomInButton = document.getElementById('button-zoom-in');
         if (zoomInButton !== null) zoomInButton.remove();
         let zoomOutButton = document.getElementById('button-zoom-out');
         if (zoomOutButton !== null) zoomOutButton.remove();
         let resetZoomButton = document.getElementById('button-zoom-reset');
         if (resetZoomButton !== null) resetZoomButton.remove();
+        let warningText = document.getElementById('warning-text');
+        if (warningText !== null) warningText.remove();
         let placeWhereMapIsInserted = document.getElementById(showMap.getAttribute('maparea-id'));
         if (!withTransition) {
             placeWhereMapIsInserted.className = "grid justify-center border-gray-200 border-2 mb-4 mt-4";
@@ -170,6 +186,38 @@ function emphasizeMapText(txtlmnt) {
             txtlmnt.children[0].setAttribute('style', 'color: var(--text); font-weight: bolder; font-size: 130%;');
         } else if (txtlmnt != null) txtlmnt.setAttribute('style', 'color: var(--text); font-weight: bolder; font-size: 130%;');
     } catch (err) {console.error(`Something went wrong: ${err}`)}
+}
+
+function toggleMapTexts() {
+    let mapTextsList = document.querySelectorAll('#helpMap > g > text');
+    let toggleLabels = document.getElementById('toggleLabelsButton');
+    if (mapTextsList[0] == undefined) {
+        let newtext = document.createElement('text');
+        try {
+            document.querySelector('#helpMap > #textgroup').appendChild(newtext);
+        } catch (err) {
+            console.error(`Something went wrong: ${err}`);
+        }
+        mapTextsList = [newtext];
+
+    }
+    if(mapTextsList[0].style.display === 'none') {
+        // Enable texts
+        for (let txt of mapTextsList) {
+            txt.style.display = '';
+        }
+    
+        // Make the button grey
+        toggleLabels.style.filter = 'grayscale(1)';
+    } else {
+        // Disable texts
+        for (let txt of mapTextsList) {
+            txt.style.display = 'none';
+        }
+
+        // Make the button normal
+        toggleLabels.style.filter = '';
+    }
 }
 
 function swapMapColour(paletteIcon, forcetrue=false) {

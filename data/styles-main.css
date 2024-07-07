@@ -401,6 +401,10 @@ svg > g > path {
     transform: translate(50%, 50%);
     padding: 2px
 }
+#toggleLabels {
+    transform: translate(180%, 55%);
+    padding: 2px
+}
 .valign {
     vertical-align: -0.1rem
 }

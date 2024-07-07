@@ -157,6 +157,16 @@ function removeAccents(txt) {
     return txt.normalize("NFD").replace(/[\u0300-\u036f]/g, '');
 }
 
+// Function to find an item in a list without minding the accent marks
+function findItemWithoutAccentmarks(list, item) {
+    for (let i = 0; i < list.length; i++) {
+        if (removeAccents(list[i]) === removeAccents(item)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 // *Other String utilities*
 
 // Check if a character is a digit
@@ -334,20 +344,20 @@ function getIndexByProperty(array, propertyName, propertyValue = undefined) {
 // The getWikipediaLink function is used to get the Wikipedia link of a specific county based on the provided county name and language.
 function getWikipediaLink(forCounty, lang = Language, onlyArticleName = false) {
     forCounty = replaceAbbreviations(replaceSpecialCharacters(forCounty, true));
-    if (imageOrigin.includes("Budapest")) {
+    if (gameMap === "Budapest") {
         forCounty = forCounty.toUpperCase();
     }
     let articleName = wikiLinks[forCounty];
-    if (articleName == undefined && !imageOrigin.includes("Poland") && !imageOrigin.includes("Hungary_counties_")) {
+    if (articleName == undefined && gameMap !== "Poland" && gameMap !== "Hungary") {
         articleName = forCounty;
     } else {
         try{ articleName = articleName[lang]; } catch {}
         if (articleName == undefined) {
             let endings = {en: "", hu: "", de: ""};
             let beginings = {en: "", hu: "", de: ""};
-            if (imageOrigin.includes("Budapest")) {
+            if (gameMap === "Budapest") {
                 endings = {en: "", hu: "kerület"};
-            } else if (imageOrigin.includes("Poland")) {
+            } else if (gameMap === "Poland") {
                 endings = {en: "Voivodeship", hu: "vajdaság"}
             } else {
                 if (Round < 4) {
@@ -390,30 +400,47 @@ const urlParams = new URLSearchParams(window.location.search);
 
 function handleURL() {
     let imgFolder = "data/img/";
-    if (urlParams.get('map') === 'bundesländer') {
+    if (urlParams.get('map') === 'bundesländer' || urlParams.get('map') === 'germany' || urlParams.get('map') === 'wurstspaetzle') {
         imageOrigin = imgFolder + "Karte_Deutsche_Bundesländer_(Plain).svg";
-    } else if (urlParams.get('map') === 'modern') {
+        gameMap = "Germany";
+    } else if (urlParams.get('map') === 'modern' || urlParams.get('map') === 'hungary') {
         imageOrigin = imgFolder + "Hungary_counties_(Plain).svg";
-    } else if (urlParams.get('map') === 'romania' || urlParams.get('map') === 'taleland') {
+        gameMap = "Hungary";
+    } else if (urlParams.get('map') === 'romania' || urlParams.get('map') === 'ciorbaiahnie' || urlParams.get('map') === 'taleland') {
         imageOrigin = imgFolder + "Romania_Counties_(Plain).svg";
+        gameMap = "Romania";
     } else if (urlParams.get('map') === 'map' || urlParams.get('map') === 'world') {
         imageOrigin = imgFolder + "world-map.svg";
-    } else if (urlParams.get('map') === 'france') {
+        gameMap = "World";
+    } else if (urlParams.get('map') === 'baguettecroissant' || urlParams.get('map') === 'france') {
         imageOrigin = imgFolder + "Regions_France_(Plain).svg";
-    } else if (urlParams.get('map') === 'bp') {
+        gameMap = "France";
+    } else if (urlParams.get('map') === 'bp' || urlParams.get('map') === 'budapest') {
         imageOrigin = imgFolder + "Budapest_Districts.svg";
-    } else if (urlParams.get('map') === 'szeiman') {
+        gameMap = "Budapest";
+    } else if (urlParams.get('map') === 'szeiman' || urlParams.get('map') === 'huncities') {
         imageOrigin = imgFolder + "Szeiman_Városok.svg";
+        gameMap = "Cities";
     } else if (urlParams.get('map') === 'pizzapasta' || urlParams.get('map') === 'italy') {
         imageOrigin = imgFolder + "Flag_map_of_Italy_with_regions.svg";
+        gameMap = "Italy";
     } else if (urlParams.get('map') === 'poland' || urlParams.get('map') === 'polishedmap') {
         imageOrigin = imgFolder + "Regions_of_Poland.svg";
+        gameMap = "Poland";
+
+    // Custom maps
     } else if (urlParams.has('map')) {
         imageOrigin = urlParams.get('map');
+        gameMap = "Custom";
+    
+    // Default map
+    } else {
+        gameMap = "Original";
     }
 
+    // Set the solution based on the URL
     if (urlParams.has('sol')) {
-        Solution = replaceSpecialCharacters(urlParams.get('sol'));
+        Solution = replaceSpecialCharacters(CountyList[findItemWithoutAccentmarks(CountyList, urlParams.get('sol'))]);
     }
 }
 

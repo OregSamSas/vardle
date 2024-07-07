@@ -39,9 +39,10 @@ function docEvents() {
                 insertTo.style.height = `${(map.height.baseVal.value * 1.1) * scale}px`;
 
                 // Move the zoom controls to the bottom right corner
-                insertTo.children[2].style.transform = `translate(${widthToFitInto * 0.96}px, ${map.height.baseVal.value * 0.96 * scale - 28}px)`;
-                insertTo.children[3].style.transform = `translate(${widthToFitInto * 0.96}px, ${map.height.baseVal.value * 0.96 * scale}px)`;
-                insertTo.children[4].style.transform = `translate(${widthToFitInto * 0.96}px, ${map.height.baseVal.value * 0.96 * scale - 2*28}px)`;
+                let numberOfotherButtons = 2;
+                insertTo.children[numberOfotherButtons + 1].style.transform = `translate(${widthToFitInto * 0.96}px, ${map.height.baseVal.value * 0.96 * scale - 28}px)`;
+                insertTo.children[numberOfotherButtons + 2].style.transform = `translate(${widthToFitInto * 0.96}px, ${map.height.baseVal.value * 0.96 * scale}px)`;
+                insertTo.children[numberOfotherButtons + 3].style.transform = `translate(${widthToFitInto * 0.96}px, ${map.height.baseVal.value * 0.96 * scale - 2*28}px)`;
             }
         }
     });
@@ -56,15 +57,73 @@ function addCtrlZoomEventForMap() {
     } else {
         mapArea.addEventListener('wheel', (e) => {
             if (e.ctrlKey) {
+                // Remove warning text if it's there
+                if (mapArea.children[mapArea.children.length - 1].id === 'warning-text') {
+                    mapArea.children[mapArea.children.length - 1].remove();
+                }
+
+                // Prevent zooming the whole page
                 e.preventDefault();
+
+                // Zoom in or out based on the direction of the scroll
                 if (e.deltaY < 0) {
                     changeZoomOfMap(1.25);
                 } else {
                     changeZoomOfMap(0.8);
                 }
+            } else {
+                // If there's no warning text on the map, add one
+                if (mapArea.children[mapArea.children.length - 1].id !== 'warning-text') {
+                    const warningDiv = document.createElement('div');
+                    warningDiv.id = "warning-text"
+                    warningDiv.className = 'transition-all';
+                    warningDiv.style.position = 'absolute';
+                    warningDiv.style.left = '2px';
+                    warningDiv.style.width = '99.4%';
+                    warningDiv.style.height = `${mapArea.offsetHeight - 4}px`;
+                    warningDiv.style.backgroundColor = `#${(mainTheme === 'light') ? 'ffffff': '000000'}85`;
+                    warningDiv.style.opacity = '1';
+                    warningDiv.style.display = 'flex';
+                    warningDiv.style.justifyContent = 'center';
+                    warningDiv.style.alignItems = 'center';
+                    warningDiv.style.fontSize = '20px';
+                    warningDiv.setAttribute('ln', 'scroll');
+
+                    mapArea.appendChild(warningDiv);
+
+                    // Remove the warning after 2 seconds
+                    removeWarningDivSmoothly(warningDiv);
+
+                    localisation();
+                } else {
+                    // Show warning text again
+                    mapArea.children[mapArea.children.length - 1].style.opacity = '1';
+
+                    // Clear the timeouts
+                    window.clearTimeout(timeoutTransition);
+                    window.clearTimeout(timeoutDeletion);
+
+                    // Add new timeouts
+                    removeWarningDivSmoothly(mapArea.children[mapArea.children.length - 1]);
+                }
             }
         });
     }
+}
+
+var timeoutTransition = null;
+var timeoutDeletion = null;
+
+// Remove a 'transition-all' div smoothly
+function removeWarningDivSmoothly(div) {
+    timeoutTransition = setTimeout(() => {
+        div.style.opacity = '0';
+
+        // Remove the warning div after the transition ends
+        timeoutDeletion = setTimeout(() => {
+            div.remove();
+        }, 1000);
+    }, 2000);
 }
 
 // Bundle event listeners to the input field
@@ -169,6 +228,16 @@ function buttonEventListeners(button = "") {
         if (paletteIcon != null) {
             paletteIcon.addEventListener('click', (e) => {
                 swapMapColour(paletteIcon.firstElementChild);
+            });
+        }
+    }
+
+    // Speech bubble icon in the right corner of the map
+    if (button === "change-labels-visibility") {
+        let speechBubbleIcon = document.querySelector('button#toggleLabelsButton');
+        if (speechBubbleIcon != null) {
+            speechBubbleIcon.addEventListener('click', (e) => {
+                toggleMapTexts();
             });
         }
     }

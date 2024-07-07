@@ -67,10 +67,10 @@ function localisation() {
             if (Round === 0 || Round === 2) {
                 let formattedSolution;
                 if (Round === 0) {
-                    formattedSolution = ((imageOrigin.includes("Budapest")) ? ((arabicInSuggestions) ? romanToArabic(solutionText.toUpperCase().slice(0, Solution.length - 1)) + '.' : solutionText.toUpperCase()) : solutionText);
+                    formattedSolution = ((gameMap === "Budapest") ? ((arabicInSuggestions) ? romanToArabic(solutionText.toUpperCase().slice(0, Solution.length - 1)) + '.' : solutionText.toUpperCase()) : solutionText);
                 } else {
                     let furthestText = replaceSpecialCharacters(Furthest.name, true);
-                    formattedSolution = ((imageOrigin.includes("Budapest")) ? ((arabicInSuggestions) ? romanToArabic(furthestText.toUpperCase().slice(0, furthestText.length - 1)) + '.' : furthestText.toUpperCase()) : furthestText);
+                    formattedSolution = ((gameMap === "Budapest") ? ((arabicInSuggestions) ? romanToArabic(furthestText.toUpperCase().slice(0, furthestText.length - 1)) + '.' : furthestText.toUpperCase()) : furthestText);
                 }
                 finishAreatext = `${translationPiece('anal2.1')}&nbsp;${translationPiece('anal2.2')}&nbsp;<i>${formattedSolution}</i>${translationPiece('anal2.3')}.`;
             } else {
@@ -90,7 +90,7 @@ function localisation() {
     // Questions for further rounds
     let quest = document.getElementById('border-question');
     if (quest != null) {
-        quest.innerHTML = `${translationPiece('borders1')} ${closestTerritories.length} ${translationPiece('borders2')} <i>${solutionText}</i> ?`
+        quest.innerHTML = `${translationPiece('borders1')}${translationPiece('borders1.5')} ${closestTerritories.length} ${translationPiece('borders2')} <i>${solutionText}</i> ?`
     }
     quest = document.getElementById('img-question');
     if (quest != null) {
