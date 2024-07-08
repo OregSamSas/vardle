@@ -307,7 +307,9 @@ function redesignCoaButtons(finished = false) {
 function updateWikiLinkOnPage(a = document.querySelector('a[href*="wiki"]')) {
     if (a != null) {
         let wikiname = '';
-        if (Round < 4) {
+        if (Round === 2) {
+            wikiname = Furthest.name;
+        } else if (Round < 4) {
             wikiname = Solution;
         } else if (Round === 5) {
             wikiname = undefined;

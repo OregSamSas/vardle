@@ -29,6 +29,7 @@ function addAnimatedConfetti(inpObj = {
 
 // *Input utilities*
 
+// Clump function to keep a value between two limits
 function forceNumIntoRange(num, min, max) {
     num = parseInt(num);
     if (isNaN(num) || num < min) {
@@ -71,7 +72,7 @@ function advancedSort(list, forceToSortAsRomanNumerals) {
     }
     if (isRoman) {
         list.forEach(element => {
-            list[list.indexOf(element)] = {roman: element, arabic: romanToArabic(element.toUpperCase())};
+            list[list.indexOf(element)] = {roman: element, arabic: romanToArabic(element.toUpperCase().match(/[^°]/gi).join('').match(/[^\.]/gi).join(''))};
         });
         list.sort( (num1, num2) => num1.arabic - num2.arabic);
         list.forEach(element => {
@@ -82,7 +83,9 @@ function advancedSort(list, forceToSortAsRomanNumerals) {
         list.sort( (a, b) => {
             a = removeAccents(a);
             b = removeAccents(b);
-            if ([a, b].sort()[0] === a) {
+            if (a === b) {
+                return 0;
+            } else if ([a, b].sort()[0] === a) {
                 return -1;
             } else {
                 return 1;
@@ -97,7 +100,14 @@ function romanToArabic(romanNum) {
     let currentvalue = 0, nextvalue = 0, allvalue = 0;
     while (romanNum.length > 0) {
         currentvalue = arabicNums[romanNums.indexOf(romanNum[0])];
-        nextvalue = arabicNums[romanNums.indexOf(romanNum[1])];
+        let i = 0;
+        while (arabicNums[romanNums.indexOf(romanNum[i])] === currentvalue) {
+            i += 1;
+            nextvalue = arabicNums[romanNums.indexOf(romanNum[i])];
+        }
+        if (nextvalue === undefined) {
+            nextvalue = 0;
+        }
         if (nextvalue > currentvalue) {
             allvalue -= parseInt(currentvalue);
         } else {
@@ -147,8 +157,10 @@ function replaceSpecialCharacters(text = "", vicaversa = false, nocasechange = f
     }
 
     if (vicaversa) {
+        // Decode (replace special characters with their original form)
         return text.replace(/\_/g, "'").replace(/–/g, ' ').replace(/°/g, '.');
     } else {
+        // Encode (replace special characters with their encoded form)
         return text.replace(/\'/g, '_').replace(/ /g, '–').replace(/\./g, '°');
     }
 }
@@ -174,15 +186,33 @@ function isCharNumber(c) {
     return typeof c === 'string' && c.length == 1 && c >= '0' && c <= '9';
 }
 
-// Function to beautify high distance values
+// Check if a character is a letter
+function isChar(c) {
+    return typeof c === 'string' && c.length == 1;
+}
+
+// Function to beautify high distance values 
+// (It cuts further digits than one-tenthousandth and adds spaces to the thousands)
 function insertSpacesToNum(int) {
-    int = int.toString();
-    if(int.length > 3) {
-        for(let i = int.length-3; i > 0; i-=3) {
-            int = `${int.slice(0, i)}&nbsp;${int.slice(i, int.length)}`;
+    if (!parseFloat(int)) {
+        return "NaN";
+    } else {
+        if (parseFloat(int) < 0) {
+            newint = -parseFloat(int);
+        } else {
+            newint = parseFloat(int);
         }
+        newint = parseInt(newint).toString();
+        if(newint.length > 3) {
+            for(let i = newint.length-3; i > 0; i-=3) {
+                newint = `${newint.slice(0, i)}&nbsp;${newint.slice(i, newint.length)}`;
+            }
+        }
+        if (parseInt(int) != parseFloat(int)) {
+            newint += (compressNum(parseFloat(Math.abs(int)) - (parseInt(Math.abs(int))), 4)).toString().slice(1);
+        }
+        return newint;
     }
-    return int;
 }
 
 // Function for making a string to TitleCase (all initial letters are capitalised)
@@ -202,8 +232,12 @@ function titleCase(str = "") {
             if (str[i][j].toLowerCase() === "és" || str[i][j].toLocaleLowerCase() === "and") { // Do not capitalise conjunctive words (és = and)
                 str[i][j] = str[i][j].toLowerCase();
             } else {
-                if (str[i][j].charAt(1) === "'") { // if the case is d'Aosta or smg
+                if (str[i][j].charAt(1) === "'" && (str[i][j].charAt(0).toLowerCase() === 'd' || str[i][j].charAt(0) === 'l')) {
+                    // if the case is d'Aosta or l'Homme or smg like that
                     str[i][j] = str[i][j].slice(0, 2) + str[i][j][2].toUpperCase() + str[i][j].slice(3);
+                } else if (str[i][j].charAt(0) === "'") {
+                    // if the first letter of the word omitted and therefore an apostrophe is at the beginning
+                    str[i][j] = str[i][j].charAt(0) + str[i][j].charAt(1).toUpperCase() + str[i][j].slice(2);
                 } else {
                     str[i][j] = str[i][j].charAt(0).toUpperCase() + str[i][j].slice(1);
                 }
@@ -221,6 +255,15 @@ function titleCase(str = "") {
 
 // From https://stackoverflow.com/questions/17267329/converting-unicode-character-to-string-format
 function unicodeToChar(text) {
+    if (!text.includes("U+") && !text.includes("\\u")) {
+        return text;
+    }
+    if (text.includes("U+")) {
+        text = text.replace(/U\+/, '\\u');
+    }
+    text = text.toUpperCase();
+    text = text.replace('\\U', '\\u');
+    console.log(text);
     return text.replace(/\\u[\dA-F]{4}/gi, 
            function (match) {
                 return String.fromCharCode(parseInt(match.replace(/\\u/g, ''), 16));
@@ -230,9 +273,11 @@ function unicodeToChar(text) {
 function replaceAbbreviations(txt = "") {
     return txt.replace(/fr\./gi, 'French')
                 .replace(/rep\. /gi, 'Republic of ')
+                .replace(/([a-z])rep\./gi, txt[txt.indexOf("rep.")-1] += 'republic')
                 .replace(/rep\./gi, 'Republic')
                 .replace(/dem\./gi, 'Democratic')
                 .replace(/ pdr/gi, " People's Democratic Republic")
+                .replace(/pdr\./gi, "People's Democratic Republic of")
                 .replace(/is\./gi, 'Islands')
                 .replace(/st\./gi, 'Saint')
                 .replace(/eq\./gi, 'Equatorial')
@@ -240,7 +285,13 @@ function replaceAbbreviations(txt = "") {
                 .replace(/vin\./gi, 'Vincent')
                 .replace(/gren\./gi, 'the Grenadines')
                 .replace(/barb\./gi, 'Barbuda')
-                .replace(/u\.s\./gi, 'United States');
+                .replace(/u\.s\.s\.r\./gi, 'Soviet Union')
+                .replace(/u\.s\.a\./gi, 'United States of America')
+                .replace(/u\.s\./gi, 'United States')
+                .replace(/u\.k\./gi, 'United Kingdom')
+                .replace(/u\.a\.e\./gi, 'United Arab Emirates')
+                .replace(/am\./gi, 'American')
+                .replace(/br\./gi, 'British');
 }
 
 // *Calculations*
@@ -302,8 +353,14 @@ function normalModulus(a, b) {
 // Calculating the territory to be guessed
 function getRandomCounty() {
     let randomCounty = randomElement(); // Balaton cannot be the solution, but can be guessed
-    while (CountyList[randomCounty] === "Balaton" || CountyList[randomCounty] === Solution) {
-        randomCounty = randomElement();
+    if (!(CountyList.length === 1 && (CountyList[0] === "Balaton" || CountyList[0] === Solution))) {
+        if (CountyList.length === 2 && CountyList.includes("Balaton") && CountyList.includes(Solution)) {
+            randomCounty = CountyList.indexOf(Solution);
+        } else {
+            while (CountyList[randomCounty] === "Balaton" || CountyList[randomCounty] === Solution) {
+                randomCounty = randomElement();
+            }
+        }
     }
     return randomCounty;
 }
@@ -321,19 +378,21 @@ function compressNum(num, depth = 0) {
 // The getIndexByProperty function is used to find the index of an item in an array based on a specific property name and value. 
 // If either of them is not provided, it still returns with the idx of the object which has the provided key among its propertys or given value among its values resp.
 function getIndexByProperty(array, propertyName, propertyValue = undefined) {
-    for (let i = 0; i < array.length; i++) {
-        if (propertyName !== undefined) {
-            if (
-                (array[i][propertyName] === propertyValue && array[i][propertyName] !== undefined) 
-                ||
-                (propertyValue === undefined && array[i][propertyName] !== undefined)
-            ) {
-                return i;
-            }
-        } else {
-            for (let key in array[i]) {
-                if (array[i][key] === propertyValue) {
+    if (array != undefined) {
+        for (let i = 0; i < array.length; i++) {
+            if (propertyName !== undefined) {
+                if (
+                    (array[i][propertyName] === propertyValue && array[i][propertyName] !== undefined) 
+                    ||
+                    (propertyValue === undefined && array[i][propertyName] !== undefined)
+                ) {
                     return i;
+                }
+            } else {
+                for (let key in array[i]) {
+                    if (array[i][key] === propertyValue) {
+                        return i;
+                    }
                 }
             }
         }
@@ -356,9 +415,9 @@ function getWikipediaLink(forCounty, lang = Language, onlyArticleName = false) {
             let endings = {en: "", hu: "", de: ""};
             let beginings = {en: "", hu: "", de: ""};
             if (gameMap === "Budapest") {
-                endings = {en: "", hu: "kerület"};
+                endings = {en: "", hu: "_kerület", de: "_Budapester_Bezirk"};
             } else if (gameMap === "Poland") {
-                endings = {en: "Voivodeship", hu: "vajdaság"}
+                endings = {en: "_Voivodeship", hu: "_vajdaság"}
             } else {
                 if (Round < 4) {
                     endings = {en: "County", hu: "_vármegye", de: ""};
@@ -385,7 +444,18 @@ function insertToArray(array = new Array(), item, idx = new Number()) {
     return array;
 }
 
-function removeFromArray(array = new Array(), idx = new Number()) {
+function removeFromArray(array = new Array(), idxOrItem) {
+    let idx = idxOrItem;
+    if (typeof idxOrItem !== 'number') {
+        if (typeof idxOrItem === 'object') {
+            idx = getIndexByProperty(array, Object.keys(idxOrItem)[0], idxOrItem[Object.keys(idxOrItem)[0]]);
+        } else {
+            idx = array.indexOf(idxOrItem);
+            if (idx < 0) {
+                return array;
+            }
+        }
+    }
     let arrayBef = array.slice(0, idx);
     let arrayAft = array.slice(idx + 1, array.length);
     array = arrayBef.concat(arrayAft);
@@ -394,60 +464,6 @@ function removeFromArray(array = new Array(), idx = new Number()) {
 
 function removeLetter(idx = new Number(), string = new String()) {
     return string.slice(0, idx) + string.slice(idx + 1, string.length);
-}
-
-const urlParams = new URLSearchParams(window.location.search);
-
-function loadMapFromURL() {
-    let imgFolder = "data/img/";
-    if (urlParams.get('map') === 'bundesländer' || urlParams.get('map') === 'germany' || urlParams.get('map') === 'wurstspaetzle') {
-        imageOrigin = imgFolder + "Karte_Deutsche_Bundesländer_(Plain).svg";
-        gameMap = "Germany";
-    } else if (urlParams.get('map') === 'modern' || urlParams.get('map') === 'hungary') {
-        imageOrigin = imgFolder + "Hungary_counties_(Plain).svg";
-        gameMap = "Hungary";
-    } else if (urlParams.get('map') === 'romania' || urlParams.get('map') === 'ciorbaiahnie' || urlParams.get('map') === 'taleland') {
-        imageOrigin = imgFolder + "Romania_Counties_(Plain).svg";
-        gameMap = "Romania";
-    } else if (urlParams.get('map') === 'map' || urlParams.get('map') === 'world') {
-        imageOrigin = imgFolder + "world-map.svg";
-        gameMap = "World";
-    } else if (urlParams.get('map') === 'baguettecroissant' || urlParams.get('map') === 'france') {
-        imageOrigin = imgFolder + "Regions_France_(Plain).svg";
-        gameMap = "France";
-    } else if (urlParams.get('map') === 'bp' || urlParams.get('map') === 'budapest') {
-        imageOrigin = imgFolder + "Budapest_Districts.svg";
-        gameMap = "Budapest";
-    } else if (urlParams.get('map') === 'szeiman' || urlParams.get('map') === 'huncities') {
-        imageOrigin = imgFolder + "Szeiman_Városok.svg";
-        gameMap = "Cities";
-    } else if (urlParams.get('map') === 'pizzapasta' || urlParams.get('map') === 'italy') {
-        imageOrigin = imgFolder + "Flag_map_of_Italy_with_regions.svg";
-        gameMap = "Italy";
-    } else if (urlParams.get('map') === 'poland' || urlParams.get('map') === 'polishedmap') {
-        imageOrigin = imgFolder + "Regions_of_Poland.svg";
-        gameMap = "Poland";
-
-    // Custom maps
-    } else if (urlParams.has('map')) {
-        imageOrigin = urlParams.get('map');
-        gameMap = "Custom";
-    
-    // Default map
-    } else {
-        gameMap = "Original";
-    }
-}
-
-// Set the solution based on the URL
-function getURLSolution() {
-    if (urlParams.has('sol')) {
-        if (CountyList.includes(replaceSpecialCharacters(urlParams.get('sol')))) {
-            Solution = replaceSpecialCharacters(urlParams.get('sol'));
-        } else {
-            Solution = replaceSpecialCharacters(CountyList[findItemWithoutAccentmarks(CountyList, urlParams.get('sol'))]);
-        }
-    }
 }
 
 // Create independent variable (from https://www.freecodecamp.org/news/how-to-clone-an-array-in-javascript-1d3183468f6a/)
