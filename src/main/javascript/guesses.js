@@ -68,6 +68,10 @@ function placeGuessInput() {
     }
     let template = document.getElementById('tmpl-guessinput')
     if (template != null) template = template.content.firstElementChild.cloneNode(true);
+    if (Round === 4) {
+        let inp = findFirstChildOfType(template.firstElementChild.firstElementChild, 'input');
+        if (inp) inp.setAttribute('lnph', 'ph4');
+    }
     let insertTo = document.getElementById('guessInput');
     if (insertTo != null) insertTo.appendChild(template);
 }

@@ -366,6 +366,7 @@
         "ph1":       {"en": "County or the lake Balaton...", "hu": "Vármegye vagy a Balaton...", "de": "Landkreis oder der Balaton (Plattensee)..."},
         "ph2":       {"en": "Territory name...", "hu": "Terület neve...", "de": "Gebietsname..."},
         "ph3":       {"en": "District number...", "hu": "Kerület száma...", "de": "Bezirksnummer..."},
+        "ph4":       {"en": "City...", "hu": "Város...", "de": "Stadt..."},
         "g":         {"en": "Guess", "hu": "Megtippelés", "de": "Raten"},
         "try":       {"en": "Try Worldle 🌎", "hu": "Próbáld ki a Worldle-t is! 🌎", "de": "Probieren Sie Worldle auch! 🌎"},
         "map":       {"en": "show on Map", "hu": "mutasd Térképen", "de": "auf der Karte anzeigen"},
