@@ -54,3 +54,12 @@ function getURLSolution() {
         }
     }
 }
+
+// Set the round based on the URL
+function getURLRound() {
+    if (urlParams.has('round')) {
+        if (!isNaN(urlParams.get('round'))) {
+            Round = parseInt(urlParams.get('round'));
+        }
+    }
+}

@@ -1,7 +1,10 @@
 // **Functions for the image of the solution**
 
 function placeMainImage() {
-    if (Round === 0) {
+    if (Round === 0 || Round === 4) {
+        if (Round === 4) {
+            placeQuestion('capital');
+        }
         createGuessImage('imageToGuess', CountyList.indexOf(Solution));
         if (swapCoasAndShapes) {
             let main = document.getElementById('imageToGuess');
@@ -81,7 +84,6 @@ function placeMainImage() {
                                 posInCoaImgs = i;
                             }
                         }
-                        console.log(e.target, myname, posInCoaImgs);
                         OtherGuesses[Round - 1].push(posInCoaImgs);
                         if (myname === Solution) {
                             try {
@@ -147,7 +149,7 @@ async function getCoaImages(collectFromWikipedia = false) {
                 data.imglinks = promiseCoaImage(lmnt);
             }
         }
-    } else if (numberOfRounds === 4) {
+    } else if (numberOfRounds > 3) {
         let subpropertyname = (gameMap === "Original") ? 'original' : 'modern';
         let inserted = 0;
         let name;

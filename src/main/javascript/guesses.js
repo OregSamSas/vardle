@@ -3,33 +3,59 @@
 // ** And for handling and saving them **
 
 // When the form is submitted
-function handleGuess() {
-    let guessInput = document.querySelector('input[aria-autocomplete="list"]');
+function handleGuess(guessInput = document.querySelector('input[aria-autocomplete="list"]'), test=false) {
     let guess = guessInput.value;
-    if (gameMap === "Budapest" && arabicInSuggestions) {
+    if (gameMap === "Budapest" && !isNaN(guess) && guess != "") {
         guess = arabicToRoman(guess) + ".";
     }
     guess = replaceSpecialCharacters(guess);
     if(guess != '') {
         if (Round === 0) {
             if (Guesses.includes(guess)) {
-                window.alert(translationPiece('already'));
+                if (test) {
+                    return translationPiece('already');
+                } else {
+                    window.alert(translationPiece('already'));
+                }
             } else if (CountyList.includes(guess)) {
                 Guesses.push(guess);
                 guessInput.value = "";
-                guessAnalisys(guess);
+                if (test) {
+                    return true;
+                } else {
+                    guessAnalisys(guess);
+                }
             } else {
-                window.alert(translationPiece('unknown'));
+                if (test) {
+                    return translationPiece('unknown');
+                } else {
+                    window.alert(translationPiece('unknown'));
+                }
             }
         } else {
+            while(OtherGuesses.length < numberOfRounds) {
+                OtherGuesses.push([]);
+            }
             if (OtherGuesses[Round - 1].includes(guess)) {
-                window.alert(translationPiece('already'));
-            } else if (Round < 3 && CountyList.includes(guess)) {
+                if (test) {
+                    return translationPiece('already');
+                } else {
+                    window.alert(translationPiece('already'));
+                }
+            } else if ((Round < 3 && CountyList.includes(guess)) || (Round === 4 && Cities.map((x) => x.name).includes(guess)) ) {
                 OtherGuesses[Round - 1].push(guess);
                 guessInput.value = "";
-                guessAnalisys(guess);
+                if (test) {
+                    return true;
+                } else {
+                    guessAnalisys(guess);
+                }
             } else {
-                window.alert(translationPiece('unknown'));
+                if (test) {
+                    return translationPiece('unknown');
+                } else {
+                    window.alert(translationPiece('unknown'));
+                }
             }
         }
     }
@@ -40,7 +66,8 @@ function placeGuessInput() {
     if (guessArea != null) {
         guessArea.remove();
     }
-    let template = document.getElementById('tmpl-guessinput').content.firstElementChild.cloneNode(true);
+    let template = document.getElementById('tmpl-guessinput')
+    if (template != null) template = template.content.firstElementChild.cloneNode(true);
     let insertTo = document.getElementById('guessInput');
     if (insertTo != null) insertTo.appendChild(template);
 }
@@ -72,7 +99,6 @@ function updateGuessLines(num) {
     } else {
         for (let guessNum in OtherGuesses[Round - 1]) {
             if (guessNum < num) {
-                console.log(guessNum)
                 guessAnalisys(OtherGuesses[Round - 1][guessNum], guessNum);
             }
         }
@@ -83,7 +109,7 @@ function updateGuessLines(num) {
 // Replaces a gray guess row with an analitics row about the latest guess
 function placeAnalisys(count, name, dist, distUnit, dir, percent) {
     count = parseInt(count);
-    let modifier = ((Round === 1) ? 2 : 4);
+    let modifier = ((Round === 1 || Round === 4) ? 2 : 4);
     let guessLine = document.getElementById('guesses').children[modifier * count];
     let newLine = document.getElementById('tmpl-guess-analisys').content.cloneNode(true);
 
@@ -98,6 +124,8 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
                 correspondingImge.parentElement.parentElement.parentElement.className += " back-green-600"
             }
         }
+    }
+    if (Round === 1 || Round === 4) {
         newLine.firstElementChild.className += " col-span-6";
         newLine.children[1].remove();
         newLine.children[2].remove();
@@ -112,15 +140,15 @@ function placeAnalisys(count, name, dist, distUnit, dir, percent) {
     });
 
     let partyEmoji;
-    partyEmoji = newLine.children[((Round === 1) ? 1 : 2)].childNodes[1].firstChild;
+    partyEmoji = newLine.children[((Round === 1 || Round === 4) ? 1 : 2)].childNodes[1].firstChild;
     try {
         newLine.children[0].childNodes[1].innerHTML = ((gameMap === "Budapest" && arabicInSuggestions) 
                                                         ? romanToArabic(replaceSpecialCharacters(name, true).toUpperCase().slice(0, name.length-1)) + '.'
                                                         : replaceSpecialCharacters(name, true));
-        if (Round !== 1) newLine.children[1].innerHTML = ((computingMethod.includes("bord") && dist === 0 && dir !== 'yo') ? translationPiece("bord") : ((Scale == undefined) ? '?' : insertSpacesToNum(dist)) + " " + distUnit);
+        if (Round !== 1 && Round !== 4) newLine.children[1].innerHTML = ((computingMethod.includes("bord") && dist === 0 && dir !== 'yo') ? translationPiece("bord") : ((Scale == undefined) ? '?' : insertSpacesToNum(dist)) + " " + distUnit);
         partyEmoji.setAttribute('alt', Directions[dir].alt);
-        partyEmoji.setAttribute('src', 'https://em-content.zobj.net/thumbs/240/twitter/' + Directions[dir].img)
-        if (Round !== 1) newLine.children[3].innerHTML = (compressNum(percent, (percent > 90) ? 1 : 0)).toString() + '%';
+        partyEmoji.setAttribute('src', ((Directions[dir].img.includes("https://")) ? "" : 'https://em-content.zobj.net/thumbs/240/twitter/') + Directions[dir].img)
+        if (Round !== 1 && Round !== 4) newLine.children[3].innerHTML = (compressNum(percent, (percent > 90) ? 1 : 0)).toString() + '%';
     } catch (error) {
         console.error(error);
     }
@@ -311,7 +339,13 @@ function updateWikiLinkOnPage(a = document.querySelector('a[href*="wiki"]')) {
             wikiname = Furthest.name;
         } else if (Round < 4) {
             wikiname = Solution;
-        } else if (Round === 5) {
+        } else if (Round === 4) {
+            if (Language === "hu" || !Capital.includes("(")) {
+                wikiname = Capital.match(/([A-ZÁÉŰŐÚÓÜÖÍ][a-zöüóúőáűéí]*)/)[0];
+            } else {
+                wikiname = Capital.match(/([A-ZÁÉŰŐÚÓÜÖÍ][a-zöüóúőáűéí]*)[ |–]\((.*)\)/)[2];
+            }
+        } else {
             wikiname = undefined;
         }
         a.setAttribute('href', getWikipediaLink(wikiname, Language));
@@ -359,69 +393,78 @@ function guessAnalisys(myGuess, specialplace) {
                 placeAnalisys(place, myGuess, 0, '', 'no', 0);
             }
         } else {
-            let solution = (Round === 0) ? Solution : ((Round === 2) ? Furthest.name : "");
+            let solution = (Round === 0) ? Solution : ((Round === 2) ? Furthest.name : ((Round === 4) ? Capital : ""));
             let numofguesses = (Round === 0) ? Guesses.length-1 : OtherGuesses[Round-1].length-1;
+            let place = ((specialplace == undefined) ? numofguesses : specialplace);
             if (myGuess === solution) {
-                placeAnalisys(numofguesses, solution, 0, 'm', 'yo', 100);
+                placeAnalisys(place, solution, 0, 'm', 'yo', 100);
             } else {
-                let guessPath = document.querySelector("#mapTemplate > svg > g > #" + myGuess);
-                let mainPath = absToRel(document.querySelector("#mapTemplate > svg > g > #" + solution).getAttribute('d'));
-                if (guessPath != undefined) {
-                    otherMetaData[myGuess] = trackPath(absToRel(guessPath.getAttribute('d')), {}, mainPath, true);
-                    console.log(otherMetaData[myGuess])
-                } else {
-                    otherMetaData[myGuess] = {midx: 0, midy: 0};
-                }
-                let dir = 0;
-                let dirs = ['nn', 'nw', 'ww', 'sw', 'ss', 'se', 'ee', 'ne', '?'];
-                let midx0 = metaData.midx;
-                let midy0 = metaData.midy;
-                let midx1 = otherMetaData[myGuess].midx;
-                let midy1 = otherMetaData[myGuess].midy;
-                let distance;
-                if (computingMethod === "borders" || computingMethod === "bord+cent") {
-                    distance = otherMetaData[myGuess]["closest-border"];
-                } else {
-                    distance = distanceOf(midx0, midy0, midx1, midy1);
-                }
-                let unit = "m";
-                let accuracy = 0;
-                if (guessPath != "") {
-                    distance = Math.floor(distance * ((Scale === undefined) ? 1 : Scale)); // m
-                    if (sizePercent) {
-                        let size0 = parseInt(metaData.width * metaData.height);
-                        let size1 = parseInt(otherMetaData[myGuess].width * otherMetaData[myGuess].height);
-                        accuracy = (normalModulus((size1 - size0), size0) / size0) * 100;
+                if (Round === 4) {
+                    if (Cities[getIndexByProperty(Cities, "name", myGuess)].county === Solution) {
+                        // The county is right, but the city is wrong
+                        placeAnalisys(place, myGuess, 0, '', 'da', 0);
                     } else {
-                        if ((computingMethod === "borders" || computingMethod === "bord+cent") && distance === 0) {
-                            accuracy = 99.9;
+                        placeAnalisys(place, myGuess, 0, '', 'no', 0);
+                    }
+                } else {
+                    let guessPath = document.querySelector("#mapTemplate > svg > g > #" + myGuess);
+                    let mainPath = absToRel(document.querySelector("#mapTemplate > svg > g > #" + solution).getAttribute('d'));
+                    if (guessPath != undefined) {
+                        otherMetaData[myGuess] = trackPath(absToRel(guessPath.getAttribute('d')), {}, mainPath, true);
+                        console.log(otherMetaData[myGuess])
+                    } else {
+                        otherMetaData[myGuess] = {midx: 0, midy: 0};
+                    }
+                    let dir = 0;
+                    let dirs = ['nn', 'nw', 'ww', 'sw', 'ss', 'se', 'ee', 'ne', '?'];
+                    let midx0 = metaData.midx;
+                    let midy0 = metaData.midy;
+                    let midx1 = otherMetaData[myGuess].midx;
+                    let midy1 = otherMetaData[myGuess].midy;
+                    let distance;
+                    if (computingMethod === "borders" || computingMethod === "bord+cent") {
+                        distance = otherMetaData[myGuess]["closest-border"];
+                    } else {
+                        distance = distanceOf(midx0, midy0, midx1, midy1);
+                    }
+                    let unit = "m";
+                    let accuracy = 0;
+                    if (guessPath != "") {
+                        distance = Math.floor(distance * ((Scale === undefined) ? 1 : Scale)); // m
+                        if (sizePercent) {
+                            let size0 = parseInt(metaData.width * metaData.height);
+                            let size1 = parseInt(otherMetaData[myGuess].width * otherMetaData[myGuess].height);
+                            accuracy = (normalModulus((size1 - size0), size0) / size0) * 100;
                         } else {
-                            accuracy = (1 - distance / ((Scale === undefined) ? 1 : Scale) / Furthest.dist)*100;
+                            if ((computingMethod === "borders" || computingMethod === "bord+cent") && distance === 0) {
+                                accuracy = 99.9;
+                            } else {
+                                accuracy = (1 - distance / ((Scale === undefined) ? 1 : Scale) / Furthest.dist)*100;
+                            }
+                        }
+                        if ((distance > 99999 && distanceUnit === "mixed") || distanceUnit === "km") {
+                            unit = "km";
+                            distance = Math.floor(distance / 1000); // km
+                        }
+                        if (distanceUnit === "miles") {
+                            unit = translationPiece('miles');
+                            distance = Math.floor(distance * 0.00062137); // miles
+                        }
+                        if (computingMethod === "borders") {
+                            if (distance > 0) {
+                                dir = otherMetaData[myGuess].dir;
+                            }
+                        } else {
+                            dir = getDirOfVector(midx0, midy0, midx1, midy1);
+                        }
+                        if (computingMethod === "borders" && distance === 0) {
+                            dir = 8; // Special case when they have common borders => closest borders cannot be determined, since there are many border point pairs which have the distance of 0
+                        } else {
+                            dir = Math.round(dir / 45) % 8; // It can be (e.g. 7.6) rounded up to 8 which equals the 0 direction in fact => %8 is needed
                         }
                     }
-                    if ((distance > 99999 && distanceUnit === "mixed") || distanceUnit === "km") {
-                        unit = "km";
-                        distance = Math.floor(distance / 1000); // km
-                    }
-                    if (distanceUnit === "miles") {
-                        unit = translationPiece('miles');
-                        distance = Math.floor(distance * 0.00062137); // miles
-                    }
-                    if (computingMethod === "borders") {
-                        if (distance > 0) {
-                            dir = otherMetaData[myGuess].dir;
-                        }
-                    } else {
-                        dir = getDirOfVector(midx0, midy0, midx1, midy1);
-                    }
-                    if (computingMethod === "borders" && distance === 0) {
-                        dir = 8;
-                    } else {
-                        dir = Math.round(dir / 45) % 8; // It can be (e.g. 7.6) rounded up to 8 which does not included in the following list => %8 is needed
-                    }
+                    placeAnalisys(place, (Round === 0) ? Guesses[place] : OtherGuesses[Round-1][place], distance, unit, dirs[dir], accuracy);
                 }
-                let place = ((specialplace == undefined) ? numofguesses : specialplace);
-                placeAnalisys(place, (Round === 0) ? Guesses[place] : OtherGuesses[Round-1][place], distance, unit, dirs[dir], accuracy);
             }
         }
     }

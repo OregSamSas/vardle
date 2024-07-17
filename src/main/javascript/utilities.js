@@ -54,6 +54,26 @@ function findFirstChildOfType(element, type) {
     return null;
 }
 
+
+// Function to find the first parent of a specific type of an element
+function findFirstParentOfType(element, type) {
+    let parent = element.parentNode;
+    while (parent) {
+        if (parent.nodeName.toUpperCase() === type.toUpperCase()) {
+            return parent;
+        }
+        parent = parent.parentNode;
+    }
+    return null;
+}
+
+function guessInpAndGiveUpBtn() {
+    placeGuessInput();
+    let giveupbutton = document.getElementById('tmpl-giveup').content.cloneNode(true);
+    document.querySelector('#guessInput > .my-2').appendChild(giveupbutton);
+    inputEventListeners();
+}
+
 // *Search utilities*
 
 const arabicNums = [5000, 4000, 1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
@@ -121,11 +141,11 @@ function romanToArabic(romanNum) {
 
 // Converts an arabic numeral (up to 10000) into a roman one
 function arabicToRoman(num) {
-    num = num.toString();
-    if (num > 10000) {
+    if (parseFloat(num) > 10000) {
         console.error(`The roman number generator only works up to 10K, ${num} is invalid input.`)
         return "⚠";
     }
+    num = num.toString();
     let digit = 0, value = 0;
     let newnum = '', addition = '';
     for (let i = num.length - 1; i > -1; i --) {
@@ -194,7 +214,7 @@ function isChar(c) {
 // Function to beautify high distance values 
 // (It cuts further digits than one-tenthousandth and adds spaces to the thousands)
 function insertSpacesToNum(int) {
-    if (!parseFloat(int)) {
+    if (!parseFloat(int) && !int === 0) {
         return "NaN";
     } else {
         if (parseFloat(int) < 0) {
@@ -215,6 +235,7 @@ function insertSpacesToNum(int) {
     }
 }
 
+
 // Function for making a string to TitleCase (all initial letters are capitalised)
 // Modified version of https://www.freecodecamp.org/news/three-ways-to-title-case-a-sentence-in-javascript-676a9175eb27/
 function titleCase(str = "") {
@@ -223,10 +244,28 @@ function titleCase(str = "") {
     for (let i = 0; i < str.length; i++) {
         let emdash = false;
         if (str[i].includes('–')) {
-            str[i] = str[i].split('–');
             emdash = true;
+        }
+        // Splits the text at opening parenthesis (the word coming after those should be capitalised), but leaves the opening parenthesis in the text
+        if (str[i].includes('(')) {
+            str[i] = str[i].split('(');
+            // Split removed the "(" character, so we add it back
+            for (let j = 0; j < str[i].length-1; j++) {
+                str[i][j] += '(';
+            }
         } else {
-            str[i] = str[i].split('-');
+            str[i] = [str[i]];
+        }
+        let element;
+        for (let index = 0; index < str[i].length; index++) {
+            element = str[i][index];
+            // Wrap out the substrings separated by hyphens next to after element
+            let splitWithHypen = element.split(((emdash) ? '–' : '-'))
+            for (let j = splitWithHypen.length - 1; j > -1; j--) {
+                str[i] = insertToArray(str[i], splitWithHypen[j], index + 1);
+            }
+            str[i] = removeFromArray(str[i], index); // Delete the original element
+            index += splitWithHypen.length - 1; // Skip the elements that were added
         }
         for(let j = 0; j < str[i].length; j++) {
             if (str[i][j].toLowerCase() === "és" || str[i][j].toLocaleLowerCase() === "and") { // Do not capitalise conjunctive words (és = and)
@@ -248,6 +287,7 @@ function titleCase(str = "") {
         } else {
             str[i] = str[i].join('-');
         }
+        str[i] = str[i].replace(/\((–|-)/g, '('); // No need to have emdash or hyphen after "("
     }
     str = str.join(' ');
     return str;
@@ -378,22 +418,55 @@ function compressNum(num, depth = 0) {
 // The getIndexByProperty function is used to find the index of an item in an array based on a specific property name and value. 
 // If either of them is not provided, it still returns with the idx of the object which has the provided key among its propertys or given value among its values resp.
 function getIndexByProperty(array, propertyName, propertyValue = undefined) {
+    if (typeof propertyName === 'object') {
+        if (typeof propertyValue !== 'object') {
+            propertyValue = new Array(propertyName.length).fill(propertyValue);
+        }
+    }
+    if (typeof propertyValue === 'object') {
+        if (typeof propertyName !== 'object') {
+            propertyName = new Array(propertyValue.length).fill(propertyName);
+        }
+    }
     if (array != undefined) {
         for (let i = 0; i < array.length; i++) {
-            if (propertyName !== undefined) {
-                if (
-                    (array[i][propertyName] === propertyValue && array[i][propertyName] !== undefined) 
-                    ||
-                    (propertyValue === undefined && array[i][propertyName] !== undefined)
-                ) {
-                    return i;
-                }
+            let numberOfProperties = 1;
+            let currPropertyName;
+            let currPropertyValue;
+            if (typeof propertyName === 'object') {
+                numberOfProperties = propertyName.length;
             } else {
-                for (let key in array[i]) {
-                    if (array[i][key] === propertyValue) {
-                        return i;
+                currPropertyName = propertyName;
+                currPropertyValue = propertyValue;
+            }
+            let isCorrectItem = true;
+            for (let j = 0; j < numberOfProperties; j++) {
+                if (typeof propertyName === 'object') {
+                    currPropertyName = propertyName[j];
+                    currPropertyValue = propertyValue[j];
+                }
+                if (currPropertyName !== undefined) {
+                    if (!(
+                        (array[i][currPropertyName] === currPropertyValue && array[i][currPropertyName] !== undefined) 
+                        ||
+                        (currPropertyValue === undefined && array[i][currPropertyName] !== undefined)
+                    )) {
+                        isCorrectItem = false;
+                    }
+                } else {
+                    let thisCorrect = false;
+                    for (let key in array[i]) {
+                        if (array[i][key] === currPropertyValue) {
+                            thisCorrect = true;
+                        }
+                    }
+                    if (!thisCorrect) {
+                        isCorrectItem = false;
                     }
                 }
+            }
+            if (isCorrectItem) {
+                return i;
             }
         }
     }

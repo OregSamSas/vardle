@@ -41,7 +41,7 @@ function localisation() {
         titleToTranslate.setAttribute('title', translationPiece(keyName));
     }
 
-    // Loclise finish text
+    // Localise finish text
     let finishArea = document.getElementById('finished');
     if (finishArea != null) {
         let finishAreatext = finishArea.childNodes[1].innerHTML
@@ -64,13 +64,15 @@ function localisation() {
                 finishAreatext = `${translationPiece('anal1.1')} ${guessescount} ${translationPiece('anal1.2')} ${triescount} ${translationPiece('anal1.3')}.`;
             }
         } else {
-            if (Round === 0 || Round === 2) {
+            if (Round === 0 || Round === 2 || Round === 4) {
                 let formattedSolution;
                 if (Round === 0) {
                     formattedSolution = ((gameMap === "Budapest") ? ((arabicInSuggestions) ? romanToArabic(solutionText.toUpperCase().slice(0, Solution.length - 1)) + '.' : solutionText.toUpperCase()) : solutionText);
-                } else {
+                } else if (Round === 2) {
                     let furthestText = replaceSpecialCharacters(Furthest.name, true);
                     formattedSolution = ((gameMap === "Budapest") ? ((arabicInSuggestions) ? romanToArabic(furthestText.toUpperCase().slice(0, furthestText.length - 1)) + '.' : furthestText.toUpperCase()) : furthestText);
+                } else {
+                    formattedSolution = replaceSpecialCharacters(Capital, true);
                 }
                 finishAreatext = `${translationPiece('anal2.1')}&nbsp;${translationPiece('anal2.2')}&nbsp;<i>${formattedSolution}</i>${translationPiece('anal2.3')}.`;
             } else {
@@ -103,6 +105,10 @@ function localisation() {
     quest = document.getElementById('farthest-question');
     if (quest != null) {
         quest.innerHTML = `${translationPiece('borders1')} ${translationPiece('farthest')} <i>${solutionText}</i>?`
+    }
+    quest = document.getElementById('capital-question');
+    if (quest != null) {
+        quest.innerHTML = `${translationPiece('capital1')} <i>${solutionText}</i> ${translationPiece('capital2')}?`
     }
 
     // Translate wikipedia link

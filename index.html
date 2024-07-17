@@ -5,11 +5,11 @@
         <!-- <link rel="stylesheet" href="styles.css" /> -->
         <link rel="icon" href="https://em-content.zobj.net/thumbs/320/twitter/322/castle_1f3f0.png">
         <title>V&aacute;rdle</title>
-        <script id="mapTemplate" type="image/svg+xml"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-      <noscript>You need to enable JavaScript to run this app.</noscript>
+      </head>
+      <body>
+        <noscript>You need to enable JavaScript to run this app.</noscript>
+      <div id="mapTemplate" type="image/svg+xml"></div>
       <div id="page" class="flex w-full h-full justify-center items-center bg-white">
         <div id="mainContent" class="flex w-full h-full max-w-lg relative">
           <header id="mainHeader" class="border-b-2 px-3 border-gray-200 justify-center items-center flex flex-shrink w-full">
@@ -135,6 +135,11 @@
     <template id="tmpl-togglelabels">
       <div id="toggleLabels" class="flex rounded absolute">
         <button role="toggle" id="toggleLabelsButton" class="rounded"><img alt="💬" src="https://em-content.zobj.net/source/au-kddi/194/speech-balloon_1f4ac.png" width="30px"></button>
+      </div>
+    </template>
+    <template id="tmpl-togglecities">
+      <div id="toggleCities" class="flex rounded absolute">
+        <button role="toggle" id="toggleCitiesButton" class="rounded"><img alt="🏙️" src="https://em-content.zobj.net/source/twitter/348/cityscape_1f3d9-fe0f.png" width="30px"></button>
       </div>
     </template>
     <template id="tmpl-zoom-button">

@@ -326,7 +326,7 @@ select, optgroup {
 .border-2 {
     border-width: 2px
 }
-[role="button"], a, button, .cursor-pointer {
+[role="button"], a, button:not(.inactive-button), .cursor-pointer {
 	cursor: pointer
 }
 [type="button"], [type="reset"], [type="submit"], button {
@@ -403,6 +403,10 @@ svg > g > path {
 }
 #toggleLabels {
     transform: translate(180%, 55%);
+    padding: 2px
+}
+#toggleCities {
+    transform: translate(310%, 50%);
     padding: 2px
 }
 .valign {
@@ -493,4 +497,9 @@ span#next-round > svg:hover, span#prev-round > svg:hover {
 
 .ghost {
     background: var(--ghost-button-bg); 
+}
+circle[capitalof] {
+    r: 3;
+    stroke-width: 1px;
+    stroke: var(--main-red);
 }

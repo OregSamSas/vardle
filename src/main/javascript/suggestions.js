@@ -1,7 +1,7 @@
 // **Functions for the suggestion, or the guess-options list**
 
 // Creates the Suggestion List
-function insertAutoList(inputPlace) {
+function insertAutoList(inputPlace, orderedNameList = CountyListOrdered) {
     SuggestionList = [];
 
     // making the UI
@@ -19,24 +19,24 @@ function insertAutoList(inputPlace) {
         }
     }
     searchKey = replaceSpecialCharacters(removeAccents(inputValue));
-    for (let county=0; county<CountyListOrdered.length; county++) { // Priority
-        searchIn = removeAccents(CountyListOrdered[county].slice(0, inputValue.length));
+    for (let county=0; county<orderedNameList.length; county++) { // Priority
+        searchIn = removeAccents(orderedNameList[county].slice(0, inputValue.length));
         if (searchIn.includes(searchKey)) { // First the ones that starts with it
-            addSuggestion(CountyListOrdered[county], countiesElement, inputPlace.id, CountyListOrdered[county], completeList.id)
+            addSuggestion(orderedNameList[county], countiesElement, inputPlace.id, orderedNameList[county], completeList.id)
         }
     }
 
     searchKey = replaceSpecialCharacters(inputValue, false, true).toLowerCase();
-    for (let county=0; county<CountyListOrdered.length; county++) {
-        searchIn = removeAccents(CountyListOrdered[county].toLowerCase());
-        searchAlternative = CountyListOrdered[county].toLowerCase();
-        if (!SuggestionList.includes(CountyListOrdered[county])) {
+    for (let county=0; county<orderedNameList.length; county++) {
+        searchIn = removeAccents(orderedNameList[county].toLowerCase());
+        searchAlternative = orderedNameList[county].toLowerCase();
+        if (!SuggestionList.includes(orderedNameList[county])) {
             if (searchIn.includes(searchKey) || searchAlternative.includes(searchKey)) { // Fullfills search keyword (important to have the same letter case)
-                    addSuggestion(CountyListOrdered[county], countiesElement, inputPlace.id, CountyListOrdered[county], completeList.id)
+                    addSuggestion(orderedNameList[county], countiesElement, inputPlace.id, orderedNameList[county], completeList.id)
             } else {
                 searchIn = replaceSpecialCharacters(replaceAbbreviations(replaceSpecialCharacters(searchIn, true))).toLocaleLowerCase(); // Check if the search key is without abbreviations
                 if (searchIn.includes(searchKey)) {
-                    addSuggestion(CountyListOrdered[county], countiesElement, inputPlace.id, CountyListOrdered[county], completeList.id)
+                    addSuggestion(orderedNameList[county], countiesElement, inputPlace.id, orderedNameList[county], completeList.id)
                 }
             }
         }
@@ -146,5 +146,5 @@ function removeAllCountyElement(inp) {
 // Refresh the suggestions while typing
 function refreshCountiesElement(inp) {
     removeAllCountyElement(inp);
-    insertAutoList(inp);
+    insertAutoList(inp, (Round === 4) ? Cities.map((x) => x.name).sort(): CountyListOrdered);
 }

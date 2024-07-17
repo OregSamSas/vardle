@@ -34,6 +34,7 @@ let sysTheme;
 let mainTheme = "system";
 let mapTheme = "mono";
 let mapLabelsDefault = true;
+let mapCitiesDefault = true;
 let distanceUnit = "mixed";
 let Language;
 let Furthest = {};
@@ -47,7 +48,7 @@ let imageOrigin = "";
 let gameMap = "Original";
 let Round = 0;
 let numberOfRounds = 3;
-let arabicInSuggestions = false;
+let arabicInSuggestions = false; // Setting for showing Arabic numerals in suggestions for district numbers
 let closestTerritories = Array(20).fill('');
 let computingMethod = "centre";
 let guesslinesCount = 0;
@@ -57,6 +58,8 @@ let solutionText = "";
 let showImageButtonRemoved = Array(numberOfRounds).fill(false);
 let showImageButtonsRemoved = [];
 let swapCoasAndShapes = false;
+let Cities = [];
+let Capital = "";
 
 // Help map variables
 let mapZoom = 1;
@@ -77,12 +80,12 @@ function initialWork() {
     // Which map to play with
     loadMapFromURL();
     if (gameMap === "Original" || gameMap === "Hungary") {
-        numberOfRounds = 4;
+        numberOfRounds = 4 + (gameMap === "Original");
     } else {
         swapCoasAndShapes = false;
         data.settings.gameplay.pop();
     }
-
+    
     // Theme Setup
     initialThemeSetup();
     setThemeTo(mainTheme);
@@ -102,23 +105,24 @@ function initialWork() {
     }
     placeGuessInput();
     getImageMetadata();
-
+    
     // Insert image of county to guess
     console.log(CountyList);
     placeMainImage();
-
+    
     if(Won) {
         finishedBottom();
     }
     
     languageSetup();
     updateMainCountyImage(!hideShape, rotateShape, !!finishedRounds[Round]);
+
 }
 
 function updateRounds(oldr, newr) {
     getGuesslinesCount(newr);
 
-    if (oldr === 0 || oldr === 3) {
+    if (oldr === 0 || oldr === 3 || oldr === 4) {
         let test = document.querySelectorAll("#mainImage > *");
         for (let lmnt of test) {
             if (lmnt != null) {
@@ -129,14 +133,18 @@ function updateRounds(oldr, newr) {
 
     Round = newr;
 
+    if (newr === 4 && Capital == "") {
+        Capital = Cities[getIndexByProperty(Cities, ["county", "capital"], [Solution, true])].name
+    }
+
     let maincontent = document.getElementById('midContent');
-    if (oldr === 1 || oldr === 3 || oldr === 2) {
+    if (oldr === 1 || oldr === 3 || oldr === 2 || oldr === 4) {
         while (maincontent.firstElementChild.id !== "mainImage") {
             maincontent.firstElementChild.remove();
         }
         maincontent.firstElementChild.innerHTML = "";
     }
-    if (newr === 0 || newr === 2) {
+    if (newr === 0 || newr === 2 || newr === 4) {
         maincontent.firstElementChild.style = "height:210px";
         maincontent.firstElementChild.className = "flex justify-center items-center";
     }
@@ -159,25 +167,21 @@ function updateRounds(oldr, newr) {
             finishedRounds[1] = "won";
             finishedBottom(finishTemplate);
         } else {
-            placeGuessInput();
-            let giveupbutton = document.getElementById('tmpl-giveup').content.cloneNode(true);
-            document.querySelector('#guessInput > .my-2').appendChild(giveupbutton);
-            inputEventListeners();
+            guessInpAndGiveUpBtn();
         }
     } else if (Round === 2) {
         if (Furthest.length === 0) {
             finishedRounds[2] = "won";
             finishedBottom(finishTemplate);
         } else {
-            placeGuessInput();
-            let giveupbutton = document.getElementById('tmpl-giveup').content.cloneNode(true);
-            document.querySelector('#guessInput > .my-2').appendChild(giveupbutton);
-            inputEventListeners();
+            guessInpAndGiveUpBtn();
         }
     } else if (Round === 3) {
         if (OtherGuesses[Round-1].length > 0) {
             redesignCoaButtons(false);
         }
+    } else if (Round === 4) {
+        guessInpAndGiveUpBtn();
     }
     localisation();
     updateGuessLines(guesslinesCount);
@@ -209,6 +213,11 @@ window.onload = function () {
     
     // Global events
     docEvents();
+
+    getURLRound();
+    if (Round !== 0) {
+        updateRounds(0, Round);
+    }
 }
 
 // END OF MAIN 

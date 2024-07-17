@@ -39,7 +39,7 @@ function docEvents() {
                 insertTo.style.height = `${(map.height.baseVal.value * 1.1) * scale}px`;
 
                 // Move the zoom controls to the bottom right corner
-                let numberOfotherButtons = 2;
+                let numberOfotherButtons = (Round === 4) ? 3 : 2;
                 insertTo.children[numberOfotherButtons + 1].style.transform = `translate(${widthToFitInto * 0.96}px, ${map.height.baseVal.value * 0.96 * scale - 28}px)`;
                 insertTo.children[numberOfotherButtons + 2].style.transform = `translate(${widthToFitInto * 0.96}px, ${map.height.baseVal.value * 0.96 * scale}px)`;
                 insertTo.children[numberOfotherButtons + 3].style.transform = `translate(${widthToFitInto * 0.96}px, ${map.height.baseVal.value * 0.96 * scale - 2*28}px)`;
@@ -133,7 +133,7 @@ function inputEventListeners() {
         try{
             if (input.getAttribute('aria-autocomplete')) {
                 input.addEventListener('focusin', (e) => {
-                    insertAutoList(input);
+                    insertAutoList(input, (Round === 4) ? Cities.map((x) => x.name).sort() : CountyListOrdered);
                 });
                 input.addEventListener('focusout', (e) => {
                     removeAllCountyElement(input);
@@ -222,7 +222,7 @@ function buttonEventListeners(button = "") {
         }
     }
 
-    // Palette icon in the right corner of the map
+    // Palette icon in the top left corner of the map
     if (button === "change-colour") {
         let paletteIcon = document.querySelector('button#toggleColoureButton');
         if (paletteIcon != null) {
@@ -232,12 +232,22 @@ function buttonEventListeners(button = "") {
         }
     }
 
-    // Speech bubble icon in the right corner of the map
+    // Speech bubble icon in the top left corner of the map
     if (button === "change-labels-visibility") {
         let speechBubbleIcon = document.querySelector('button#toggleLabelsButton');
         if (speechBubbleIcon != null) {
             speechBubbleIcon.addEventListener('click', (e) => {
                 toggleMapTexts();
+            });
+        }
+    }
+
+    // Cityscape icon in the top left corner of the map
+    if (button === "change-cities-visibility") {
+        let cityscapeIcon = document.querySelector('button#toggleCitiesButton');
+        if (cityscapeIcon != null) {
+            cityscapeIcon.addEventListener('click', (e) => {
+                toggleCitiesOnMap();
             });
         }
     }

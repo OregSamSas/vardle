@@ -41,6 +41,7 @@ The site is published using GitHub.
 ## Maps from
 
 * Hungarian Kingdom: <https://commons.wikimedia.org/wiki/File:Kingdom_of_Hungary_counties-2.svg>
+* Location of the cities in the Kingdom: <https://www.reddit.com/media?url=https%3A%2F%2Fpreview.redd.it%2F5s8m5rgwff951.jpg%3Fwidth%3D960%26crop%3Dsmart%26auto%3Dwebp%26s%3Dd89d026117bb2d1aaf252e784140c5ec54e1dc43>, <https://maps.google.com>
 * Italy: <https://commons.wikimedia.org/wiki/File:Flag_map_of_Italy_with_regions.svg>
 * Germany: <https://commons.wikimedia.org/wiki/File:Karte_Deutsche_Bundesl%C3%A4nder_(Bezeichner).svg> ([License here](https://creativecommons.org/licenses/by-sa/2.0/de/deed.en))
 * Hungary: <https://mapsvg.com/maps/hungary> ([License here](https://creativecommons.org/licenses/by/4.0/))

@@ -63,7 +63,6 @@ function adjustMetaData(data, withRatio) {
     return data;
 }
 
-
 // function for insert a county to guess
 function getCountyImage(id = '', num, forceNoRotating=false) {
     let ratio;
@@ -75,7 +74,7 @@ function getCountyImage(id = '', num, forceNoRotating=false) {
         svg.appendChild(document.createElement('g'));
         svg.firstElementChild.appendChild(desiredshape);
         placeToInsert.appendChild(svg);
-
+        
         ratio = handleDesiredShape(desiredshape);
     } else {
         let allCounties = new XMLHttpRequest();
@@ -94,6 +93,12 @@ function getCountyImage(id = '', num, forceNoRotating=false) {
             }
         };
         allCounties.send("");
+
+        // Get city data if not already done (probably not, but just to be sure)
+        if (Cities[0] == undefined) {
+            getCityData();
+        }
+
         pathUnderGroup(id);
         titleToId(id);
         rectifyImage(id);
@@ -126,7 +131,7 @@ function getCountyImage(id = '', num, forceNoRotating=false) {
         }
 
         if (!(swapCoasAndShapes && Round === 0)) {
-
+            
             // Resize SVG
             svgImage = document.querySelector('#' + id + ' > svg');
             svgImage.setAttribute("width", metaData.width * parseFloat(ratio));
@@ -183,7 +188,56 @@ function rotateSVG(svg, rotation, imagePlace) {
         removeRotation();
         rotationRemoved = true;
     });
+}
 
+// Acquire city positions from the SVG
+function getCityData() {
+    let allCities = document.querySelectorAll('#mapTemplate svg g#settlements circle');
+    let cityObject = {};
+    if (allCities.length !== 0) {
+        allCities.forEach((city) => {
+            cityObject = {"name": city.id, "x": city.getAttribute('cx'), "y": city.getAttribute('cy'), "capital": city.hasAttribute('capitalof')};
+            if (city.hasAttribute('capitalof')) {
+                cityObject.county = city.getAttribute('capitalof');
+            } else {
+                // Find that county which contains the city
+                let allPaths = document.querySelectorAll('#mapTemplate > svg > g > path');
+                for (let path of allPaths) {
+                    if (isPointInPath(cityObject.x, cityObject.y, path)) {
+                        cityObject.county = path.id;
+                        break;
+                    }
+                }
+                if (cityObject.county == undefined) {
+                    cityObject.county = "Unknown";
+                }
+            }
+            Cities.push(cityObject);
+        });
+    }
+    document.getElementById('mapTemplate').style.display = "none";
+}
+
+// Check whether a point is in a path polygon
+function isPointInPath(x, y, path) {
+    let isPointInFill = false;
+    try {
+        let pointObj = new DOMPoint(x, y);
+        isPointInFill = path.isPointInStroke(pointObj);
+    } catch (e) {
+        // Fallback for browsers that don't support DOMPoint as an argument
+        let svg;
+        try {
+            svg = path.ownerSVGElement;
+        } catch(e) {
+            svg = findFirstParentOfType(path, 'svg');
+        }
+        let pointObj = svg.createSVGPoint();
+        pointObj.x = x;
+        pointObj.y = y;
+        isPointInFill = path.isPointInStroke(pointObj);
+    }
+    return isPointInFill;
 }
 
 // Cancel Rotation for county image
@@ -226,7 +280,7 @@ function absToRel(path = new String()) {
     let pathCommands = [];
     let pathCoordinates = [];
     let coordinates = Array(8).fill(''); //x0: last x, y0: last y, x1, y1, x2, y2, x3, y3 (coordinates to use later on)
-    // We assume that if nt signed otherwised commands will meant to be interpreted as linear movements - so we set our command as l/L
+    // We assume that if not signed, commands will meant to be interpreted as linear movements - so we set our command as l/L
     let lastCommand = ((path[0] === 'M') ? 'L' : 'l'); // if first command is in upper case: we assume the unmarked commands will be absolute, and if lower case then relative
     let initialmove = true; // to determine if the given "M" command is the first or not
 
@@ -278,7 +332,7 @@ function absToRel(path = new String()) {
                 }
             }
 
-            // Storeoriginal pos for later use
+            // Store original pos for later use
             originalx = parseFloat(coordinates[6]);
             originaly = parseFloat(coordinates[7]);
 
@@ -290,9 +344,6 @@ function absToRel(path = new String()) {
                 }
             }
 
-            // if (coordinates.toString().includes("NaN")) {
-            //     console.log(coordinates)
-            // }
             // store command's parameters
             pathCoordinates.push(coordinates.slice(startPos, coordinatesNum));
 
@@ -311,7 +362,7 @@ function absToRel(path = new String()) {
             }
         }
 
-        // store command (if the first M is not relative, we don't turn into that, becuse it's better to have the first character as absolute)
+        // store command (if the first M is not relative, we don't turn it into that, becuse it's better to have the first character as absolute)
         pathCommands.push((command === 'M' && initialmove) ? 'M' : command.toLocaleLowerCase());
         initialmove = false;
     }

@@ -14,16 +14,21 @@ function placeMapOnpage(showMap) {
         insertTo.appendChild(mapTemplate);
         let scale = calculateOriginalSizeOfMap();
 
+        if (Round !== 4) {
+            let allCities = document.querySelector('#helpMap g#settlements');
+            if (allCities != null) allCities.remove();
+        }
+
         if(gameMap === "World") {
             mapTemplate.style.margin = "-400px";
         }
 
-            // Animation
-            mapTemplate.style.visibility = "hidden";
-            setTimeout(() => {
-                mapTemplate.style.visibility = "visible";
-                mapTemplate.className = "";
-            }, 75);
+        // Animation
+        mapTemplate.style.visibility = "hidden";
+        setTimeout(() => {
+            mapTemplate.style.visibility = "visible";
+            mapTemplate.className = "";
+        }, 75);
 
         mapTemplate.style.transform = `scale(${scale * mapZoom})`;
         mapTemplate.style.translate = `${mapTranslate[0]}px ${mapTranslate[1]}px`;
@@ -43,6 +48,54 @@ function placeMapOnpage(showMap) {
                 emphasizeMapText(farthestCountyText);
             }
         }
+        if (Round === 4) {
+            // Event listeners for the cities
+            let allCities = document.querySelectorAll('#helpMap g#settlements circle');
+            for (let city of allCities) {
+                city.addEventListener('mouseover', (e) => {
+                    let popupOnScreen = document.getElementById('popupgroup');
+                    if (popupOnScreen == null) {
+                        popupOnScreen = document.createElement('g');
+                        popupOnScreen.appendChild(document.createElement('div'));
+                    }
+                    if (popupOnScreen.firstElementChild.id.match(/[^-]*/)[0] !== city.id) {
+                        // If the popup is not already the same as the hovered city
+                        if (popupOnScreen !== null) {
+                            popupOnScreen.remove();
+                        }
+                        let cityName = replaceSpecialCharacters(city.id, true);
+                        let popup = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
+                        popup.id = city.id + '-popup';
+                        popup.setAttribute('x', e.target.getAttribute("cx"));
+                        popup.setAttribute('y', parseFloat(e.target.getAttribute("cy")) - 40);
+                        popup.setAttribute('rx', '15');
+                        popup.setAttribute('ry', '15');
+                        popup.setAttribute('fill', "var(--front-bg)");
+                        let popupText = document.createElementNS("http://www.w3.org/2000/svg", 'text');
+                        popupText.setAttribute('x', parseFloat(e.target.getAttribute("cx")) + 5);
+                        popupText.setAttribute('y', parseFloat(e.target.getAttribute("cy")) - 15);
+                        popupText.style.fill = 'var(--text)';
+                        const popupWidth = 80 + (cityName.length > 12) * cityName.length; // Width of the popup rectangle
+                        const popupHeight = 40; // Height of the popup rectangle
+                        popup.setAttribute("width", popupWidth);
+                        popup.setAttribute("height", popupHeight);
+                        const cityNameLength = cityName.length * 0.6; // Length of the city name
+                        const fontSize = Math.max(7, Math.floor(Math.min(popupWidth / cityNameLength, popupHeight - 18))); // Calculate the font size
+                        popupText.style.fontSize = `${fontSize}px`; // Set the font size
+                        popupText.style.fontWeight = 'bold';
+                        if (Cities[getIndexByProperty(Cities, "name", city.id)].capital) {
+                            popupText.style.textDecoration = "underline";
+                        }
+                        popupText.innerHTML = cityName;
+                        let popupgroup = document.createElementNS("http://www.w3.org/2000/svg", 'g');
+                        popupgroup.id = 'popupgroup';
+                        popupgroup.appendChild(popup);
+                        popupgroup.appendChild(popupText);
+                        e.target.parentElement.parentElement.appendChild(popupgroup);
+                    }
+                });
+            }
+        }
 
         // Toggle colour button
         let toggleColor = document.getElementById('tmpl-togglecolor').content.firstElementChild.cloneNode(true);
@@ -60,6 +113,18 @@ function placeMapOnpage(showMap) {
             toggleLabels.firstElementChild.style.filter = 'grayscale(1)';
         } else {
             toggleMapTexts();
+        }
+
+        // Toggle cities button
+        if (Round === 4) {
+            let toggleCities = document.getElementById('tmpl-togglecities').content.firstElementChild.cloneNode(true);
+            insertTo.appendChild(toggleCities);
+            buttonEventListeners("change-cities-visibility");
+            if (mapCitiesDefault) {
+                toggleCities.firstElementChild.style.filter = 'grayscale(1)';
+            } else {
+                toggleCitiesOnMap();
+            }
         }
 
         // Zoom buttons
@@ -149,7 +214,7 @@ function resetMapPosition() {
     mapTranslate = [0, 0];
     map.style.transform = `scale(${calculateOriginalSizeOfMap() * mapZoom})`;
     map.style.translate = `0px 0px`;
-    changeZoomOfMap(1);
+    changeZoomOfMap(1, true);
 }
 
 function removeHelpMap(withTransition = true) {
@@ -161,6 +226,8 @@ function removeHelpMap(withTransition = true) {
         if (toggleColor !== null) toggleColor.remove();
         let toggleLabels = document.getElementById('toggleLabels');
         if (toggleLabels !== null) toggleLabels.remove();
+        let toggleCities = document.getElementById('toggleCities');
+        if (toggleCities !== null) toggleCities.remove();
         let zoomInButton = document.getElementById('button-zoom-in');
         if (zoomInButton !== null) zoomInButton.remove();
         let zoomOutButton = document.getElementById('button-zoom-out');
@@ -220,6 +287,35 @@ function toggleMapTexts() {
     }
 }
 
+function toggleCitiesOnMap() {
+    let cities = document.querySelector('#helpMap g#settlements');
+    let toggleCities = document.getElementById('toggleCitiesButton');
+    if (cities == null) {
+        let citiesGroup = document.createElement('g');
+        citiesGroup.id = 'settlements';
+        document.querySelector('#helpMap').appendChild(citiesGroup);
+        cities = citiesGroup;
+    }
+    if (cities.style.display === 'none') {
+        // Enable cities
+        cities.style.display = '';
+
+        // Make the button grey
+        toggleCities.style.filter = 'grayscale(1)';
+    } else {
+        // Disable cities
+        cities.style.display = 'none';
+
+        // Remove popup if there is one
+        try {
+            document.getElementById('popupgroup').remove();
+        } catch {}
+
+        // Make the button normal
+        toggleCities.style.filter = '';
+    }
+}
+
 function swapMapColour(paletteIcon, forcetrue=false) {
     let modifiedStyles = document.getElementById('style-modification')
     if (forcetrue || modifiedStyles == null) {
@@ -262,8 +358,8 @@ function updateMapPositionData(maplmnt = document.getElementById('helpMap')) {
 }
 
 // Changes the zoom of the map by the given ratio and position it to be zoomed into the center of the screen
-function changeZoomOfMap(ratio) {
-    if (ratio !== 1) {
+function changeZoomOfMap(ratio, forceResetingStyles = false) {
+    if (ratio !== 1 || forceResetingStyles) {
         let zoomInButton = document.getElementById('button-zoom-in');
         if (mapZoom * ratio * ratio > 6) { // If the map is already zoomed in to the maximum
             zoomInButton.style.opacity = "0.5";
