@@ -39,7 +39,7 @@ function docEvents() {
                 insertTo.style.height = `${(map.height.baseVal.value * 1.1) * scale}px`;
 
                 // Move the zoom controls to the bottom right corner
-                let numberOfotherButtons = (Round === 4) ? 3 : 2;
+                let numberOfotherButtons = (Round === 4 || Round === 5) ? 3 : 2;
                 insertTo.children[numberOfotherButtons + 1].style.transform = `translate(${widthToFitInto * 0.96}px, ${map.height.baseVal.value * 0.96 * scale - 28}px)`;
                 insertTo.children[numberOfotherButtons + 2].style.transform = `translate(${widthToFitInto * 0.96}px, ${map.height.baseVal.value * 0.96 * scale}px)`;
                 insertTo.children[numberOfotherButtons + 3].style.transform = `translate(${widthToFitInto * 0.96}px, ${map.height.baseVal.value * 0.96 * scale - 2*28}px)`;

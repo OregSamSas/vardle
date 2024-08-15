@@ -60,15 +60,15 @@ let showImageButtonsRemoved = [];
 let swapCoasAndShapes = false;
 let Cities = [];
 let Capital = "";
+let currentCity = "";
+let countyCities = [];
+let pinCorrectSize = 16;
 
 // Help map variables
 let mapZoom = 1;
 let mapTranslate = [0, 0];
 
 let OtherGuesses = [];
-for (let i = 0; i < numberOfRounds; i++) {
-    OtherGuesses.push([]);
-}
 
 // FUNCTION DEFINITIONS
 
@@ -80,10 +80,13 @@ function initialWork() {
     // Which map to play with
     loadMapFromURL();
     if (gameMap === "Original" || gameMap === "Hungary") {
-        numberOfRounds = 4 + (gameMap === "Original");
+        numberOfRounds = 4 + (gameMap === "Original") * 2;
     } else {
         swapCoasAndShapes = false;
         data.settings.gameplay.pop();
+    }
+    for (let i = 0; i < numberOfRounds; i++) {
+        OtherGuesses.push([]);
     }
     
     // Theme Setup
@@ -122,7 +125,7 @@ function initialWork() {
 function updateRounds(oldr, newr) {
     getGuesslinesCount(newr);
 
-    if (oldr === 0 || oldr === 3 || oldr === 4) {
+    if (oldr === 0 || oldr === 3 || oldr === 4 || oldr === 5) {
         let test = document.querySelectorAll("#mainImage > *");
         for (let lmnt of test) {
             if (lmnt != null) {
@@ -138,14 +141,14 @@ function updateRounds(oldr, newr) {
     }
 
     let maincontent = document.getElementById('midContent');
-    if (oldr === 1 || oldr === 3 || oldr === 2 || oldr === 4) {
+    if (oldr === 1 || oldr === 3 || oldr === 2 || oldr === 4 || oldr === 5) {
         while (maincontent.firstElementChild.id !== "mainImage") {
             maincontent.firstElementChild.remove();
         }
         maincontent.firstElementChild.innerHTML = "";
     }
-    if (newr === 0 || newr === 2 || newr === 4) {
-        maincontent.firstElementChild.style = "height:210px";
+    if (newr === 0 || newr === 2 || newr === 4 || newr === 5) {
+        maincontent.firstElementChild.style = `height:${(newr === 5) ? 240 : 210}px`;
         maincontent.firstElementChild.className = "flex justify-center items-center";
     }
     if (newr === 1 || newr === 3) {
@@ -184,7 +187,11 @@ function updateRounds(oldr, newr) {
         guessInpAndGiveUpBtn();
     }
     localisation();
-    updateGuessLines(guesslinesCount);
+    if (Round === 5) {
+        placePins();
+    } else {
+        updateGuessLines(guesslinesCount);
+    }
 }
 
 // END OF DEFINITIONS

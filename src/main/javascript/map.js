@@ -14,7 +14,7 @@ function placeMapOnpage(showMap) {
         insertTo.appendChild(mapTemplate);
         let scale = calculateOriginalSizeOfMap();
 
-        if (Round !== 4) {
+        if (Round !== 4 && Round != 5) {
             let allCities = document.querySelector('#helpMap g#settlements');
             if (allCities != null) allCities.remove();
         }
@@ -48,7 +48,7 @@ function placeMapOnpage(showMap) {
                 emphasizeMapText(farthestCountyText);
             }
         }
-        if (Round === 4) {
+        if (Round === 4 || Round === 5) {
             // Event listeners for the cities
             let allCities = document.querySelectorAll('#helpMap g#settlements circle');
             for (let city of allCities) {
@@ -116,7 +116,7 @@ function placeMapOnpage(showMap) {
         }
 
         // Toggle cities button
-        if (Round === 4) {
+        if (Round === 4 || Round === 5) {
             let toggleCities = document.getElementById('tmpl-togglecities').content.firstElementChild.cloneNode(true);
             insertTo.appendChild(toggleCities);
             buttonEventListeners("change-cities-visibility");

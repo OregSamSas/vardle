@@ -503,3 +503,14 @@ circle[capitalof] {
     stroke-width: 1px;
     stroke: var(--main-red);
 }
+
+.guesslabel {
+    grid-column: 3 / 6;
+    margin-top: 5px;
+    display: flex;
+    border-color: var(--border);
+    background: var(--button-bg);
+    border-radius: 10px;
+    padding: 10px;
+
+}

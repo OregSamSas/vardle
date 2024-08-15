@@ -33,9 +33,10 @@ function closeUppermostWindow(deleteCanvas) {
     if (lastContent.id !== "mainContent") {
         lastContent.remove();
         if (deleteCanvas) try {document.querySelector("#page > canvas").remove()} catch {};
-        getGuesslinesCount(Round);
-        updateGuessLines(guesslinesCount);
-        updateMainCountyImage(!hideShape, rotateShape && !rotationRemoved, !!finishedRounds[Round]);
+        updateRounds(Round, Round);
+        // getGuesslinesCount(Round);
+        // updateGuessLines(guesslinesCount);
+        // updateMainCountyImage(!hideShape, rotateShape && !rotationRemoved, !!finishedRounds[Round]);
         if (guesslinesCount <= Guesses.length && Round===0) {
             console.log("FINISHED ALREADY");
             for (let i = 0; i < Guesses.length - guesslinesCount; i++) {

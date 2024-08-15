@@ -43,16 +43,20 @@ function makeSpaceInSVG(svg) {
 
 function pathUnderGroup(imageId) {
     let paths = document.querySelector(`#${imageId} > svg > g > path`);
-    if (paths === null || paths === undefined) {
+    if (paths.length === undefined || paths === null || paths === undefined) {
         paths = document.querySelectorAll(`#${imageId} > svg > path`);
-        let newgroup = document.createElement('g');
+        let newgroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        if (paths[0] == undefined) {
+            document.querySelector(`#${imageId} > svg`).appendChild(newgroup);
+        } else {
+            paths[0].ownerSVGElement.appendChild(newgroup);
+        }
         let newpath;
         for (let thispath of paths) {
             newpath = thispath.cloneNode();
             newgroup.appendChild(newpath);
             thispath.remove();
         }
-        document.querySelector(`#${imageId} > svg`).appendChild(newgroup);
     }
 }
 
@@ -64,7 +68,7 @@ function adjustMetaData(data, withRatio) {
 }
 
 // function for insert a county to guess
-function getCountyImage(id = '', num, forceNoRotating=false) {
+function getCountyImage(id = '', num, forceNoRotating = false, cities = false) {
     let ratio;
     let placeToInsert = document.getElementById(id);
     let desiredshape = document.querySelector(`#mapTemplate > svg > g > #${CountyList[num]}`);
@@ -74,8 +78,23 @@ function getCountyImage(id = '', num, forceNoRotating=false) {
         svg.appendChild(document.createElement('g'));
         svg.firstElementChild.appendChild(desiredshape);
         placeToInsert.appendChild(svg);
+
+        if (cities) {
+            let citylist = getIndexByProperty(Cities, "county", Solution, true), cityidx, city, citylmnt;
+            for (let citynum = 0; citynum < citylist.length; citynum++) {
+                cityidx = citylist[citynum];
+                city = Cities[cityidx]
+                try {
+                    citylmnt = document.querySelector(`circle#${city.name}`).cloneNode();
+                } catch {
+                    citylmnt = document.getElementById(city.name).cloneNode();
+                }
+                citylmnt.setAttribute('name', citylmnt.id);
+                svg.appendChild(citylmnt)
+            }
+        }
         
-        ratio = handleDesiredShape(desiredshape);
+        ratio = handleDesiredShape(desiredshape, 1, cities);
     } else {
         let allCounties = new XMLHttpRequest();
         allCounties.open("GET", imageOrigin, false);
@@ -150,7 +169,7 @@ function getCountyImage(id = '', num, forceNoRotating=false) {
     }
 }
 
-function handleDesiredShape(thisPath, imgRatio = 1) {
+function handleDesiredShape(thisPath, imgRatio = 1, cities = false) {
     if (Round === 0) {
         Solution = thisPath.id;
         solutionText = replaceSpecialCharacters(Solution, true);
@@ -166,9 +185,21 @@ function handleDesiredShape(thisPath, imgRatio = 1) {
         metaData.width = 120;
     }
     let biggerSize = Math.sqrt(metaData.width ** 2 + metaData.height ** 2);
+    if (cities) {
+        document.querySelectorAll('#mainImage > svg > circle').forEach((l) => {
+            l.setAttribute('cx', parseFloat(l.getAttribute('cx')) - metaData.x * imgRatio);
+            l.setAttribute('cy', parseFloat(l.getAttribute('cy')) - metaData.y * imgRatio);
+            l.style.display = "none";
+        });
+    }
     thisPath.setAttribute("d", movePath(thisPath.getAttribute("d"), 0 - metaData.x * imgRatio, 0 - metaData.y * imgRatio));
     let ratio = (Math.floor((180 / biggerSize) * 100000) / 100000).toString();
     thisPath.style.transform = `scale(${ratio})`;
+    if (cities) {
+        document.querySelectorAll('#mainImage > svg > circle').forEach((l) => {
+            l.style.transform = `scale(${ratio}`;
+        });
+    }
     thisPath.style.stroke = "";
     thisPath.style.strokeWidth = "";
 
@@ -232,7 +263,12 @@ function isPointInPath(x, y, path) {
         } catch(e) {
             svg = findFirstParentOfType(path, 'svg');
         }
-        let pointObj = svg.createSVGPoint();
+        let pointObj 
+        try {
+            pointObj = svg.createSVGPoint();
+        } catch {
+            return "SVG Point is not supported.";
+        }
         pointObj.x = x;
         pointObj.y = y;
         isPointInFill = path.isPointInStroke(pointObj);
@@ -253,7 +289,7 @@ function removeRotation(notForEver) {
 }
 
 // Move path (having only relatively set curve commands)
-function movePath(path, dx, dy, newx, newy) {
+function movePath(path = "" /* path data */, dx = 0, dy = 0, newx, newy) {
     let char = 2;
     let origCoordinates = ['', ''];
     for (let coo=0; coo<2; coo++) {
@@ -367,7 +403,7 @@ function absToRel(path = new String()) {
         initialmove = false;
     }
 
-    // CONSTRUCTION OF NEW PATH DESCRIPTION
+    // CONSTRUCTION OF NEW PATH DATA
     let newpath = '';
     let i = 0;
     while (i < pathCoordinates.length) {
@@ -391,8 +427,11 @@ function absToRel(path = new String()) {
     return newpath;
 }
 
-// Function to follow through a path and collect its data
-function trackPath(path = new String(), compare = new Object(), path0 = new String(), stillGetSizeData = false, debug=false) {
+// Function, originally to follow through a path and collect its position data
+// though it's also capable of comparing two paths, and finding the closest point of the first path to the second one (if the second one is not given, it only collects the data)
+// the function is also called in the comparing process, when we go through the first path's points, and measure the distance and direction with the same function (this) of the closest point on the other path
+// since the function could be also used to measure the dist and dir between a given point and its closest one on a path
+function trackPath(path = new String(), compare = new Object(), path0 = new String(), stillGetSizeData = false, debug = false, deeptrack = false, curveRes = 0.1) {
     let minx=0, miny=0, maxx=0, maxy=0, x=0, y=0, x0=0, y0=0, x1=0, y1=0, x2=0, y2=0, x3=0, y3=0, i=0, char=0, t = 0, dist=0, mindist=-1, dir=0;
     let command = "";
     let origCoordinates = Array(8).fill('');
@@ -428,6 +467,7 @@ function trackPath(path = new String(), compare = new Object(), path0 = new Stri
             }
         }
         if ("cqlvh".includes(command)) { // That means, a curve comes
+            // Get curve data (type, coordinates)
             origCoordinates[2] = '0';
             origCoordinates[3] = '0';
             let type = ((command === 'c') ? "cubic" : ((command === 'q') ? "quadratic" : "linear")); // Here are the different types of curves to be used
@@ -443,7 +483,8 @@ function trackPath(path = new String(), compare = new Object(), path0 = new Stri
             }
             origCoordinates[6] = origCoordinates[endPos - ((endPos === 3) ? 1 : 2)];
             origCoordinates[7] = origCoordinates[endPos - ((endPos === 3) ? 0 : 1)];
-            // Tracking curve
+
+            // Tracking curve (it tracks the curve between to points too)
             x0 = parseFloat(origCoordinates[0]);
             y0 = parseFloat(origCoordinates[1]);
             x1 = x0 + parseFloat(origCoordinates[2]);
@@ -457,7 +498,7 @@ function trackPath(path = new String(), compare = new Object(), path0 = new Stri
                 }
             }
             t = 0;
-            if (path0 != "") {
+            if (path0 != "") { // If we should compare two paths, we measure the distance and dir between the closest point on the other Path to the (x0, y0) point (start of the curve)
                 if (mindist !== 0) { // If minimum distance found for sure (neighbouring territories), no need to check other points, only to get the dimensions of the examined territory
                     dist = trackPath(path0, {"x": x0,"y": y0}, "");
                     if (mindist === -1 || dist["closest-point"] < mindist) {
@@ -466,7 +507,7 @@ function trackPath(path = new String(), compare = new Object(), path0 = new Stri
                     }
                 }
             }
-            if (path0 == "" || stillGetSizeData) {
+            if (path0 == "" || stillGetSizeData || deeptrack) {
                 if (compare.x != undefined) {
                     dist = distanceOf(x0, y0, compare.x, compare.y);
                     if (mindist === -1 || dist < mindist) {
@@ -483,17 +524,27 @@ function trackPath(path = new String(), compare = new Object(), path0 = new Stri
                         y = (1-t)*y0 + t*y1;
                     } else if (type === "quadratic") {
                         x = ((1-t)**2)*x0 + 2*(1-t)*t*x1 + (t**2)*x2;
-                        x = ((1-t)**2)*y0 + 2*(1-t)*t*y1 + (t**2)*y2;
+                        y = ((1-t)**2)*y0 + 2*(1-t)*t*y1 + (t**2)*y2;
                     } else {
                         x = ((1-t)**3)*x0 + 3*((1-t)**2)*t*x1 + 3*(1-t)*(t**2)*x2 + (t**3)*x3;
                         y = ((1-t)**3)*y0 + 3*((1-t)**2)*t*y1 + 3*(1-t)*(t**2)*y2 + (t**3)*y3;
                     }
-                    if (compare.x != undefined) {
-                        dist = distanceOf(compare.x, compare.y, x0, y0);
+                    if (path0 != "" && deeptrack) { // If we should check distance measured from points on the curve (current: (x, y)), here we do it
+                        if (mindist !== 0) { // If not minimum distance already found
+                            dist = trackPath(path0, {"x": x,"y": y}, "", false, false, false, curveRes);
+                            if (debug) console.log(x, y, dist);
+                            if (dist["closest-point"] < mindist) {
+                                mindist = dist["closest-point"];
+                                dir = dist["dir-of-borderpoints"];
+                            }
+                        }
+                    } else if (compare.x != undefined) {
+                        dist = distanceOf(compare.x, compare.y, x, y);
                         if (dist < mindist) {
                             mindist = dist;
                         }
-                    } else {
+                    }
+                    if ((compare.x == undefined && path0 == "") || stillGetSizeData) {
                         if(x < minx || i === 1) {
                             minx = x;
                         }
@@ -507,7 +558,7 @@ function trackPath(path = new String(), compare = new Object(), path0 = new Stri
                             maxy = y;
                         }
                     }
-                    t += 0.1;
+                    t += curveRes;
                 }
             }
             origCoordinates[0] = (x0 + parseFloat(origCoordinates[6])).toString();
@@ -531,20 +582,24 @@ function trackPath(path = new String(), compare = new Object(), path0 = new Stri
     return returnWith;
 }
 
-// For accuracy calculations, and for two rounds (it also calculates the neighbouring territories)
+// It gets the furthest territory from the solution and it also calculates the neighbouring territories
+// for accuracy calculations, and for the second and third rounds
 function getFurthest() {
     let furthestCounty = "";
     let furthestDist = 0;
     let AllCountyNames = document.querySelectorAll('#mapTemplate > svg > g > path');
     let tempDist;
-    let tempData;
-    /* Legacy
-    if (CountyList.length < closestTerritories.length) {
-        closestTerritories = Array(CountyList.length);
-    }*/
+    let tempData, tempData2;
     let tempClosests = new Array();
     for (let examinedCounty of AllCountyNames) {
-        tempData = trackPath(absToRel(examinedCounty.getAttribute('d')), {}, solutionPath, true);
+        // track the examined path if it's a neighbour of the solution with a low resulation as a first probation
+        tempData = trackPath(absToRel(examinedCounty.getAttribute('d')), {}, solutionPath, true, false, false, 0.4);
+        if (tempData["closest-border"] >= 1 && tempData["closest-border"] <= 10) {
+            // if the distance is small, check again with a higher resolution and deeptrack
+            tempData2 = trackPath(absToRel(examinedCounty.getAttribute('d')), {}, solutionPath, false, false, true, 0.1);
+            tempData["closest-border"] = tempData2["closest-border"];
+            tempData["dir"] = tempData2["dir"];
+        }
         if (examinedCounty.id == Solution) {
             tempDist = 0;
         } else {
@@ -557,16 +612,6 @@ function getFurthest() {
                 furthestCounty = examinedCounty.id;
             }
         }
-        /*Legacy
-        for (let i = 0; i < tempClosests.length;i++) {
-            if (tempClosests[i] == null || tempClosests[i] === NaN || tempClosests[i] === '' || tempClosests[i].dist > tempDist) {
-                tempClosests = insertToArray(tempClosests, {"name": examinedCounty.id, "dist": tempDist}, i);
-                if (tempClosests.length > closestTerritories.length) {
-                    tempClosests.pop();
-                }
-                break;
-            }
-        }*/
     }
     closestTerritories = tempClosests;
     return {"name": furthestCounty, "dist": furthestDist};
@@ -575,10 +620,17 @@ function getFurthest() {
 function getNeighbours() { // Legacy
     let path1, pathdata = {};
     let path0 = solutionPath;
+    let allTerritories = document.querySelectorAll('#mapTemplate > svg > g > path');
+    closestTerritories = [];
+    allTerritories.forEach((territory) => {
+        closestTerritories.push({"name": territory.id, "dist": 2030});
+    });
+
     for (let territory = 0; territory < closestTerritories.length;) {
         if (Solution !== closestTerritories[territory].name) {
             path1 = absToRel(document.querySelector(`#mapTemplate > svg > g > #${closestTerritories[territory].name}`).getAttribute('d'));
-            pathdata = trackPath(path1, {}, path0);
+            pathdata = trackPath(path1, {}, path0, true, false, true);
+            closestTerritories[territory].dist = distanceOf(metaData.midx, metaData.midy, pathdata.midx, pathdata.midy);
         }
         if(pathdata["closest-border"] > 1 || Solution === closestTerritories[territory].name) {
             closestTerritories = removeFromArray(closestTerritories, territory);
@@ -599,7 +651,11 @@ function getImageMetadata() {
         for (let placeholder of placeholders) {
             placeholder.setAttribute('lnph', newPlaceholder);
         }
-        Scale = parseFloat(meta.getAttribute('scale'));
+        if (meta.getAttribute('scale') == null) {
+            Scale = 1;
+        } else {
+            Scale = parseFloat(meta.getAttribute('scale'));
+        }
     } catch (error) {
         console.log('Could not find metadata.');
         console.error(error);

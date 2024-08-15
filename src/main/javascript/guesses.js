@@ -66,8 +66,14 @@ function placeGuessInput() {
     if (guessArea != null) {
         guessArea.remove();
     }
-    let template = document.getElementById('tmpl-guessinput')
-    if (template != null) template = template.content.firstElementChild.cloneNode(true);
+    let template = document.getElementById('tmpl-guessinput');
+    if (template != null) {
+        if (template.content.firstElementChild != null) {
+            template = template.content.firstElementChild.cloneNode(true);
+        } else {
+            template = template.firstElementChild.cloneNode(true);
+        }
+    }
     if (Round === 4) {
         let inp = findFirstChildOfType(template.firstElementChild.firstElementChild, 'input');
         if (inp) inp.setAttribute('lnph', 'ph4');
@@ -259,7 +265,7 @@ function endOfGuessing(win = new Boolean(), guessLine) {
 }
 
 // When finished guessing (either ran out of tries or guessed correctly), the input field is replaced with this thing
-function finishedBottom(template, lose = false, guessLine = undefined) {
+function finishedBottom(template = "", lose = false, guessLine = undefined) {
     if (template == "") {
         template = document.getElementById('tmpl-finish').content.firstElementChild.cloneNode(true);
     }
@@ -341,7 +347,7 @@ function updateWikiLinkOnPage(a = document.querySelector('a[href*="wiki"]')) {
         let wikiname = '';
         if (Round === 2) {
             wikiname = Furthest.name;
-        } else if (Round < 4) {
+        } else if (Round < 4 || Round === 5) {
             wikiname = Solution;
         } else if (Round === 4) {
             if (Language === "hu" || !Capital.includes("(")) {
@@ -414,7 +420,7 @@ function guessAnalisys(myGuess, specialplace) {
                     let guessPath = document.querySelector("#mapTemplate > svg > g > #" + myGuess);
                     let mainPath = absToRel(document.querySelector("#mapTemplate > svg > g > #" + solution).getAttribute('d'));
                     if (guessPath != undefined) {
-                        otherMetaData[myGuess] = trackPath(absToRel(guessPath.getAttribute('d')), {}, mainPath, true);
+                        otherMetaData[myGuess] = trackPath(absToRel(guessPath.getAttribute('d')), {}, mainPath, true, false, true);
                         console.log(otherMetaData[myGuess])
                     } else {
                         otherMetaData[myGuess] = {midx: 0, midy: 0};

@@ -109,6 +109,9 @@ function placeMainImage() {
                 });
             }
         } catch (error) {console.error(error)}
+    } else if (Round === 5) {
+        placeQuestion('cities-pos');
+        createSolutionImageWithCities('imageToGuess', Solution);
     }
 }
 
@@ -217,7 +220,7 @@ function createGuessImage(id = 'imageToGuess', idx = undefined, onlywrapper = fa
         guessImage.appendChild(span);
     }
     if (!onlywrapper) {
-        getCountyImage(id, idx, (Round === 1 || (Round === 3 && swapCoasAndShapes)));
+        getCountyImage(id, idx, (Round === 1 || (Round === 3 && swapCoasAndShapes)), Round === 5);
         if (hideShape && (Round === 1 || (Round === 3 && swapCoasAndShapes))) {
             findFirstChildOfType(document.getElementById(id), 'svg').style.display = "none";
         }
@@ -325,4 +328,177 @@ function showShapeOfTerritory(shapeId = 'imageToGuess') {
 // removes the the button from the main image area (not to be confused with the one in bottom of the page which shows the help map)
 function removeShowMapButton(parentID = 'mainImage') {
     try {document.querySelector(`#${parentID} > #showmap-button`).remove();} catch {};
+}
+
+// Creates a map of the terrytory
+function createSolutionImageWithCities() {
+    createGuessImage('mainImage', CountyList.indexOf(Solution));
+    document.querySelector('#mainImage > #mainImage').remove();
+    document.querySelector('#mainImage').style.marginBottom = "40px";
+
+    countyCities = [];
+    for (let index = 0; index < Cities.length; index++) {
+        if (Cities[index].county == Solution) {
+            countyCities.push(Cities[index].name);
+        }
+    }
+
+    currentCity = countyCities[OtherGuesses[Round - 1].length];
+    displayAllPinGuesses();
+}
+
+function displayAllCityNames() {
+    document.getElementById('guesses').innerHTML = '';
+    for (let i = 0; i < countyCities.length; i++) {
+        currentCity = countyCities[i];
+        console.log(currentCity)
+        updateCityUnderGuessing(true);
+    }
+    document.querySelectorAll('#mainImage > svg > circle').forEach((circle) => {
+        circle.style.display = "block";
+    });
+}
+
+function addGuessCircle(SVGGroup, x, y) {
+    let newcircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    newcircle.setAttribute('cx', x);
+    newcircle.setAttribute('cy', y);
+    newcircle.setAttribute('r', pinCorrectSize);
+    newcircle.setAttribute('fill', 'none');
+    newcircle.setAttribute('stroke', 'var(--main-red)');
+    newcircle.setAttribute('stroke-width', '5px');
+    newcircle.setAttribute('name', currentCity);
+    newcircle.id = "pinguess-" + (OtherGuesses[Round - 1].length + 1).toString();
+    newcircle.title = currentCity;
+    SVGGroup.appendChild(newcircle);
+    return newcircle;
+}
+
+function displayAllPinGuesses() {
+    let cityobj;
+    for (let i = 0; i < OtherGuesses[Round - 1].length; i++) {
+        cityobj = OtherGuesses[Round - 1][i];
+        let newcircle = addGuessCircle(document.getElementById('mainImage').firstElementChild.firstElementChild, cityobj.x, cityobj.y);
+        if (cityobj.correct) {
+            newcircle.setAttribute("stroke", "var(--main-green");
+        }
+    }
+}
+
+function placePins() {
+    document.getElementById("guesses").innerHTML = '';
+    let SVGLMNT = document.getElementById('mainImage').firstElementChild;
+    let SVGGroup = SVGLMNT.firstElementChild;
+    let SVGPath = SVGGroup.firstElementChild;
+    SVGLMNT.style.transform = "scale(1.5)";
+    SVGLMNT.style.marginTop = "20px";
+    if (finishedRounds[Round]) {
+        displayAllCityNames();
+        displayAllPinGuesses();
+    } else {
+        updateCityUnderGuessing();
+        SVGPath.addEventListener('mouseover', function(event) {
+            let circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', event.offsetX);
+            circle.setAttribute('cy', event.offsetY);
+            circle.setAttribute('r', pinCorrectSize);
+            circle.setAttribute('fill', 'var(--main-bg)');
+            circle.style.opacity = 0.8;
+            if (parseInt(SVGGroup.id) == NaN || SVGGroup.id == 'NaN' || SVGGroup.id == undefined) {
+                SVGGroup.id = '1';
+            } else {
+                SVGGroup.id = parseInt(SVGGroup.id) + 1;
+            }
+            circle.id = SVGGroup.id;
+            SVGGroup.appendChild(circle);
+            stampAndWait(SVGLMNT, circle);
+            circle.addEventListener('mouseout', function() {
+                if (!isPointInPath(event.offsetX, event.offsetY, SVGPath)) {
+                    circle.remove();
+                    SVGGroup.id = '';
+                }
+            });
+            circle.addEventListener('click', () => {
+                addGuessCircle(SVGGroup, event.offsetX, event.offsetY)
+                OtherGuesses[Round - 1].push({name: currentCity, x: event.offsetX, y: event.offsetY})
+                evaluatePinPlace()
+                if (OtherGuesses[Round - 1].length === countyCities.length) {
+                    Won = true;
+                    OtherGuesses[Round - 1].forEach(element => {
+                        if (!element.correct) {
+                            Won = false;
+                        }
+                    });
+                    finishedBottom("", !Won);
+                    let newsvg = SVGLMNT.cloneNode(true);
+                    document.getElementById('mainImage').replaceChild(newsvg, SVGLMNT);
+                    try {document.querySelector('#mainImage > svg > g > circle[style*="opacity"]').remove();} catch {}
+                    while (finishedRounds.length < Round + 1) {
+                        finishedRounds.push(false);
+                    }
+                    if (Won) {
+                        finishedRounds[Round] = "won";
+                    } else {
+                        finishedRounds[Round] = "lost";
+                    }
+                    localisation();
+                    buttonEventListeners("show-map");
+                    displayAllCityNames();
+                } else {
+                    currentCity = countyCities[OtherGuesses[Round - 1].length];
+                    updateCityUnderGuessing();
+                }
+            });
+        });
+    }
+}
+
+function evaluatePinPlace(correctthreshold = pinCorrectSize) {
+    let cityobj = OtherGuesses[Round - 1][OtherGuesses[Round - 1].length - 1];
+    let correctcity;
+    try {
+        correctcity = document.querySelector('#mainImage > svg > circle#' + cityobj.name);
+    } catch {
+        correctcity = document.getElementsByName(cityobj.name);
+        let goodnum = 0;
+        for (let i = 0; i < correctcity.length; i++) {
+            if ((correctcity[i].nodeName.toLowerCase() === "circle") && (correctcity[i].id === cityobj.name)) {
+                console.log(correctcity[i].getAttribute('name'))
+                goodnum = i;
+            }
+        }
+        correctcity = correctcity[goodnum];
+    }
+    let correctcitysscale = parseFloat(correctcity.style.transform.match(/scale\(([0-9.]*)/)[1]);
+    console.log(correctcitysscale)
+    let distfromcorrect = distanceOf(cityobj.x, cityobj.y, correctcity.getAttribute('cx') * correctcitysscale, correctcity.getAttribute('cy') * correctcitysscale);
+    console.log(cityobj.x, cityobj.y, correctcity.getAttribute('cx') * correctcitysscale, correctcity.getAttribute('cy') * correctcitysscale, distfromcorrect)
+    let pin = document.getElementById("pinguess-" + OtherGuesses[Round - 1].length.toString());
+    if (distfromcorrect <= correctthreshold) {
+        OtherGuesses[Round - 1][OtherGuesses[Round - 1].length - 1].correct = true;
+        pin.setAttribute('stroke', 'var(--main-green)');
+    } else {
+        OtherGuesses[Round - 1][OtherGuesses[Round - 1].length - 1].correct = false;
+    }
+}
+
+function stampAndWait(SVGLMNT, circle) {
+    setTimeout(() => {
+        if (parseInt(SVGLMNT.firstElementChild.id) !== parseInt(circle.id)) {
+            circle.remove();
+        } else {
+            stampAndWait(SVGLMNT, circle)
+        }
+    }, 200);
+}
+
+function updateCityUnderGuessing(newone = false) {
+    cityLabel = document.querySelector('#game > #guesses > #citylabel');
+    if (cityLabel == null || newone) {
+        cityLabel = document.createElement('div');
+        cityLabel.className = "guesslabel";
+        cityLabel.id = "citylabel";
+        document.querySelector('#game > #guesses').appendChild(cityLabel);
+    }
+    cityLabel.innerHTML = replaceSpecialCharacters(currentCity, true);
 }

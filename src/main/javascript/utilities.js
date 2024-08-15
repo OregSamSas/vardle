@@ -24,6 +24,7 @@ function addAnimatedConfetti(inpObj = {
         });
     } catch {
         console.error("Confetti function not found. Need to include the confetti library to use this function.");
+        return false;
     }
 }
 
@@ -214,7 +215,7 @@ function isChar(c) {
 // Function to beautify high distance values 
 // (It cuts further digits than one-tenthousandth and adds spaces to the thousands)
 function insertSpacesToNum(int) {
-    if (!parseFloat(int) && !int === 0) {
+    if (isNaN(int)) {
         return "NaN";
     } else {
         if (parseFloat(int) < 0) {
@@ -417,7 +418,8 @@ function compressNum(num, depth = 0) {
 
 // The getIndexByProperty function is used to find the index of an item in an array based on a specific property name and value. 
 // If either of them is not provided, it still returns with the idx of the object which has the provided key among its propertys or given value among its values resp.
-function getIndexByProperty(array, propertyName, propertyValue = undefined) {
+function getIndexByProperty(array, propertyName, propertyValue = undefined, all = false) {
+    let returnList  = [];
     if (typeof propertyName === 'object') {
         if (typeof propertyValue !== 'object') {
             propertyValue = new Array(propertyName.length).fill(propertyValue);
@@ -466,11 +468,19 @@ function getIndexByProperty(array, propertyName, propertyValue = undefined) {
                 }
             }
             if (isCorrectItem) {
-                return i;
+                if (all) {
+                    returnList.push(i);
+                } else {
+                    return i;
+                }
             }
         }
     }
-    return -1;
+    if (returnList.length === 0) {
+        return -1;
+    } else {
+        return returnList;
+    }
 }
 
 // The getWikipediaLink function is used to get the Wikipedia link of a specific county based on the provided county name and language.
@@ -493,7 +503,7 @@ function getWikipediaLink(forCounty, lang = Language, onlyArticleName = false) {
                 endings = {en: "_Voivodeship", hu: "_vajdaság"}
             } else {
                 if (Round < 4) {
-                    endings = {en: "County", hu: "_vármegye", de: ""};
+                    endings = {en: "_County", hu: "_vármegye", de: ""};
                     beginings = {en: "", hu: "", de: "Komitat_"};
                 }
             }
@@ -504,7 +514,7 @@ function getWikipediaLink(forCounty, lang = Language, onlyArticleName = false) {
         return articleName;
     } else {
         articleName = articleName.replace(/ /gi, '_');
-        return `https://${lang}.wikipedia.org/wiki/${articleName}${(Round === 1) ? `#${translationPiece('geography')}` : ""}`;
+        return `https://${lang}.wikipedia.org/wiki/${articleName}${(Round === 1) ? `#${translationPiece('geography')}` : ((Round === 5) ? `#${translationPiece('citysect')}` : "")}`;
     }
 }
 
@@ -545,7 +555,7 @@ function getIndependentValue(data) {
 }
 
 // gets a wikipedia page's image that has the key value in its name
-function wikiMediaImageSearch(page, key = "Coa", key2 = "CoA") {
+function wikiMediaImageSearch(page, key = "Coa", key2 = "CoA", key3 = "Coat of arms", key4 = "címer") {
     try {
         let data;
         let wikiXHR = new XMLHttpRequest();
@@ -558,7 +568,8 @@ function wikiMediaImageSearch(page, key = "Coa", key2 = "CoA") {
         console.log(data)
         let img;
         for (img of data) {
-            if (img.title.includes(key) || img.title.includes(key2) || img.title.includes(key.toLowerCase()) ||  img.title.includes(key.toLowerCase())) {
+            if (img.title.includes(key) || img.title.includes(key2) || img.title.includes(key3) || img.title.includes(key4) 
+                || img.title.includes(key.toLowerCase()) ||  img.title.includes(key2.toLowerCase()) || img.title.includes(key3.toLowerCase()) || img.title.includes(key4.toLowerCase())) {
                 break;
             }
         }
