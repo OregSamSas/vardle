@@ -352,7 +352,7 @@ function displayAllCityNames() {
     for (let i = 0; i < countyCities.length; i++) {
         currentCity = countyCities[i];
         console.log(currentCity)
-        updateCityUnderGuessing(true);
+        updateCityUnderGuessing(true, true);
     }
     document.querySelectorAll('#mainImage > svg > circle').forEach((circle) => {
         circle.style.display = "block";
@@ -492,7 +492,7 @@ function stampAndWait(SVGLMNT, circle) {
     }, 200);
 }
 
-function updateCityUnderGuessing(newone = false) {
+function updateCityUnderGuessing(newone = false, clickevent=false) {
     cityLabel = document.querySelector('#game > #guesses > #citylabel');
     if (cityLabel == null || newone) {
         cityLabel = document.createElement('div');
@@ -501,4 +501,28 @@ function updateCityUnderGuessing(newone = false) {
         document.querySelector('#game > #guesses').appendChild(cityLabel);
     }
     cityLabel.innerHTML = replaceSpecialCharacters(currentCity, true);
+    if (clickevent) {
+        cityLabel.addEventListener('click', (e) => {
+            selectedCity = countyCities.indexOf(replaceSpecialCharacters(e.target.innerHTML, false));
+            updateGuessLabels();
+        });
+    }
+}
+
+function updateGuessLabels() {
+    allcitylabels = document.querySelectorAll('#game > #guesses > .guesslabel');
+    allcitylabels.forEach((label) => {
+        if (replaceSpecialCharacters(label.innerHTML) === countyCities[selectedCity]) {
+            label.style.border = "2px solid var(--text)";
+        } else {
+            label.style.border = "none";
+        }
+    });
+    allcitypos = document.querySelectorAll('#mainImage > svg > circle');
+    allcitypos.forEach((circle) => {
+        circle.classList.remove('flash');
+        if (circle.getAttribute('name') === countyCities[selectedCity]) {
+            circle.classList.add('flash');
+        }
+    });
 }

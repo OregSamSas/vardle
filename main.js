@@ -5,7 +5,7 @@ let data = {"directions": "0", "wikilinks": "1"};
 dataXHR = new XMLHttpRequest();
 dataXHR.open("GET","data/data.json",false);
 // Following line is just to be on the safe side
-dataXHR.overrideMimeType("application/json");
+dataXHR.overrideMimeType("application/pdf");
 dataXHR.onload = (e) => {
     data = JSON.parse(dataXHR.response);
 };
@@ -63,6 +63,7 @@ let Capital = "";
 let currentCity = "";
 let countyCities = [];
 let pinCorrectSize = 16;
+let selectedCity = 0;
 
 // Help map variables
 let mapZoom = 1;
@@ -79,8 +80,8 @@ function initialWork() {
 
     // Which map to play with
     loadMapFromURL();
-    if (gameMap === "Original" || gameMap === "Hungary") {
-        numberOfRounds = 4 + (gameMap === "Original") * 2;
+    if (gameMap === "Original" || gameMap === "Hungary" || gameMap === "Germany") {
+        numberOfRounds = 4 + (gameMap === "Original" || gameMap === "Germany") * 2;
     } else {
         swapCoasAndShapes = false;
         data.settings.gameplay.pop();
@@ -141,6 +142,11 @@ function updateRounds(oldr, newr) {
     }
 
     let maincontent = document.getElementById('midContent');
+    if (oldr === 5 && newr !== 5) {
+        document.getElementById('guesses').className = "grid grid-cols-7 gap-1 text-center lines";
+    } else if (newr === 5) {
+        document.getElementById('guesses').className = "flex gap-2 mb-3 mt-4 justify-center items-center flex-wrap no-translate";
+    }
     if (oldr === 1 || oldr === 3 || oldr === 2 || oldr === 4 || oldr === 5) {
         while (maincontent.firstElementChild.id !== "mainImage") {
             maincontent.firstElementChild.remove();
@@ -180,7 +186,9 @@ function updateRounds(oldr, newr) {
             guessInpAndGiveUpBtn();
         }
     } else if (Round === 3) {
-        if (OtherGuesses[Round-1].length > 0) {
+        if (gameMap === "Germany") {
+            finishedBottom(finishTemplate);
+        } else if (OtherGuesses[Round-1].length > 0) {
             redesignCoaButtons(false);
         }
     } else if (Round === 4) {

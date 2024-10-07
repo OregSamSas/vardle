@@ -10,6 +10,7 @@
     --text3: ;
     --border: ;
     --main-green: ;
+    --city-bg: ;
     --main-red: rgb(204, 0, 0);
     --toastify-color-info: #3498db;
     --toastify-color-success: #07bc0c;
@@ -512,5 +513,29 @@ circle[capitalof] {
     background: var(--button-bg);
     border-radius: 10px;
     padding: 10px;
+}
 
+#mainImage > svg > circle {
+    fill: var(--city-bg);
+}
+#mainImage > svg > circle[capitalof] {
+    stroke: var(--back-bg)
+}
+
+@keyframes flashing {
+    0% { filter: brightness(10000%); }
+    10% { filter: brightness(400%); }
+    20% { filter: brightness(100%); }
+    30% { filter: brightness(400%); }
+    40% { filter: brightness(10000%); }
+    50% { filter: brightness(400%); }
+    60% { filter: brightness(1000%); }
+    70% { filter: brightness(400%); }
+    80% { filter: brightness(10000%); }
+    90% { filter: brightness(400%); }
+    100% { filter: brightness(100%); }
+}
+
+.flash {
+    animation: flashing 1s;
 }

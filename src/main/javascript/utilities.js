@@ -240,6 +240,11 @@ function insertSpacesToNum(int) {
 // Function for making a string to TitleCase (all initial letters are capitalised)
 // Modified version of https://www.freecodecamp.org/news/three-ways-to-title-case-a-sentence-in-javascript-676a9175eb27/
 function titleCase(str = "") {
+    let replacedemdashes = [];
+    while (str.includes('-') && str.includes('–')) {
+        replacedemdashes.push(str.indexOf('–'));
+        str = str.slice(0, replacedemdashes[replacedemdashes.length - 1]) + '-' + str.slice(replacedemdashes[replacedemdashes.length - 1]+1, str.length);
+    }
     str = str.toLowerCase();
     str = str.split(' ');
     for (let i = 0; i < str.length; i++) {
@@ -269,7 +274,7 @@ function titleCase(str = "") {
             index += splitWithHypen.length - 1; // Skip the elements that were added
         }
         for(let j = 0; j < str[i].length; j++) {
-            if (str[i][j].toLowerCase() === "és" || str[i][j].toLocaleLowerCase() === "and") { // Do not capitalise conjunctive words (és = and)
+            if (["and", "és", "an", "am", "die", "der", "das", "im"].includes(str[i][j].toLowerCase())) { // Do not capitalise conjunctive words (és = and)
                 str[i][j] = str[i][j].toLowerCase();
             } else {
                 if (str[i][j].charAt(1) === "'" && (str[i][j].charAt(0).toLowerCase() === 'd' || str[i][j].charAt(0) === 'l')) {
@@ -291,6 +296,9 @@ function titleCase(str = "") {
         str[i] = str[i].replace(/\((–|-)/g, '('); // No need to have emdash or hyphen after "("
     }
     str = str.join(' ');
+    replacedemdashes.forEach(pos => {
+        str = str.slice(0, pos) + '–' + str.slice(pos+1, str.length);
+    });
     return str;
 }
 
@@ -320,7 +328,7 @@ function replaceAbbreviations(txt = "") {
                 .replace(/ pdr/gi, " People's Democratic Republic")
                 .replace(/pdr\./gi, "People's Democratic Republic of")
                 .replace(/is\./gi, 'Islands')
-                .replace(/st\./gi, 'Saint')
+                .replace(/st\./gi, ((gameMap == "Germany") ? 'Sankt' : 'Saint'))
                 .replace(/eq\./gi, 'Equatorial')
                 .replace(/herz\./gi, 'Herzegovina')
                 .replace(/vin\./gi, 'Vincent')
