@@ -230,6 +230,25 @@
                 "Szolnok": "https://upload.wikimedia.org/wikipedia/commons/6/6b/HUN_Szolnok_C%C3%ADmer.svg",
                 "Szombathely": "https://upload.wikimedia.org/wikipedia/commons/1/1e/HUN_Szombathely_C%C3%ADmer.svg",
                 "Tatabánya": "https://upload.wikimedia.org/wikipedia/commons/b/bf/HUN_Tatab%C3%A1nya_COA.jpg"
+            },
+            "germany":
+            {
+                "Baden-Württemberg": "https://upload.wikimedia.org/wikipedia/commons/0/0f/Lesser_coat_of_arms_of_Baden-W%C3%BCrttemberg.svg",
+                "Bayern": "https://upload.wikimedia.org/wikipedia/commons/d/d2/Bayern_Wappen.svg",
+                "Berlin": "https://upload.wikimedia.org/wikipedia/commons/8/8c/DEU_Berlin_COA.svg",
+                "Sachsen": "https://upload.wikimedia.org/wikipedia/commons/5/5f/Coat_of_arms_of_Saxony.svg",
+                "Hessen": "https://upload.wikimedia.org/wikipedia/commons/a/a7/Coat_of_arms_of_Landgraviate_Hesse_-_small.svg",
+                "Mecklenburg-Vorpommern": "https://upload.wikimedia.org/wikipedia/commons/7/7c/Coat_of_arms_of_Mecklenburg-Western_Pomerania_%28small%29.svg",
+                "Niedersachsen": "https://upload.wikimedia.org/wikipedia/commons/0/01/Wappen_von_Niedersachsen.svg",
+                "Nordrhein-Westfalen": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Coat_of_arms_of_North_Rhine-Westphalia.svg",
+                "Rheinland-Pfalz": "https://upload.wikimedia.org/wikipedia/commons/8/89/Coat_of_arms_of_Rhineland-Palatinate.svg",
+                "Saarland": "https://upload.wikimedia.org/wikipedia/commons/8/8e/Wappen_des_Saarlands.svg",
+                "Sachsen-Anhalt": "https://upload.wikimedia.org/wikipedia/commons/5/53/Wappen_Sachsen-Anhalt.svg",
+                "Schleswig-Holstein": "https://upload.wikimedia.org/wikipedia/commons/0/02/DEU_Schleswig-Holstein_COA.svg",
+                "Thüringen": "https://upload.wikimedia.org/wikipedia/commons/0/08/Coat_of_arms_of_Thuringia.svg",
+                "Hamburg": "https://upload.wikimedia.org/wikipedia/commons/5/5d/DEU_Hamburg_COA.svg",
+                "Bremen": "https://upload.wikimedia.org/wikipedia/commons/6/64/Bremen_Wappen%28Mittel%29.svg",
+                "Brandenburg": "https://upload.wikimedia.org/wikipedia/commons/a/a2/DEU_Brandenburg_COA.svg"
             }
         },
     "themes": [
@@ -314,7 +333,8 @@
         "anal2.3":   {"en": "", "hu": "&nbsp;volt", "de": ""},
         "anal5.0":   {"en": "You guessed all the positions of the cities. Congrats!", "hu": "Helyesen jelölted meg minden város helyét. Gratulálok!", "de": "Alle Lage von Städten wurde richtig bezeichnet. Ich gratuliere Ihnen!"},
         "anal5.1":   {"en": "You placed", "hu": "", "de": "Sie haben"},
-        "anal5.2":   {"en": "citi(es) correctly", "hu": "várost helyesen jelöltél meg", "de": "Städt(e) richtig bezeichnet."},
+        "anal5.2":   {"en": "citi(es) correctly", "hu": "várost", "de": "Städt(e)"},
+        "anal5.3":   {"en": "correctly.", "hu": "helyesen jelöltél meg.", "de": "richtig bezeichnet."},
         "win":       {"en": "win!!!", "hu": "nyertél!!!", "de": "gewonnen!!!"},
         "lose":      {"en": "&nbsp;Oh, no!", "hu": "&nbsp;Ó, Jaj, hoppá!", "de": "&nbsp;Wie schade!"},
         "already":   {"en": "Already guessed.", "hu": "Már tippelted.", "de": "Bereits geraten."},

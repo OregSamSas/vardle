@@ -261,7 +261,7 @@ body {
     color: var(--main-green);
 }
 .back-green-600 {
-    background-color: var(--main-green);
+    background-color: var(--main-green) !important;
 }
 .fill-green-600 {
     fill: var(--main-green);
@@ -517,9 +517,11 @@ circle[capitalof] {
 
 #mainImage > svg > circle {
     fill: var(--city-bg);
+    stroke: var(--back-bg);
 }
 #mainImage > svg > circle[capitalof] {
-    stroke: var(--back-bg)
+    stroke-width: 5;
+    r: 5;
 }
 
 @keyframes flashing {

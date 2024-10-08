@@ -661,3 +661,33 @@ function getImageMetadata() {
         console.error(error);
     }
 }
+
+function expandSvgArea(svg, newhimod, newlenmod, childelementtypes = ['path'], transformmethod = true) {
+    let oldlen = svg.getAttribute('width');
+    let oldhi = svg.getAttribute('height');
+    svg.setAttribute('width', oldlen * newlenmod);
+    svg.setAttribute('height', oldhi * newhimod);
+    childelementtypes.forEach((type) => {
+        let allElements = svg.querySelectorAll(type);
+        for (let element of allElements) {
+            let scale = 1;
+            if (transformmethod) {
+                scale = /scale\(([0-9\.]*)\)/.exec(element.style.transform)[1].split(',');
+                scale = scale.map((s) => parseFloat(s));
+                console.log(`scale(${scale[0] * newlenmod}, ${scale[scale.length - 1] * newhimod})`);
+            }
+            if (type === 'circle') {
+                element.setAttribute('cx', parseFloat(element.getAttribute('cx')) + oldlen * (newlenmod - 1) / 2 / scale[0]);
+                element.setAttribute('cy', parseFloat(element.getAttribute('cy')) + oldhi * (newhimod - 1) / 2 / scale[scale.length - 1]);
+            } else if (type === 'rect') {
+                element.setAttribute('x', parseFloat(element.getAttribute('x')) + oldlen * (newlenmod - 1) / 2 / scale[0]);
+                element.setAttribute('y', parseFloat(element.getAttribute('y')) + oldhi * (newhimod - 1) / 2 / scale[scale.length - 1]);
+            } else if (type === 'text') {
+                element.setAttribute('x', parseFloat(element.getAttribute('x')) + oldlen * (newlenmod - 1) / 2 / scale[0]);
+                element.setAttribute('y', parseFloat(element.getAttribute('y')) + oldhi * (newhimod - 1) / 2 / scale[scale.length - 1]);
+            } else if (type === 'path') {
+                element.setAttribute('d', movePath(absToRel(element.getAttribute('d')), oldlen * (newlenmod - 1) / 2 / scale[0], oldhi * (newhimod - 1) / 2 / scale[scale.length - 1]));
+            }
+        }
+    });
+}

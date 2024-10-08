@@ -122,7 +122,7 @@ function createCoaImg(div, name) {
     div.classList.remove('w-full');
     if (name != undefined) {
             img = document.createElement('img');
-            let subpropertyname = (gameMap === "Original") ? 'original' : 'modern';
+            let subpropertyname = (gameMap === "Original") ? 'original' : ((gameMap === "Germany") ? 'germany' : 'modern');
             img.src = data.imglinks[subpropertyname][name];
             img.style = "width:auto;height:180px;";
             img.setAttribute('name', name);
@@ -153,7 +153,7 @@ async function getCoaImages(collectFromWikipedia = false) {
             }
         }
     } else if (numberOfRounds > 3) {
-        let subpropertyname = (gameMap === "Original") ? 'original' : 'modern';
+        let subpropertyname = (gameMap === "Original") ? 'original' : ((gameMap === "Germany") ? 'germany' : 'modern');
         let inserted = 0;
         let name;
         let src;
@@ -336,6 +336,8 @@ function createSolutionImageWithCities() {
     document.querySelector('#mainImage > #mainImage').remove();
     document.querySelector('#mainImage').style.marginBottom = "40px";
 
+    expandSvgArea(document.getElementById('mainImage').firstElementChild, 1.5, 1.5, ['path', 'circle']);
+
     countyCities = [];
     for (let index = 0; index < Cities.length; index++) {
         if (Cities[index].county == Solution) {
@@ -352,7 +354,7 @@ function displayAllCityNames() {
     for (let i = 0; i < countyCities.length; i++) {
         currentCity = countyCities[i];
         console.log(currentCity)
-        updateCityUnderGuessing(true, true);
+        updateCityUnderGuessing(true, true, OtherGuesses[Round - 1][i].correct);
     }
     document.querySelectorAll('#mainImage > svg > circle').forEach((circle) => {
         circle.style.display = "block";
@@ -492,11 +494,11 @@ function stampAndWait(SVGLMNT, circle) {
     }, 200);
 }
 
-function updateCityUnderGuessing(newone = false, clickevent=false) {
+function updateCityUnderGuessing(newone = false, clickevent=false, correct=false) {
     cityLabel = document.querySelector('#game > #guesses > #citylabel');
     if (cityLabel == null || newone) {
         cityLabel = document.createElement('div');
-        cityLabel.className = "guesslabel";
+        cityLabel.className = "guesslabel font-bold" + ((clickevent) ? " cursor-pointer" : "") + ((correct) ? " back-green-600" : "");
         cityLabel.id = "citylabel";
         document.querySelector('#game > #guesses').appendChild(cityLabel);
     }

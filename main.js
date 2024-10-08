@@ -186,7 +186,7 @@ function updateRounds(oldr, newr) {
             guessInpAndGiveUpBtn();
         }
     } else if (Round === 3) {
-        if (gameMap === "Germany") {
+        if (gameMap === "") {
             finishedBottom(finishTemplate);
         } else if (OtherGuesses[Round-1].length > 0) {
             redesignCoaButtons(false);

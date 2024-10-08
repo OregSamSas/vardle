@@ -88,7 +88,7 @@ function localisation() {
                             goodanswers++;
                         }
                     }
-                    finishAreatext = `${translationPiece('anal2.1')}&nbsp;${translationPiece('anal5.1')}&nbsp;${goodanswers}&nbsp;${translationPiece('anal5.2')}`;
+                    finishAreatext = `${translationPiece('anal2.1')}<br>&nbsp;${translationPiece('anal5.1')}&nbsp;${goodanswers}&nbsp;${translationPiece('anal5.2')}&nbsp;(<b>${Math.round(goodanswers / countyCities.length * 100)}%</b>)&nbsp;${translationPiece('anal5.3')}.`;
                 } else {
                     finishAreatext = `${translationPiece('anal2.1')}&nbsp;`;
                 }
