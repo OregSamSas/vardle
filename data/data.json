@@ -334,7 +334,7 @@
         "anal5.0":   {"en": "You guessed all the positions of the cities. Congrats!", "hu": "Helyesen jelölted meg minden város helyét. Gratulálok!", "de": "Alle Lage von Städten wurde richtig bezeichnet. Ich gratuliere Ihnen!"},
         "anal5.1":   {"en": "You placed", "hu": "", "de": "Sie haben"},
         "anal5.2":   {"en": "citi(es) correctly", "hu": "várost", "de": "Städt(e)"},
-        "anal5.3":   {"en": "correctly.", "hu": "helyesen jelöltél meg.", "de": "richtig bezeichnet."},
+        "anal5.3":   {"en": "correctly", "hu": "helyesen jelöltél meg", "de": "richtig bezeichnet"},
         "win":       {"en": "win!!!", "hu": "nyertél!!!", "de": "gewonnen!!!"},
         "lose":      {"en": "&nbsp;Oh, no!", "hu": "&nbsp;Ó, Jaj, hoppá!", "de": "&nbsp;Wie schade!"},
         "already":   {"en": "Already guessed.", "hu": "Már tippelted.", "de": "Bereits geraten."},

@@ -59,7 +59,7 @@ let showImageButtonRemoved = Array(numberOfRounds).fill(false);
 let showImageButtonsRemoved = [];
 let swapCoasAndShapes = false;
 let Cities = [];
-let Capital = "";
+let Capital = ""; // The **id name** (needs to be formatted when printed) of the capital city of the territory to be guessed
 let currentCity = "";
 let countyCities = [];
 let pinCorrectSize = 16;
@@ -80,8 +80,8 @@ function initialWork() {
 
     // Which map to play with
     loadMapFromURL();
-    if (gameMap === "Original" || gameMap === "Hungary" || gameMap === "Germany") {
-        numberOfRounds = 4 + (gameMap === "Original" || gameMap === "Germany") * 2;
+    if (gameMap === "Original" || gameMap === "Hungary" || gameMap === "Germany" || gameMap === "Italy") {
+        numberOfRounds = 4 + (gameMap === "Original" || gameMap === "Germany" || gameMap === "Italy") * 2;
     } else {
         swapCoasAndShapes = false;
         data.settings.gameplay.pop();
@@ -132,6 +132,12 @@ function updateRounds(oldr, newr) {
             if (lmnt != null) {
                 lmnt.remove();
             }
+        }
+    }
+
+    if (finishedRounds.length < newr) {
+        for (let i = finishedRounds.length; i < newr; i++) {
+            finishedRounds.push(false);
         }
     }
 

@@ -8,6 +8,7 @@ function handleGuess(guessInput = document.querySelector('input[aria-autocomplet
     if (gameMap === "Budapest" && !isNaN(guess) && guess != "") {
         guess = arabicToRoman(guess) + ".";
     }
+    console.log(Cities)
     guess = replaceSpecialCharacters(guess);
     if(guess != '') {
         if (Round === 0) {

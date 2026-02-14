@@ -227,6 +227,7 @@ function getCityData() {
     let cityObject = {};
     if (allCities.length !== 0) {
         allCities.forEach((city) => {
+            city.id = replaceSpecialCharacters(city.id, false, false)
             cityObject = {"name": city.id, "x": city.getAttribute('cx'), "y": city.getAttribute('cy'), "capital": city.hasAttribute('capitalof')};
             if (city.hasAttribute('capitalof')) {
                 cityObject.county = city.getAttribute('capitalof');
@@ -235,6 +236,7 @@ function getCityData() {
                 let allPaths = document.querySelectorAll('#mapTemplate > svg > g > path');
                 for (let path of allPaths) {
                     if (isPointInPath(cityObject.x, cityObject.y, path)) {
+                        path.id = replaceSpecialCharacters(path.id, false, false);
                         cityObject.county = path.id;
                         break;
                     }

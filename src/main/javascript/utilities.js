@@ -179,10 +179,10 @@ function replaceSpecialCharacters(text = "", vicaversa = false, nocasechange = f
 
     if (vicaversa) {
         // Decode (replace special characters with their original form)
-        return text.replace(/\_/g, "'").replace(/–/g, ' ').replace(/°/g, '.');
+        return text.replace(/\_/g, "'").replace(/–/g, ' ').replace(/°/g, '.').replace(/\§(.*?)\§/g, '($1)');
     } else {
         // Encode (replace special characters with their encoded form)
-        return text.replace(/\'/g, '_').replace(/ /g, '–').replace(/\./g, '°');
+        return text.replace(/\'/g, '_').replace(/ /g, '–').replace(/\./g, '°').replace(/\(|\)/g, '§');
     }
 }
 
@@ -239,6 +239,7 @@ function insertSpacesToNum(int) {
 
 // Function for making a string to TitleCase (all initial letters are capitalised)
 // Modified version of https://www.freecodecamp.org/news/three-ways-to-title-case-a-sentence-in-javascript-676a9175eb27/
+// TODO: NOT WORKING PERFECTLY!!!
 function titleCase(str = "") {
     let replacedemdashes = [];
     while (str.includes('-') && str.includes('–')) {
